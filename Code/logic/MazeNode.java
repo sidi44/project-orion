@@ -1,40 +1,44 @@
 package logic;
 
-import java.util.ArrayList;
-import java.util.List;
+import geometry.PointXY;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MazeNode {
 	
-	private PointXY position;
+	private Map<PointXY, MazeNode> neighbours;
 	private boolean pill;
-	private List<MazeNode> neighbours;
-	
-	public MazeNode(PointXY position, boolean pill) {
-		this.position = position;
-		this.pill = pill;
-		neighbours = new ArrayList<MazeNode>();
+
+	public MazeNode() {
+		this.neighbours = new HashMap<PointXY, MazeNode>();
+		this.pill = true;
 	}
 	
-	public PointXY getPosition() {
-		return position;
+	public MazeNode(Map<PointXY, MazeNode> neighbours) {
+		this.neighbours = neighbours;
+	}
+
+	public Map<PointXY, MazeNode> getNeighbours() {
+		return this.neighbours;
 	}
 	
-	public boolean hasPill() {
+	public boolean getPill() {
 		return pill;
 	}
 	
-	public List<MazeNode> getNeighbours() {
-		return neighbours;
+	public void setPill(boolean pill) {
+		this.pill = pill;
 	}
-	
-	public void addNeighbour(MazeNode neighbour) {
-		if (!isNeighbour(neighbour)) {
-			neighbours.add(neighbour);
+
+	public void addNeighbour(PointXY position, MazeNode node) {
+		if (!this.neighbours.containsKey(position)) {
+			this.neighbours.put(position, node);
 		}
 	}
 	
-	public boolean isNeighbour(MazeNode neighbour) {
-		return neighbours.contains(neighbour);
+	public boolean hasNeighbour(PointXY pos) {
+		return neighbours.containsKey(pos);		
 	}
 	
 }

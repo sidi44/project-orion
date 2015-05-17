@@ -1,7 +1,7 @@
-package logic;
+package geometry;
 
 public class Rectangle {
-
+	
 	private int minX;
 	private int minY;
 	private int maxX;
@@ -14,21 +14,20 @@ public class Rectangle {
 		this.maxY = maxY;
 	}
 	
-	
 	public int getMinX() {
-		return minX;
+		return this.minX;
 	}
 	
 	public int getMinY() {
-		return minY;
+		return this.minY;
 	}
 	
 	public int getMaxX() {
-		return maxX;
+		return this.maxX;
 	}
 	
 	public int getMaxY() {
-		return maxY;
+		return this.maxY;
 	}
 	
 }

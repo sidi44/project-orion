@@ -1,43 +1,61 @@
 package logic;
 
+import geometry.PointXY;
+import geometry.Rectangle;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import utils.NumberUtils;
 
 public class Maze {
 
 	private Map<PointXY, MazeNode> nodes;
-	private int rows;
-	private int columns;
-	//private int maxPathLength;
-	
-	public Maze(int rows, int columns, int maxPathLength) {
-		this.rows = rows;
-		this.columns = columns;
-		//this.maxPathLength = maxPathLength;
-		
+	private Rectangle dimensions;
+	private int maxLength;
+
+	public Maze(Rectangle dimensions, int maxLength) {
+		this.dimensions = dimensions;
+		this.maxLength = maxLength;
 		this.nodes = new HashMap<PointXY, MazeNode>();
+		
+		buildMaze();
 	}
-	
+
 	public Rectangle getDimensions() {
-		
-		// This is a lazy implementation for my convenience!
-		// Really, we should probably have a dimensions field variable which 
-		// is initialised to (0, 0, 0, 0) and is updated every time a node is 
-		// added as appropriate.
-		
-		return new Rectangle(0, 0, columns, rows);
+		return this.dimensions;
 	}
-	
+
 	public Map<PointXY, MazeNode> getNodes() {
-		return nodes;
+		return this.nodes;
 	}
 	
-	public void addNode(MazeNode newNode) {
+	public MazeNode getNode(PointXY pos) {
+		return nodes.get(pos);
+	}
+	
+	public boolean withinMaze(PointXY pos) {
+		return NumberUtils.withinLimits(pos.getX(), dimensions.getMinX(), dimensions.getMaxX())
+				&& NumberUtils.withinLimits(pos.getY(), dimensions.getMinY(), dimensions.getMaxY());
+	}
+
+	public void addPath(PointXY p1, PointXY p2) {
+		MazeNode n1 = nodes.get(p1);
+		MazeNode n2 = nodes.get(p2);
+
+		n1.addNeighbour(p2, n2);
+		n2.addNeighbour(p1, n1);
+	}
+	
+	private void buildMaze() {
+		
+	}
+	
+	public void addNode(PointXY pos, MazeNode newNode) {
 		
 		// This is just for my convenience at the moment to quickly build a
 		// dummy maze to test with. 
-		
-		PointXY pos = newNode.getPosition();
+
 		if (!nodes.containsKey(pos)) {
 			nodes.put(pos, newNode);
 		} else {
