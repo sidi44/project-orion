@@ -1,16 +1,25 @@
 package logic;
 
+import geometry.PointXY;
+
 public class Agent {
 
-	private PointXY currentPos;
+	private PointXY position;
 	private Move nextMove;
+	private int id;
 	
-	public Agent(PointXY pos) {
-		currentPos = pos;
+	public Agent(int id, PointXY pos) {
+		this.id = id;
+		this.nextMove = new Move();
+		this.position = pos;
 	}
 	
-	public PointXY getCurrentPos() {
-		return currentPos;
+	public PointXY getPosition() {
+		return position;
+	}
+	
+	public void setPosition(PointXY pos) {
+		position = pos;
 	}
 	
 	public Move getNextMove() {
@@ -19,6 +28,14 @@ public class Agent {
 	
 	public void setNextMove(Move nextMove) {
 		this.nextMove = nextMove;
+	}
+	
+	public void setNextMoveDirection(Direction dir) {
+		nextMove.setDirection(dir);
+	}
+	
+	public int getID() {
+		return id;
 	}
 	
 }

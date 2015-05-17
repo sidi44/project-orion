@@ -3,13 +3,15 @@ package geometry;
 /**
  * Represents an (x, y) co-ordinate.
  * 
+ * This class is immutable.
+ * 
  * @author Martin Wong
- * @version 2015-01-13
+ * @version 2015-05-16
  */
-public class PointXY {
+final public class PointXY {
 	
-	private double x;
-	private double y;
+	final private double x;
+	final private double y;
 	
 	/**
 	 * Creates an instance of PointXY, with co-ordinates (x, y).
@@ -50,35 +52,6 @@ public class PointXY {
 	}
 	
 	/**
-	 * Sets x to the parameter value provided.
-	 * 
-	 * @param x (double)
-	 */
-	public void setX(double x) {
-		this.x = x;
-	}
-	
-	/**
-	 * Sets y to the parameter value provided.
-	 * 
-	 * @param y (double)
-	 */
-	public void setY(double y) {
-		this.y = y;
-	}
-	
-	/**
-	 * Sets x and y to the parameter values provided.
-	 * 
-	 * @param x (double)
-	 * @param y (double)
-	 */
-	public void setXY(double x, double y) {
-		this.x = x;
-		this.y = y;
-	}
-	
-	/**
 	 * Calculates the distance between 2 points using Pythagoras.
 	 * 
 	 * @param point (PointXY)
@@ -101,4 +74,34 @@ public class PointXY {
 		return "(" + getX() + ", " + getY() + ")";
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(x);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(y);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		
+		if (obj instanceof PointXY) {
+			PointXY other = (PointXY) obj;
+			
+			boolean xEqual = (Double.doubleToLongBits(x) == 
+							  Double.doubleToLongBits(other.x));
+			boolean yEqual = (Double.doubleToLongBits(y) == 
+							  Double.doubleToLongBits(other.y));
+			
+			return xEqual && yEqual;
+			
+		} else {
+			return false;
+		}
+	}
+	
 }
