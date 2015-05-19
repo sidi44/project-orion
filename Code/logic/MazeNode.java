@@ -2,43 +2,39 @@ package logic;
 
 import geometry.PointXY;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 public class MazeNode {
 	
-	private Map<PointXY, MazeNode> neighbours;
-	private boolean pill;
-
-	public MazeNode() {
-		this.neighbours = new HashMap<PointXY, MazeNode>();
-		this.pill = true;
-	}
+	private Set<PointXY> neighbours;
 	
-	public MazeNode(Map<PointXY, MazeNode> neighbours) {
+	public MazeNode(Set<PointXY> neighbours) {
 		this.neighbours = neighbours;
 	}
-
-	public Map<PointXY, MazeNode> getNeighbours() {
+	
+	public Set<PointXY> getNeighbours() {
 		return this.neighbours;
 	}
 	
-	public boolean getPill() {
-		return pill;
-	}
-	
-	public void setPill(boolean pill) {
-		this.pill = pill;
-	}
-
-	public void addNeighbour(PointXY position, MazeNode node) {
-		if (!this.neighbours.containsKey(position)) {
-			this.neighbours.put(position, node);
+	public boolean addNeighbour(PointXY position) {
+		boolean success = false;
+		if (!this.neighbours.contains(position)) {
+			success = this.neighbours.add(position);
 		}
+		return success;
 	}
 	
-	public boolean hasNeighbour(PointXY pos) {
-		return neighbours.containsKey(pos);		
+	public boolean removeNeighbour(PointXY position) {
+		boolean success = false;
+		if (this.neighbours.contains(position)) {
+			success = this.neighbours.remove(position);
+		}
+		return success;
 	}
 	
+	public boolean isNeighbour(PointXY position) {
+		return this.neighbours.contains(position);
+	}
+	
+
 }
