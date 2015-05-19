@@ -2,94 +2,115 @@ package logic;
 
 import geometry.PointXY;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class GameState {
-
+	
 	private Maze maze;
-	private List<Predator> predators;
-	private List<Prey> prey;
-	
-	public GameState() {
-		predators = new ArrayList<Predator>();
-		prey = new ArrayList<Prey>();
+	private Set<PointXY> pills;
+	private Map<Integer, Predator> pred;
+	private Map<Integer, Prey> prey;
+	private Map<PointXY, Powerup> powers;
+
+	public GameState(Maze maze, Map<Integer, Predator> pred, Map<Integer, Prey> prey,
+			Set<PointXY> pills, Map<PointXY, Powerup> powers) {
+		this.maze = maze;
+		this.pred = pred;
+		this.prey = prey;
+		this.pills = pills;
+		this.powers = powers;
 	}
-	
+
+	public Maze getMaze() {
+		return this.maze;
+	}
+
 	public void setMaze(Maze maze) {
 		this.maze = maze;
 	}
 	
-	public void addPredator(Predator predator) {
-		predators.add(predator);
+	public Set<PointXY> getPills() {
+		return this.pills;
+	}
+
+	public void setPills(Set<PointXY> pills) {
+		this.pills = pills;
+	}
+
+	public Map<Integer, Predator> getPred() {
+		return this.pred;
+	}
+
+	public void setPred(Map<Integer, Predator> pred) {
+		this.pred = pred;
+	}
+
+	public Map<Integer, Prey> getPrey() {
+		return this.prey;
+	}
+
+	public void setPrey(Map<Integer, Prey> prey) {
+		this.prey = prey;
+	}
+
+	public Map<PointXY, Powerup> getPowers() {
+		return this.powers;
+	}
+
+	public void setPowers(Map<PointXY, Powerup> powers) {
+		this.powers = powers;
 	}
 	
-	public void addPrey(Prey prey) {
-		this.prey.add(prey);
-	}	
-	
-	public Maze getMaze() {
-		return maze;
-	}
-	
-	public List<Predator> getPredators() {
-		return predators;
-	}
-	
-	public List<Prey> getPrey() {
-		return prey;
-	}
-	
-	public List<Agent> getAgents() {
-		List<Agent> agents = new ArrayList<Agent>();
-		agents.addAll(predators);
-		agents.addAll(prey);
+	public Map<Integer, Agent> getAgents() {
+		Map<Integer, Agent> agents = new HashMap<Integer, Agent>();
+		agents.putAll(pred);
+		agents.putAll(prey);
 		return agents;
 	}
 	
 	public void removePill(PointXY pos) {
-		MazeNode node = maze.getNode(pos);
-		node.setPill(false);
-	}
-	
-	public void removePredator(int id) {
-		Iterator<Predator> iter = predators.iterator();
-		while(iter.hasNext()) {
-			Predator p = iter.next();
-			if (p.getID() == id) {
-				iter.remove();
-			}
+		if (pills.contains(pos)) {
+			pills.remove(pos);
 		}
 	}
 	
-	public void removePrey(int id) {
-		Iterator<Prey> iter = prey.iterator();
-		while(iter.hasNext()) {
-			Prey p = iter.next();
-			if (p.getID() == id) {
-				iter.remove();
-			}
+ 	public void addPredator(int id, Predator predator) {
+ 		if (!pred.containsKey(id)) {
+ 			pred.put(id, predator);
+ 		}
+ 	}
+	
+	public void removePredator(int id) {
+		if (pred.containsKey(id)) {
+			pred.remove(id);
 		}
 	}
 	
 	public void updatePredatorPosition(int id, PointXY pos) {
-		Iterator<Predator> iter = predators.iterator();
-		while(iter.hasNext()) {
-			Predator p = iter.next();
-			if (p.getID() == id) {
-				p.setPosition(pos);
-			}
+		if (pred.containsKey(id)) {
+			Predator p = pred.get(id);
+			p.setPosition(pos);
+		}
+	}
+	
+ 	public void addPrey(int id, Prey p) {
+ 		if (!prey.containsKey(id)) {
+ 			prey.put(id, p);
+ 		}
+ 	}
+ 	
+	public void removePrey(int id) {
+		if (prey.containsKey(id)) {
+			prey.remove(id);
 		}
 	}
 	
 	public void updatePreyPosition(int id, PointXY pos) {
-		Iterator<Prey> iter = prey.iterator();
-		while(iter.hasNext()) {
-			Prey p = iter.next();
-			if (p.getID() == id) {
-				p.setPosition(pos);
-			}
+		if (prey.containsKey(id)) {
+			Prey p = prey.get(id);
+			p.setPosition(pos);
 		}
 	}
 	
