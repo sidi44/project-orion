@@ -3,29 +3,29 @@ package logic;
 import geometry.PointXY;
 
 public class Agent {
-
+	
 	private PointXY position;
 	private Move nextMove;
-	private int id;
+	private boolean isPlayer;
 	
-	public Agent(int id, PointXY pos) {
-		this.id = id;
+	public Agent(PointXY position, boolean isPlayer) {
+		this.position = position;
 		this.nextMove = new Move();
-		this.position = pos;
+		this.isPlayer = isPlayer;
 	}
 	
 	public PointXY getPosition() {
-		return position;
+		return this.position;
 	}
-	
-	public void setPosition(PointXY pos) {
-		position = pos;
+
+	public void setPosition(PointXY position) {
+		this.position = position;
 	}
-	
+
 	public Move getNextMove() {
-		return nextMove;
+		return this.nextMove;
 	}
-	
+
 	public void setNextMove(Move nextMove) {
 		this.nextMove = nextMove;
 	}
@@ -33,9 +33,14 @@ public class Agent {
 	public void setNextMoveDirection(Direction dir) {
 		nextMove.setDirection(dir);
 	}
-	
-	public int getID() {
-		return id;
+
+	public boolean isPlayer() {
+		return this.isPlayer;
 	}
+
+	public void setPlayer(boolean isPlayer) {
+		this.isPlayer = isPlayer;
+	}
+	
 	
 }
