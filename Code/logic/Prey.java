@@ -1,9 +1,11 @@
 package logic;
 
+import geometry.PointXY;
+
 public class Prey extends Agent {
 
-	public Prey(PointXY pos) {
-		super(pos);
+	public Prey(PointXY position, boolean isPlayer) {
+		super(position, isPlayer);
 	}
 	
 }
