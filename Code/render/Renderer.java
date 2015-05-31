@@ -2,9 +2,11 @@ package render;
 
 import java.util.Iterator;
 
+import physics.PhysicsBodyType;
+import physics.PhysicsData;
+
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.PolygonRegion;
@@ -174,17 +176,38 @@ public class Renderer {
 							    data, 
 							    body.getPosition(), 
 							    body.getAngle(), 
-							    Color.TEAL);
-				}
-				else if (fShapeType.equals(Type.Circle)) {
+							    Color.ORANGE);
 					
-					CircleShape cShape = (CircleShape) fShape;
-					drawCircle(body.getPosition(), 
-							   cShape.getRadius(), 
-							   Color.RED,
-							   true);
-				}
-				else if (fShapeType.equals(Type.Chain)) {
+				} else if (fShapeType.equals(Type.Circle)) {
+					
+					CircleShape shape = (CircleShape) f.getShape();
+					
+					// Use the body's physics data to find out what type of 
+					// body this is and set the color accordingly.
+					PhysicsData data = (PhysicsData) body.getUserData();
+					PhysicsBodyType type = data.getType();
+					Color color;
+
+					if (type == PhysicsBodyType.Predator) {
+						color = Color.RED;
+					} else if (type == PhysicsBodyType.Prey) {
+						color = Color.GREEN;
+					} else if (type == PhysicsBodyType.Pill) {
+						color = Color.YELLOW;
+					} else {
+						color = Color.WHITE;
+					}
+
+					Vector2 bodyPos = body.getPosition();
+					Vector2 shapePos = shape.getPosition();
+
+					Vector2 pos = new Vector2((bodyPos.x + shapePos.x), 
+											  (bodyPos.y + shapePos.y));
+
+					float radius = shape.getRadius();
+					drawCircle(pos, radius, color, true);
+					
+				} else if (fShapeType.equals(Type.Chain)) {
 					
 					// TODO account for angles
 					
