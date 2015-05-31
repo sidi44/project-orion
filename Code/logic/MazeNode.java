@@ -2,43 +2,75 @@ package logic;
 
 import geometry.PointXY;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
+/**
+ * Represents a node which is used to build a maze.
+ * 
+ * @author Martin Wong
+ * @version 2015-05-19
+ */
 public class MazeNode {
 	
-	private Map<PointXY, MazeNode> neighbours;
-	private boolean pill;
-
-	public MazeNode() {
-		this.neighbours = new HashMap<PointXY, MazeNode>();
-		this.pill = true;
-	}
+	private Set<PointXY> neighbours;
 	
-	public MazeNode(Map<PointXY, MazeNode> neighbours) {
+	/**
+	 * Creates an instance of MazeNode.
+	 * 
+	 * @param neighbours (Set<PointXY>)
+	 */
+	public MazeNode(Set<PointXY> neighbours) {
 		this.neighbours = neighbours;
 	}
-
-	public Map<PointXY, MazeNode> getNeighbours() {
+	
+	/**
+	 * Gets the neighbours of this maze node.
+	 * 
+	 * @return neighbours (Set<PointXY>)
+	 */
+	public Set<PointXY> getNeighbours() {
 		return this.neighbours;
 	}
 	
-	public boolean getPill() {
-		return pill;
-	}
-	
-	public void setPill(boolean pill) {
-		this.pill = pill;
-	}
-
-	public void addNeighbour(PointXY position, MazeNode node) {
-		if (!this.neighbours.containsKey(position)) {
-			this.neighbours.put(position, node);
+	/**
+	 * Add a new neighbour to this maze node and returns a boolean.
+	 * True is successful and False is unsuccessful.
+	 * 
+	 * @param position (PointXY)
+	 * @return success (boolean)
+	 */
+	public boolean addNeighbour(PointXY position) {
+		boolean success = false;
+		if (!this.neighbours.contains(position)) {
+			success = this.neighbours.add(position);
 		}
+		return success;
 	}
 	
-	public boolean hasNeighbour(PointXY pos) {
-		return neighbours.containsKey(pos);		
+	/**
+	 * Removes an existing neighbour from this maze node and returns a boolean.
+	 * True is successful and False is unsuccessful.
+	 * 
+	 * @param position (PointXY)
+	 * @return success (boolean)
+	 */
+	public boolean removeNeighbour(PointXY position) {
+		boolean success = false;
+		if (this.neighbours.contains(position)) {
+			success = this.neighbours.remove(position);
+		}
+		return success;
 	}
 	
+	/**
+	 * Checks whether a certain point on a graph is a neighbour of this maze node.
+	 * 
+	 * @param position (PointXY)
+	 * @return success (boolean)
+	 */
+	public boolean isNeighbour(PointXY position) {
+		return this.neighbours.contains(position);
+	}
+	
+
 }
