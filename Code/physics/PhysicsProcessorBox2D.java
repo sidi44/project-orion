@@ -66,6 +66,11 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 			CATEGORY_WALL | CATEGORY_PILL | CATEGORY_PREDATOR;
 	private final short MASK_PILL = CATEGORY_WALL | CATEGORY_PREY;
 	
+	// This determines how much of a square from each of its borders is
+	// considered as a 'transition zone'. If the centre of an agent is in this
+	// zone it is flagged as 'inTransition' (i.e. moving between maze squares).
+	private float transZone = 0.4f;
+	
 	/**
 	 * Constructor for PhysicsProcessorBox2D.
 	 * 
@@ -112,7 +117,9 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		for (PointXY pos : keys) {
 			MazeNode node = nodes.get(pos);
 			createNode(pos, node);
-			createPill(pos, node);
+			if (state.hasPill(pos)) {
+				createPill(pos, node);
+			}
 		}
 		
 		// Create each Predator and Prey physics body.
@@ -156,7 +163,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		// If the node does not have a neighbouring node in that position, 
 		// add a wall fixture to the nodeBody.
 		PointXY northPos = new PointXY(pos.getX(), pos.getY() + 1);
-		if (!node.hasNeighbour(northPos)) {
+		if (!node.isNeighbour(northPos)) {
 			Vector2 centre = new Vector2(0, (squareSize/2 - wallWidth/2));
 			float hx = squareSize/2;
 			float hy = wallWidth/2;
@@ -164,7 +171,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		}
 		
 		PointXY eastPos = new PointXY(pos.getX() + 1, pos.getY());
-		if (!node.hasNeighbour(eastPos)) {
+		if (!node.isNeighbour(eastPos)) {
 			Vector2 centre = new Vector2((squareSize/2 - wallWidth/2), 0);
 			float hx = wallWidth/2;
 			float hy = squareSize/2;
@@ -172,7 +179,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		}
 		
 		PointXY southPos = new PointXY(pos.getX(), pos.getY() - 1);
-		if (!node.hasNeighbour(southPos)) {
+		if (!node.isNeighbour(southPos)) {
 			Vector2 centre = new Vector2(0, (-squareSize/2 + wallWidth/2));
 			float hx = squareSize/2;
 			float hy = wallWidth/2;
@@ -180,7 +187,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		}
 		
 		PointXY westPos = new PointXY(pos.getX() - 1, pos.getY());
-		if (!node.hasNeighbour(westPos)) {
+		if (!node.isNeighbour(westPos)) {
 			Vector2 centre = new Vector2((-squareSize/2 + wallWidth/2), 0);
 			float hx = wallWidth/2;
 			float hy = squareSize/2;
@@ -218,10 +225,6 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	 * @param node - the MazeNode from which to create the pill.
 	 */
 	private void createPill(PointXY pos, MazeNode node) {
-		
-		if (!node.getPill()) {
-			return;
-		}
 		
 		Body pillBody;
 		
@@ -292,7 +295,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		FixtureDef fixtureDef = new FixtureDef();
 		
 		CircleShape circle = new CircleShape();
-		float radius = (squareSize - wallWidth*2) / 2;
+		float radius = (squareSize - wallWidth*2) / 2 * 0.95f;
 		circle.setRadius(radius);
 		
 		fixtureDef.shape = circle;
@@ -482,19 +485,50 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 				PhysicsDataAgent preyData = (PhysicsDataAgent) data;
 				int preyID = preyData.getID();
 				Vector2 preyPos = body.getPosition();
-				state.updatePreyPosition(preyID, worldToState(preyPos));
+				boolean preyInTransition = checkForTransition(preyPos);
+				
+				state.updatePreyPosition(preyID, worldToState(preyPos), 
+						preyInTransition);
 				break;
 			
 			case Predator:
 				PhysicsDataAgent predatorData = (PhysicsDataAgent) data;
 				int predatorID = predatorData.getID();
-				Vector2 predPos = body.getPosition();
-				state.updatePredatorPosition(predatorID, worldToState(predPos));
+				Vector2 predPos = body.getPosition();				
+				boolean predInTransition = checkForTransition(predPos);
+
+				state.updatePredatorPosition(predatorID, worldToState(predPos), 
+						predInTransition);
 				break;
 		
 			default:
 				break;
 		}
+	}
+	
+	/**
+	 * Check whether the physics world position is in the 'transition zone' 
+	 * part of a maze square. This zone is at the edges of the square and 
+	 * can be used to indicate that an Agent is moving from being fully in one
+	 * maze square to fully in another square.
+	 * 
+	 * @param position - the physics world position to check.
+	 * @return true if the position is in a transition zone, false otherwise.
+	 */
+	private boolean checkForTransition(Vector2 position) {
+
+		
+		float XPosFactor = (position.x % squareSize) / squareSize;
+		float YPosFactor = (position.y % squareSize) / squareSize;
+		
+		boolean inTransition = false;
+		if (XPosFactor < transZone || XPosFactor > (1 - transZone)) {
+			inTransition = true;
+		} else if (YPosFactor < transZone || YPosFactor > (1 - transZone)) {
+			inTransition = true;
+		}
+		
+		return inTransition;
 	}
 	
 	/**
