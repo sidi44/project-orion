@@ -2,23 +2,26 @@ package logic;
 
 import geometry.PointXY;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Represents the state of the game.
  * 
- * @author Martin Wong
- * @version 2015-05-19
+ * @author Martin Wong, Simon Dicken
+ * @version 2015-05-31
  */
 public class GameState {
 	
 	private Maze maze;
 	private Set<PointXY> pills;
-	private Map<Integer, Predator> pred;
-	private Map<Integer, Prey> prey;
+	private List<Predator> predators;
+	private List<Prey> prey;
 	private Map<PointXY, Powerup> powers;
+	private PathFinder pathFinder;
 	
 	/**
 	 * Creates an instance of GameState.
@@ -29,13 +32,16 @@ public class GameState {
 	 * @param pills (Set<PointXY>)
 	 * @param powers (Map<PointXY, Powerup>)
 	 */
-	public GameState(Maze maze, Map<Integer, Predator> pred, Map<Integer, Prey> prey,
+	public GameState(Maze maze, List<Predator> pred, List<Prey> prey,
 			Set<PointXY> pills, Map<PointXY, Powerup> powers) {
 		this.maze = maze;
-		this.pred = pred;
+		this.predators = pred;
 		this.prey = prey;
 		this.pills = pills;
 		this.powers = powers;
+		
+		this.pathFinder = new PathFinder(maze);
+		//this.pathFinder.generateAllPaths();
 	}
 	
 	/**
@@ -72,13 +78,17 @@ public class GameState {
 		this.pills = pills;
 	}
 	
+	public boolean hasPill(PointXY pos) {
+		return pills.contains(pos);
+	}
+	
 	/**
 	 * Get the predators.
 	 * 
 	 * @return pred (Map<Integer, Predator>)
 	 */
-	public Map<Integer, Predator> getPred() {
-		return this.pred;
+	public List<Predator> getPredators() {
+		return this.predators;
 	}
 	
 	/**
@@ -86,8 +96,8 @@ public class GameState {
 	 * 
 	 * @param pred (Map<Integer, Predator>)
 	 */
-	public void setPred(Map<Integer, Predator> pred) {
-		this.pred = pred;
+	public void setPred(List<Predator> predators) {
+		this.predators = predators;
 	}
 	
 	/**
@@ -95,7 +105,7 @@ public class GameState {
 	 * 
 	 * @return prey (Map<Integer, Prey>)
 	 */
-	public Map<Integer, Prey> getPrey() {
+	public List<Prey> getPrey() {
 		return this.prey;
 	}
 	
@@ -104,7 +114,7 @@ public class GameState {
 	 * 
 	 * @param prey (Map<Integer, Prey>)
 	 */
-	public void setPrey(Map<Integer, Prey> prey) {
+	public void setPrey(List<Prey> prey) {
 		this.prey = prey;
 	}
 	
@@ -131,10 +141,10 @@ public class GameState {
 	 * 
 	 * @return agents (Map<Integer, Agent>)
 	 */
-	public Map<Integer, Agent> getAgents() {
-		Map<Integer, Agent> agents = new HashMap<Integer, Agent>();
-		agents.putAll(pred);
-		agents.putAll(prey);
+	public List<Agent> getAgents() {
+		List<Agent> agents = new ArrayList<Agent>();
+		agents.addAll(predators);
+		agents.addAll(prey);
 		return agents;
 	}
 	
@@ -155,10 +165,8 @@ public class GameState {
 	 * @param id (int)
 	 * @param predator (Predator)
 	 */
- 	public void addPredator(int id, Predator predator) {
- 		if (!pred.containsKey(id)) {
- 			pred.put(id, predator);
- 		}
+ 	public void addPredator(Predator predator) {
+ 		predators.add(predator);
  	}
 	
  	/**
@@ -167,8 +175,12 @@ public class GameState {
  	 * @param id (int)
  	 */
 	public void removePredator(int id) {
-		if (pred.containsKey(id)) {
-			pred.remove(id);
+		Iterator<Predator> iter = predators.iterator();
+		while(iter.hasNext()) {
+			Predator p = iter.next();
+			if (p.getID() == id) {
+				iter.remove();
+			}
 		}
 	}
 	
@@ -178,10 +190,14 @@ public class GameState {
 	 * @param id (int)
 	 * @param pos (PointXY)
 	 */
-	public void updatePredatorPosition(int id, PointXY pos) {
-		if (pred.containsKey(id)) {
-			Predator p = pred.get(id);
-			p.setPosition(pos);
+	public void updatePredatorPosition(int id, PointXY pos, boolean inTransition) {
+		Iterator<Predator> iter = predators.iterator();
+		while(iter.hasNext()) {
+			Predator p = iter.next();
+			if (p.getID() == id) {
+				p.setPosition(pos);
+				p.setInTransition(inTransition);
+			}
 		}
 	}
 	
@@ -191,10 +207,8 @@ public class GameState {
 	 * @param id (int)
 	 * @param p (Prey)
 	 */
- 	public void addPrey(int id, Prey p) {
- 		if (!prey.containsKey(id)) {
- 			prey.put(id, p);
- 		}
+ 	public void addPrey(Prey p) {
+ 		this.prey.add(p);
  	}
  	
  	/**
@@ -203,8 +217,12 @@ public class GameState {
  	 * @param id (int)
  	 */
 	public void removePrey(int id) {
-		if (prey.containsKey(id)) {
-			prey.remove(id);
+		Iterator<Prey> iter = prey.iterator();
+		while(iter.hasNext()) {
+			Prey p = iter.next();
+			if (p.getID() == id) {
+				iter.remove();
+			}
 		}
 	}
 	
@@ -214,11 +232,72 @@ public class GameState {
 	 * @param id (int)
 	 * @param pos (PointXY)
 	 */
-	public void updatePreyPosition(int id, PointXY pos) {
-		if (prey.containsKey(id)) {
-			Prey p = prey.get(id);
-			p.setPosition(pos);
+	public void updatePreyPosition(int id, PointXY pos, boolean inTransition) {
+		Iterator<Prey> iter = prey.iterator();
+		while(iter.hasNext()) {
+			Prey p = iter.next();
+			if (p.getID() == id) {
+				p.setPosition(pos);
+				p.setInTransition(inTransition);
+			}
 		}
 	}
 	
+	/**
+	 * Obtain the Predator with the given ID. If no Predator exists with that
+	 * ID, null is returned.
+	 * 
+	 * @param id - the ID of the Predator to get.
+	 * @return the Predator with the given ID, or null if no such Predator 
+	 * exists.
+	 */
+	public Predator getPredator(int id) {
+		for (Predator p : predators) {
+			if (p.getID() == id) {
+				return p;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Obtain the Prey with the given ID. If no Prey exists with that ID, null 
+	 * is returned.
+	 * 
+	 * @param id - the ID of the Prey to get.
+	 * @return the Prey with the given ID, or null if no such Prey exists.
+	 */
+	public Prey getPrey(int id) {
+		for (Prey p : prey) {
+			if (p.getID() == id) {
+				return p;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Get the shortest path in the GameState's maze between the provided start 
+	 * and end points.
+	 * 
+	 * @param start - the start point on the Path.
+	 * @param end - the end point on the Path.
+	 * @return the shortest Path from start to end in the GameState's maze.
+	 */
+	public Path getPath(PointXY start, PointXY end) {
+		return pathFinder.getPath(start, end);
+	}
+	
+	/**
+	 * Get the shortest path to the Pill closest to the given start point in the
+	 * GameState's maze.
+	 * 
+	 * @param start - the point in the maze from which to find the closest pill.
+	 * @return the shortest Path from start point to the closest pill in the 
+	 * GameState's maze.
+	 */
+	public Path getClosestPillPath(PointXY start) {
+		return pathFinder.shortestPath(start, pills);
+	}
+
 }

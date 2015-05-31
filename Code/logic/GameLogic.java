@@ -22,6 +22,7 @@ public class GameLogic {
 	
 	private GameState gs;
 	private GameConfig gc;
+	private AILogic aiLogic;
 	
 	/**
 	 * Creates an instance of GameLogic.
@@ -32,6 +33,8 @@ public class GameLogic {
 		this.gc = gc;
 		
 		createGs();
+		
+		this.aiLogic = new AILogicSimple();
 	}
 	
 	/**
@@ -68,8 +71,8 @@ public class GameLogic {
 		PointXY point = null;
 		List<PointXY> allPoints = new ArrayList<PointXY>();
 		Set<PointXY> usedByPrey = new HashSet<PointXY>();
-		Map<Integer, Predator> pred = new HashMap<Integer, Predator>();
-		Map<Integer, Prey> prey = new HashMap<Integer, Prey>();
+		List<Predator> predators = new ArrayList<Predator>();
+		List<Prey> prey = new ArrayList<Prey>();
 		Map<PointXY, Powerup> powers = new HashMap<PointXY, Powerup>();
 		
 		// Populate allPoints
@@ -99,7 +102,7 @@ public class GameLogic {
 			
 			isPlayer = (nPredPlayer > 0);
 			
-			pred.put(counter, new Predator(point, isPlayer));
+			predators.add(new Predator(counter, point, isPlayer));
 			counter++;
 			nPredPlayer--;
 		}
@@ -121,7 +124,7 @@ public class GameLogic {
 			usedByPrey.add(point);
 			isPlayer = (nPreyPlayer > 0);
 			
-			prey.put(counter, new Prey(point, isPlayer));
+			prey.add(new Prey(counter, point, isPlayer));
 			counter++;
 			nPreyPlayer--;
 		}
@@ -133,10 +136,10 @@ public class GameLogic {
 		Set<PointXY> pills = (gc.getHasPills()) ? new HashSet<PointXY>(allPoints) : new HashSet<PointXY>();
 		
 		// Create game state
-		this.gs = new GameState(maze, pred, prey, pills, powers);
+		this.gs = new GameState(maze, predators, prey, pills, powers);
 		
 		try {
-			if ((allPoints.size() + pred.size() + powers.size() != totalNodes) || usedByPrey.size() != prey.size() || (pred.size() != gc.getNumPred()) || (prey.size() != gc.getNumPrey())){
+			if ((allPoints.size() + predators.size() + powers.size() != totalNodes) || usedByPrey.size() != prey.size() || (predators.size() != gc.getNumPred()) || (prey.size() != gc.getNumPrey())){
 				throw new Exception("Illegal Game State: the game state does to correspond to the game configurations.");
 			}
 		} catch (Exception e) {
@@ -149,7 +152,7 @@ public class GameLogic {
 	 * 
 	 * @return gs (GameState)
 	 */
-	public GameState getGs() {
+	public GameState getGameState() {
 		return this.gs;
 	}
 	
@@ -169,7 +172,12 @@ public class GameLogic {
 	 * @param move (Move)
 	 */
 	public void setPredNextMove(int id, Move move) {
-		this.gs.getPred().get(id).setNextMove(move);
+		List<Predator> predators = gs.getPredators();
+		for (Predator p : predators) {
+			if (p.getID() == id) {
+				p.setNextMove(move);
+			}
+		}
 	}
 	
 	/**
@@ -180,6 +188,50 @@ public class GameLogic {
 	 */
 	public void setPreyNextMove(int id, Move move) {
 		this.gs.getPrey().get(id).setNextMove(move);
+	}
+	
+	public boolean isGameOver(long currentTime) {
+		
+		// Check is time limit exceeded?
+		
+		// Check is there any Prey left?
+		
+		// Check is there any Pills left?
+
+		
+		
+		return false;
+	}
+	
+	public boolean predatorsWon() {
+		return false;
+	}
+	
+	public List<Agent> getAllPlayers() {
+		List<Agent> agents = gs.getAgents();
+		List<Agent> players = new ArrayList<Agent>();
+		for (Agent a : agents) {
+			if (a.isPlayer()) {
+				players.add(a);
+			}
+		}
+		return players;
+	}
+	
+	private List<Agent> getAllNonPlayers() {
+		List<Agent> agents = gs.getAgents();
+		List<Agent> nonPlayers = new ArrayList<Agent>();
+		for (Agent a : agents) {
+			if (!a.isPlayer()) {
+				nonPlayers.add(a);
+			}
+		}
+		return nonPlayers;
+	}
+	
+	public void setNonPlayerMoves() {
+		List<Agent> nonPlayers = getAllNonPlayers();
+		aiLogic.calcNextMove(nonPlayers, gs);
 	}
 	
 }

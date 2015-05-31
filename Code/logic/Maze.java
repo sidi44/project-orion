@@ -443,6 +443,29 @@ public class Maze {
 	}
 	
 	/**
+	 * Return whether the two provided points are neighbours of each other in
+	 * the Maze.
+	 * 
+	 * If either point is not a neighbour of the other, or either of the points
+	 * are not in the Maze, false is returned.
+	 * 
+	 * @param pos1 - the first point
+	 * @param pos2 - the second point.
+	 * @return true if the two provided points are both neighbours of each 
+	 * other, false otherwise.
+	 */
+	public boolean areNeighbours(PointXY pos1, PointXY pos2) {
+		MazeNode n1 = nodes.get(pos1);
+		MazeNode n2 = nodes.get(pos2);
+		
+		if (n1 == null || n2 == null) {
+			return false;
+		}
+		
+		return n1.isNeighbour(pos2) && n2.isNeighbour(pos1);
+	}
+	
+	/**
 	 * Creates a string representation of the nodes within the maze,
 	 * where each node is represented by 4 bits, 0000.
 	 * 
