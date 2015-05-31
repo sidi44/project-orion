@@ -65,15 +65,11 @@ final public class PointXY {
 	}
 	
 	/**
-	 * String representation of a PointXY co-ordinate.
+	 * Generates hash code for object.
+	 * If objects are "equal" then will have same hash code.
 	 * 
-	 * @return PointXY in the form: "(x, y)" (string)
+	 * @return result (int)
 	 */
-	@Override
-	public String toString() {
-		return "(" + getX() + ", " + getY() + ")";
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -85,7 +81,13 @@ final public class PointXY {
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
-
+	
+	/**
+	 * Checks whether two objects are equal.
+	 * 
+	 * @param o (Object)
+	 * @return isEqual (boolean)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		
@@ -102,6 +104,16 @@ final public class PointXY {
 		} else {
 			return false;
 		}
+	}
+	
+	/**
+	 * String representation of a PointXY co-ordinate.
+	 * 
+	 * @return PointXY in the form: "(x, y)" (string)
+	 */
+	@Override
+	public String toString() {
+		return "(" + getX() + ", " + getY() + ")";
 	}
 	
 }
