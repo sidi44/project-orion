@@ -2,11 +2,12 @@ package physics;
 
 /**
  * PhysicsConfiguration class.
+ * 
  * Holds and provides access to the parameters that are used by the Physics 
  * Processor.
  * 
  * @author Simon Dicken
- * @version 2015-05-16
+ * @version 2015-06-02
  */
 public class PhysicsConfiguration {
 
@@ -21,8 +22,9 @@ public class PhysicsConfiguration {
 	 * 
 	 * @param squareSize - The size of each maze square.
 	 * @param wallWidthRatio - How much of the square is occupied by the walls. 
-	 * Must be in the range 0 < x < 1 . A value of 1 would represent the full 
-	 * cell being wall (so is obviously not allowed).
+	 * Must be in the range 0 < x <= 0.4 . The upper limit is set to 0.4 for 
+	 * practicality. Increasing the ratio above this limit would lead to 
+	 * oddly-proportioned mazes.
 	 * @param pillRadiusRatio - How much of the space between the square's walls 
 	 * is occupied by the pill. Must be in the range 0 < x <= 1. 
 	 * @param predatorSpeed - The speed of all predator agents.
@@ -34,13 +36,13 @@ public class PhysicsConfiguration {
 	public PhysicsConfiguration(float squareSize, float wallWidthRatio, 
 			float pillRadiusRatio, float predatorSpeed, float preySpeed) {
 		
-		if (wallWidthRatio <= 0 || wallWidthRatio >= 1) {
+		if (wallWidthRatio <= 0.0f || wallWidthRatio > 0.4f) {
 			throw new IllegalArgumentException(
-				"Wall width ratio should be in the range 0 < x < 1."
+				"Wall width ratio should be in the range 0 < x <= 0.4."
 			);
 		}
 		
-		if (pillRadiusRatio <=0 || pillRadiusRatio > 1) {
+		if (pillRadiusRatio <= 0.0f || pillRadiusRatio > 1.0f) {
 			throw new IllegalArgumentException(
 				"Pill radius ratio should be in the range 0 < x <= 1."
 			);

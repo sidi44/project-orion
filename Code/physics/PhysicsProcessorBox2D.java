@@ -37,18 +37,21 @@ import logic.Prey;
  * game.
  * 
  * @author Simon Dicken
- * @version 2015-05-16
+ * @version 2015-06-02
  */
 public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	
+	// The Box2D world.
 	private World world;
 	
+	// Physics world geometry and kinematics.
 	private float squareSize;
 	private float wallWidth;
 	private float pillRadius;
 	private float predatorSpeed;
 	private float preySpeed;
 	
+	// The simulation timestep.
 	private final float timestep = 1/60f;
 	
 	// Defines the different physics body categories. These are used for 
@@ -88,7 +91,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		this.squareSize = config.getSquareSize();
 		this.wallWidth = (config.getWallWidthRatio() / 2) * squareSize;
 		this.pillRadius = 
-				(squareSize - wallWidth*2) * config.getPillRadiusRatio();
+				(squareSize / 2 - wallWidth) * config.getPillRadiusRatio();
 		
 		this.predatorSpeed = config.getPredatorSpeed();
 		this.preySpeed = config.getPreySpeed();
