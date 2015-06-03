@@ -4,13 +4,15 @@ package logic;
  * Represents different types of powerups.
  * 
  * @author Martin Wong
- * @version 2015-05-19
+ * @version 2015-06-01
  */
 public enum PowerType {
 	
-	speedUp,
-	speedDown,
-	freeze,
-	reverse
+	None,
+	SpeedUpPredator,
+	SlowDownPrey,
+	Freeze,
+	Reverse,
+	Teleport
 	
 }

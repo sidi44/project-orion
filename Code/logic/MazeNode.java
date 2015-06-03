@@ -8,7 +8,7 @@ import java.util.Set;
  * Represents a node which is used to build a maze.
  * 
  * @author Martin Wong
- * @version 2015-05-19
+ * @version 2015-06-01
  */
 public class MazeNode {
 	
@@ -70,6 +70,15 @@ public class MazeNode {
 	 */
 	public boolean isNeighbour(PointXY position) {
 		return this.neighbours.contains(position);
+	}
+	
+	/**
+	 * Gets the number of neighbours this maze node has.
+	 * 
+	 * @return numberOfNeighbours (int)
+	 */
+	public int numberOfNeighbours() {
+		return neighbours.size();
 	}
 	
 

@@ -52,6 +52,18 @@ final public class PointXY {
 	}
 	
 	/**
+	 * Adds the coordinates of the points together.
+	 * 
+	 * @param p (PointXY)
+	 * @return newPoint (PointXY)
+	 */
+	public PointXY addPoint(PointXY p) {
+		double newX = x + p.getX();
+		double newY = y + p.getY();
+		return new PointXY (newX, newY);
+	}
+	
+	/**
 	 * Calculates the distance between 2 points using Pythagoras.
 	 * 
 	 * @param point (PointXY)
@@ -105,6 +117,7 @@ final public class PointXY {
 			return false;
 		}
 	}
+	
 	
 	/**
 	 * String representation of a PointXY co-ordinate.

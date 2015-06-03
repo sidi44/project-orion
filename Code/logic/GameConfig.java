@@ -2,7 +2,7 @@ package logic;
 
 import java.util.List;
 
-import geometry.Rectangle;
+import geometry.PolygonShape;
 
 /**
  * Represents the configuration of the game.
@@ -12,14 +12,14 @@ import geometry.Rectangle;
  */
 public class GameConfig {
 	
-	private Rectangle dimensions;
+	private PolygonShape dimensions;
 	private MazeConfig mConfig;
 	private int numPred;
 	private int numPredPlayer;
 	private int numPrey;
 	private int numPreyPlayer;
 	private boolean hasPills;
-	private List<PowerType> pTypes;
+	private List<Powerup> powerups;
 	
 	/**
 	 * Creates an instance of GameConfig.
@@ -31,11 +31,11 @@ public class GameConfig {
 	 * @param numPrey (int)
 	 * @param numPreyPlayer (int)
 	 * @param hasPills (boolean)
-	 * @param pTypes (List<PowerType>)
+	 * @param powerups (List<Powerup>)
 	 */
-	public GameConfig(Rectangle dimensions, MazeConfig mConfig, int numPred,
+	public GameConfig(PolygonShape dimensions, MazeConfig mConfig, int numPred,
 			int numPredPlayer, int numPrey, int numPreyPlayer,
-			boolean hasPills, List<PowerType> pTypes) {
+			boolean hasPills, List<Powerup> powerups) {
 		this.dimensions = dimensions;
 		this.mConfig = mConfig;
 		this.numPred = numPred;
@@ -43,10 +43,10 @@ public class GameConfig {
 		this.numPrey = numPrey;
 		this.numPreyPlayer = numPreyPlayer;
 		this.hasPills = hasPills;
-		this.pTypes = pTypes;
+		this.powerups = powerups;
 		
 		try {
-			if ((this.numPred < this.numPredPlayer) || (this.numPrey < this.numPredPlayer)){
+			if ((this.numPred < this.numPredPlayer) || (this.numPrey < this.numPreyPlayer)){
 				throw new Exception("Illegal Game Configuration: the predator / prey configurations are incorrect.");
 			}
 		} catch (Exception e) {
@@ -59,7 +59,7 @@ public class GameConfig {
 	 * 
 	 * @return dimensions (Rectangle)
 	 */
-	public Rectangle getDimensions() {
+	public PolygonShape getDimensions() {
 		return this.dimensions;
 	}
 	
@@ -68,7 +68,7 @@ public class GameConfig {
 	 * 
 	 * @param dimensions (Rectangle)
 	 */
-	public void setDimensions(Rectangle dimensions) {
+	public void setDimensions(PolygonShape dimensions) {
 		this.dimensions = dimensions;
 	}
 	
@@ -184,19 +184,19 @@ public class GameConfig {
 	/**
 	 * Gets all the powerups.
 	 * 
-	 * @return pTypes (List<PowerType>)
+	 * @return powerups (List<Powerup>)
 	 */
-	public List<PowerType> getPTypes() {
-		return this.pTypes;
+	public List<Powerup> getPowerups() {
+		return this.powerups;
 	}
 	
 	/**
 	 * Sets the powerups.
 	 * 
-	 * @param pTypes (List<PointType>)
+	 * @param powerups (List<Powerup>)
 	 */
-	public void setPTypes(List<PowerType> pTypes) {
-		this.pTypes = pTypes;
+	public void setPTypes(List<Powerup> powerups) {
+		this.powerups = powerups;
 	}
 	
 	

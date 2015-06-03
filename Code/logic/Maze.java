@@ -1,7 +1,7 @@
 package logic;
 
 import geometry.PointXY;
-import geometry.Rectangle;
+import geometry.PolygonShape;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,23 +15,24 @@ import utils.NumberUtils;
  * Generates a maze which is composed of numerous MazeNodes.
  * 
  * @author Martin Wong
- * @version 2015-05-19
+ * @version 2015-06-01
  */
 public class Maze {
 	
 	private Map<PointXY, MazeNode> nodes; // The maze
-	private Rectangle dimensions; // Dimensions of the maze
+	private PolygonShape dimensions; // Dimensions of the maze
 	private MazeConfig mConfig; // Configurations for setting up the maze
 	
 	private List<PointXY> deadends; // Records the deadends in the maze
 	private List<PointXY> filled; // Records the nodes which are part of paths
+	private List<PointXY> squares;
 	
 	/**
 	 * Creates an instance of a Maze with default configurations.
 	 * 
 	 * @param dimensions (Rectangle)
 	 */
-	public Maze(Rectangle dimensions) {
+	public Maze(PolygonShape dimensions) {
 		this.dimensions = dimensions;
 		configureDefault();
 		buildMaze();
@@ -43,7 +44,7 @@ public class Maze {
 	 * @param dimensions (Rectangle)
 	 * @param mConfig (MazeConfig)
 	 */
-	public Maze(Rectangle dimensions, MazeConfig mConfig) {
+	public Maze(PolygonShape dimensions, MazeConfig mConfig) {
 		this.dimensions = dimensions;
 		this.mConfig = mConfig;
 		buildMaze();
@@ -57,9 +58,9 @@ public class Maze {
 		int columns = dimensions.getMaxY() - dimensions.getMinY() + 1;
 		
 		int maxLength = (rows * columns) - 1; // Maximum path length
-		double deadEndMinProp = 0.1; // Minimum deadend nodes / total nodes
+		double deadEndMinProp = 0.02; // Minimum deadend nodes / total nodes
 		double ranPathMaxProp = 0.8; // Maximum filled nodes / total nodes
-		int loopLimit = 20; // Maximum number of loops before stopping
+		int loopLimit = 30; // Maximum number of loops before stopping
 		
 		this.mConfig = new MazeConfig(maxLength, loopLimit, deadEndMinProp, ranPathMaxProp);
 	}
@@ -71,11 +72,14 @@ public class Maze {
 		this.nodes = new HashMap<PointXY, MazeNode>();
 		this.deadends = new ArrayList<PointXY>();
 		this.filled = new ArrayList<PointXY>();
+		this.squares = new ArrayList<PointXY>();
+		PointXY startingPoint = null;
 		
 		createEmptyMaze();
-		addInitialPath();
+		startingPoint = getRandomStartingPoint();
+		addInitialPath(startingPoint);
 		fillRandom();
-		fillIterate();
+		fillIterate(startingPoint);
 		appendDeadends();
 		removeSquares();
 		
@@ -96,24 +100,40 @@ public class Maze {
 		PointXY position = null;
 		MazeNode node = null;
 		
-		for (int i = dimensions.getMinX(); i <= dimensions.getMaxX(); i++) {
-			for(int j = dimensions.getMinY(); j <= dimensions.getMaxY(); j++) {
+		for(int j = dimensions.getMinY(); j <= dimensions.getMaxY(); j++) {
+			for (int i = dimensions.getMinX(); i <= dimensions.getMaxX(); i++) {
 				position = new PointXY(i, j);
-				node = new MazeNode(new HashSet<PointXY>());
 				
-				nodes.put(position, node);
+				if (withinDimensions(position)) {
+					node = new MazeNode(new HashSet<PointXY>());
+					nodes.put(position, node);
+				}
 			}
 		}
 	}
 	
 	/**
-	 * Creates the first path of the maze.
+	 * Gets a random starting point in maze to start the initial path.
+	 * 
+	 * @return startingPoint (PointXY)
 	 */
-	private void addInitialPath() {
-		PointXY startPos = new PointXY(dimensions.getMinX(), dimensions.getMinY()); // Starting point
-		filled.add(startPos);
+	private PointXY getRandomStartingPoint() {
+		List<PointXY> keys = new ArrayList<PointXY>(nodes.keySet());
+		int random = NumberUtils.randomInt(0, keys.size() - 1);
+		PointXY startingPoint = keys.get(random);
+		
+		return startingPoint;
+	}
+	
+	/**
+	 * Adds the initial pat to the maze from a given starting point.
+	 * 
+	 * @param startingPoint (PointXY)
+	 */
+	private void addInitialPath(PointXY startingPoint) {
+		filled.add(startingPoint);
 		buildPathRandom(); // Build a path from the starting point
-		deadends.add(startPos); // At the starting point to deadends
+		deadends.add(startingPoint); // At the starting point to deadends
 	}
 	
 	/**
@@ -132,19 +152,56 @@ public class Maze {
 	
 	/**
 	 * Creates paths from empty MazeNodes by iterating through the maze.
+	 * Iterate in every direction starting from the initial starting point.
 	 */
-	private void fillIterate() {
+	private void fillIterate(PointXY startingPoint) {
 		PointXY emptyPos = null;
-		for (int i = dimensions.getMinX(); i <= dimensions.getMaxX(); i++) {
-			for (int j = dimensions.getMinY(); j <= dimensions.getMaxY(); j++) {
+		
+		// Checks lower left of starting point
+		for (int j = (int) startingPoint.getY(); j >= dimensions.getMinY(); j--) {
+			for (int i = (int) startingPoint.getX(); i >= dimensions.getMinX(); i--) {
 				emptyPos = new PointXY(i, j);
 				
-				// Checks that MazeNode is a part of the maze and is empty
 				if (withinDimensions(emptyPos) && !filled.contains(emptyPos)) {
-					buildPathFromPoint(emptyPos);
+					buildPathFromPoint(emptyPos, false);
 				}
 			}
 		}
+		
+		// Checks lower right of starting point
+		for (int j = (int) startingPoint.getY(); j >= dimensions.getMinY(); j--) {
+			for (int i = (int) startingPoint.getX(); i <= dimensions.getMaxX(); i++) {
+				emptyPos = new PointXY(i, j);
+				
+				if (withinDimensions(emptyPos) && !filled.contains(emptyPos)) {
+					buildPathFromPoint(emptyPos, false);
+				}
+			}
+		}
+		
+		// Checks upper left of starting point
+		for (int j = (int) startingPoint.getY(); j <= dimensions.getMaxY(); j++) {
+			for (int i = (int) startingPoint.getX(); i >= dimensions.getMinX(); i--) {
+				emptyPos = new PointXY(i, j);
+				
+				if (withinDimensions(emptyPos) && !filled.contains(emptyPos)) {
+					buildPathFromPoint(emptyPos, false);
+				}
+			}
+		}
+		
+		// Checks upper right of starting point
+		for (int j = (int) startingPoint.getY(); j <= dimensions.getMaxY(); j++) {
+			for (int i = (int) startingPoint.getX(); i <= dimensions.getMaxX(); i++) {
+				emptyPos = new PointXY(i, j);
+				
+				if (withinDimensions(emptyPos) && !filled.contains(emptyPos)) {
+					buildPathFromPoint(emptyPos, false);
+				}
+			}
+		}
+		
+		
 	}
 	
 	/**
@@ -152,30 +209,45 @@ public class Maze {
 	 */
 	private void appendDeadends() {
 		double nSize = nodes.size();
-		int counter = 0;
 		int randomPos = 0;
 		PointXY dEnd = null;
 		
-		// Only join deadends if over the deadEndMinProp and counter is under the loopLimit
-		while ((deadends.size() / nSize) >= mConfig.getDeadEndMinProp() && deadends.size() > 0 && counter < mConfig.getLoopLimit()) {
+		// Only join deadends if over the deadEndMinProp
+		while ((deadends.size() / nSize) >= mConfig.getDeadEndMinProp() && deadends.size() > 0) {
 			randomPos = NumberUtils.randomInt(0, deadends.size() - 1);
 			dEnd = deadends.get(randomPos); // Get a random deadend
-			buildPathFromPoint(dEnd);
-			counter++;
+			buildPathFromPoint(dEnd, true);
 		}
 	}
 	
 	/**
 	 * Removes paths formed by a square of adjacent nodes (minimal square),
-	 * e.g. (0, 0), (0, 1), (1, 1), (1, 0).
+	 * e.g. (0, 0), (0, 1), (1, 1), (1, 0). It does this by inspecting the area
+	 * around deadends.
 	 */
 	private void removeSquares() {
-		PointXY ll = null;
-		for (int i = dimensions.getMinX(); i <= dimensions.getMaxX() - 1; i++) {
-			for (int j = dimensions.getMinY(); j <= dimensions.getMaxY() - 1; j++) {
-				ll = new PointXY(i, j);
+		PointXY[] quadrants = null;
+		PointXY ll_ll = null;
+		PointXY ul_ll = null;
+		PointXY ur_ll = null;
+		PointXY lr_ll = null;
+		int random = 0;
+		
+		while (squares.size() > 0) {
+			random = NumberUtils.randomInt(0, squares.size() - 1);
+			
+			ur_ll = squares.get(random);
+			squares.remove(random);
+			
+			lr_ll = new PointXY (ur_ll.getX(), ur_ll.getY() - 1);
+			ll_ll = new PointXY (ur_ll.getX() - 1, ur_ll.getY() - 1);
+			ul_ll = new PointXY (ur_ll.getX() - 1, ur_ll.getY());
+			
+			quadrants = new PointXY[]{ll_ll, lr_ll, ul_ll, ur_ll};
+			
+			for (PointXY ll : quadrants) {
 				if (isSquare(ll)) {
-					removeRandom(ll);
+					removeAndMaintain(ll);
 				}
 			}
 		}
@@ -194,14 +266,19 @@ public class Maze {
 	 * 
 	 * @param gPos (PointXY)
 	 */
-	private void buildPathFromPoint(PointXY gPos) {
+	private boolean buildPathFromPoint(PointXY gPos, boolean allowSquares) {
 		int randomPos = 0;
 		double newX = 0;
 		double newY = 0;
 		boolean success = false;
-		boolean isEmpty = !filled.contains(gPos); // Determines whether is a deadend or empty node
+		boolean dEnd = filled.contains(gPos); // Determines whether is a deadend or empty node
 		PointXY filledPos = null;
 		PointXY givenPos = gPos;
+		PointXY possiblePos = null;
+		PointXY ll = null;
+		PointXY ul = null;
+		PointXY ur = null;
+		PointXY lr = null;
 		List<int[]> nesw = new ArrayList<int[]>();
 		
 		nesw.add(new int[]{0, 1});
@@ -222,18 +299,41 @@ public class Maze {
 			if (withinDimensions(filledPos) && filled.contains(filledPos) && !isPath(givenPos, filledPos)) {
 				addPath(givenPos, filledPos); // Create path
 				
-				// Break after successfully adding path
-				if (!filled.contains(givenPos)) filled.add(givenPos);
-				success = true;
-				break;
+				ll = new PointXY(givenPos.getX() - 1, givenPos.getY() - 1);
+				ul = new PointXY(givenPos.getX() - 1, givenPos.getY());
+				ur = new PointXY(givenPos.getX(), givenPos.getY());
+				lr = new PointXY(givenPos.getX(), givenPos.getY() - 1);
+				
+				if (dEnd && (isSquare(ll) || isSquare(ul) || isSquare(ur) || isSquare(lr))) {
+					removePath(givenPos, filledPos);
+					possiblePos = new PointXY (filledPos.getX(), filledPos.getY());
+				} else {
+					// Break after successfully adding path
+					if (!filled.contains(givenPos)) {
+						filled.add(givenPos);
+					}
+					success = true;
+					break;
+				}
 			}
 		}
 		
+		if (!success && possiblePos != null && allowSquares) {
+			addPath(givenPos, possiblePos);
+			if (!filled.contains(givenPos)) {
+				filled.add(givenPos);
+			}
+			squares.add(givenPos);
+			success = true;
+		}
+		
 		// If successfully built a path from empty node then continue to build paths from the empty node
-		if (success && isEmpty) {
+		if (success && !dEnd) {
 			deadends.add(givenPos);
 			buildPathHelper(givenPos);
 		}
+		
+		return success;
 	}
 	
 	/**
@@ -317,31 +417,103 @@ public class Maze {
 	}
 	
 	/**
-	 * Removes a random point in a minimal square from the existing path,
-	 * e.g. (0, 0), (0, 1), (1, 1), (1, 0).
+	 * Removes a a minimal square from the existing path,
+	 * e.g. (0, 0), (0, 1), (1, 1), (1, 0). It does this while
+	 * maintaining the same number of deadends before and after.
 	 * 
 	 * @param ll: lower left corner of a minimal square (PointXY)
 	 */
-	private void removeRandom(PointXY ll) {
-		PointXY ul = new PointXY(ll.getX(), ll.getY() + 1);
-		PointXY ur = new PointXY(ll.getX() + 1, ll.getY() + 1);
-		PointXY lr = new PointXY(ll.getX() + 1, ll.getY());
+	private void removeAndMaintain(PointXY ll) {
+		Map<PointXY, List<PointXY>> original = null;
+		Map<PointXY, List<PointXY>> unsaturated = unsaturatedAndPaths(ll);
+		Map<PointXY, List<PointXY>> saturated = null;
+		List<PointXY> keys = new ArrayList<PointXY>();
+		List<PointXY> paths = null;
+		PointXY key = null;
+		PointXY pathPoint = null;
+		int random = 0;
+		boolean removed = false;
 		
-		// Choose a random path from the minimal square
-		switch (NumberUtils.randomInt(0, 3)) {
-			case 0:
-				removePath(ll, ul);
-				break;
-			case 1:
-				removePath(ul, ur);
-				break;
-			case 2:
-				removePath(ur, lr);
-				break;
-			case 3:
-				removePath(lr, ll);
-				break;
+		if (unsaturated.size() > 0) {
+			original = unsaturatedAndPaths(ll);
+			
+			for (PointXY k : unsaturated.keySet()) {
+				keys.add(k);
+			}
+			
+			while (keys.size() > 0) {
+				random = NumberUtils.randomInt(0, keys.size() - 1);
+				key = keys.get(random);
+				keys.remove(random);
+				
+				paths = unsaturated.get(key);
+				
+				while (paths.size() > 0) {
+					random = NumberUtils.randomInt(0, paths.size() - 1);
+					pathPoint = paths.get(random);
+					paths.remove(random);
+					
+					if (numberOfPaths(pathPoint) > 2) {
+						removePath(key, pathPoint);
+						
+						if (buildPathFromPoint(key, false)) {
+							removed = true;
+							break;
+						} else {
+							addPath(key, pathPoint);
+						}
+					}
+				}
+				
+				if (removed) {
+					break;
+				}
+				
+			}
+			
+			if (!removed && original.size() == 1) {
+				key = new ArrayList<PointXY>(original.keySet()).get(0);
+				
+				paths = original.get(key);
+				random = NumberUtils.randomInt(0, paths.size() - 1);
+				pathPoint = paths.get(random);
+				paths.remove(random);
+				
+				removePath(key, pathPoint);
+			}
+			
+		} else {
+			saturated = saturatedAndPaths(ll);
+			
+			for (PointXY k : saturated.keySet()) {
+				keys.add(k);
+			}
+			
+			while (keys.size() > 0) {
+				random = NumberUtils.randomInt(0, keys.size() - 1);
+				key = keys.get(random);
+				keys.remove(random);
+				
+				paths = saturated.get(key);
+				
+				while (paths.size() > 0) {
+					random = NumberUtils.randomInt(0, paths.size() - 1);
+					pathPoint = paths.get(random);
+					paths.remove(random);
+					
+					if (numberOfPaths(pathPoint) > 2 && numberOfPaths(key) > 2) {
+						removePath(key, pathPoint);
+						removed = true;
+					}
+				}
+				
+				if (removed) {
+					break;
+				}
+				
+			}
 		}
+		
 	}
 	
 	/**
@@ -362,8 +534,7 @@ public class Maze {
 	 * @return withinDimensions (boolean)
 	 */
 	public boolean withinDimensions(PointXY pos) {
-		return NumberUtils.withinLimits(pos.getX(), dimensions.getMinX(), dimensions.getMaxX())
-				&& NumberUtils.withinLimits(pos.getY(), dimensions.getMinY(), dimensions.getMaxY());
+		return dimensions.contains(pos);
 	}
 	
 	/**
@@ -377,10 +548,17 @@ public class Maze {
 		MazeNode n1 = nodes.get(p1);
 		MazeNode n2 = nodes.get(p2);
 		
-		if (deadends.contains(p1)) deadends.remove(p1);
-		if (deadends.contains(p2)) deadends.remove(p2);
+		boolean success = n1.addNeighbour(p2) && n2.addNeighbour(p1);
 		
-		return n1.addNeighbour(p2) && n2.addNeighbour(p1);
+		if (deadends.contains(p1) && n1.numberOfNeighbours() > 1) {
+			deadends.remove(p1);
+		}
+		
+		if (deadends.contains(p2) && n2.numberOfNeighbours() > 1) {
+			deadends.remove(p2);
+		}
+		
+		return success;
 	}
 	
 	/**
@@ -394,10 +572,17 @@ public class Maze {
 		MazeNode n1 = nodes.get(p1);
 		MazeNode n2 = nodes.get(p2);
 		
-		if (!deadends.contains(p1)) deadends.add(p1);
-		if (!deadends.contains(p2)) deadends.add(p2);
+		boolean success = n1.removeNeighbour(p2) && n2.removeNeighbour(p1);
 		
-		return n1.removeNeighbour(p2) && n2.removeNeighbour(p1);
+		if (!deadends.contains(p1) && n1.numberOfNeighbours() <= 1) {
+			deadends.add(p1);
+		}
+		
+		if (!deadends.contains(p2) && n2.numberOfNeighbours() <= 1) {
+			deadends.add(p2);
+		}
+		
+		return success;
 	}
 	
 	/**
@@ -411,7 +596,197 @@ public class Maze {
 		MazeNode n1 = nodes.get(p1);
 		MazeNode n2 = nodes.get(p2);
 		
-		return n1.isNeighbour(p2) && n2.isNeighbour(p1);
+		boolean success = n1.isNeighbour(p2) && n2.isNeighbour(p1);
+		
+		return success;
+	}
+	
+	/**
+	 * Return whether the two provided points are neighbours of each other in
+	 * the Maze.
+	 * 
+	 * If either point is not a neighbour of the other, or either of the points
+	 * are not in the Maze, false is returned.
+	 * 
+	 * @param pos1 - the first point
+	 * @param pos2 - the second point.
+	 * @return true if the two provided points are both neighbours of each 
+	 * other, false otherwise.
+	 */
+	public boolean areNeighbours(PointXY pos1, PointXY pos2) { // Same as isPath method?
+		MazeNode n1 = nodes.get(pos1);
+		MazeNode n2 = nodes.get(pos2);
+		
+		if (n1 == null || n2 == null) {
+			return false;
+		}
+		
+		return n1.isNeighbour(pos2) && n2.isNeighbour(pos1);
+	}
+	
+	/**
+	 * Finds the total number of possible neighbours a given point could have,
+	 * assuming neighbours can only be vertically or horizontally adjacent.
+	 * 
+	 * @param p (PointXY)
+	 * @return possibleNeighbours (int)
+	 */
+	public int possibleNeighbours(PointXY p) {
+		int count = 0;
+		double newX = 0;
+		double newY = 0;
+		
+		if (withinDimensions(p)) {
+			List<int[]> nesw = new ArrayList<int[]>();
+			nesw.add(new int[]{0, 1});
+			nesw.add(new int[]{1, 0});
+			nesw.add(new int[]{0, -1});
+			nesw.add(new int[]{-1, 0});
+			
+			for (int[] nextTo : nesw) {
+				newX = p.getX() + nextTo[0];
+				newY = p.getY() + nextTo[1];
+				
+				if (withinDimensions(new PointXY(newX, newY))) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+	
+	/**
+	 * Finds the total number of paths from a given point.
+	 * 
+	 * @param p (PointXY)
+	 * @return numberOfPaths (int)
+	 */
+	public int numberOfPaths(PointXY p) {
+		int count = 0;
+		double newX = 0;
+		double newY = 0;
+		
+		if (withinDimensions(p)) {
+			List<int[]> nesw = new ArrayList<int[]>();
+			nesw.add(new int[]{0, 1});
+			nesw.add(new int[]{1, 0});
+			nesw.add(new int[]{0, -1});
+			nesw.add(new int[]{-1, 0});
+			
+			for (int[] nextTo : nesw) {
+				newX = p.getX() + nextTo[0];
+				newY = p.getY() + nextTo[1];
+				
+				if (isPath(p, new PointXY(newX, newY))) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+	
+	/**
+	 * Finds out whether the given node is saturated (i.e. a
+	 * node which has reached its maximum number of paths and cannot
+	 * have any more).
+	 * 
+	 * @param p (PointXY)
+	 * @return isSaturated (boolean)
+	 */
+	public boolean isSaturated(PointXY p) {
+		return possibleNeighbours(p) == numberOfPaths(p);
+	}
+	
+	/**
+	 * Gives a key-value pair, where the key is the unsaturated node and the value is the
+	 * collection of adjacent paths which forms the minimal square.
+	 * 
+	 * @param lower left corner of a minimal square (PointXY)
+	 * @return unsaturated (Map<PointXY, List<PointXY>)
+	 */
+	private Map<PointXY, List<PointXY>> unsaturatedAndPaths(PointXY ll){
+		Map<PointXY, List<PointXY>> unsaturated = new HashMap<PointXY, List<PointXY>>();
+		List<PointXY> paths = null;
+		
+		PointXY ul = new PointXY(ll.getX(), ll.getY() + 1);
+		PointXY ur = new PointXY(ll.getX() + 1, ll.getY() + 1);
+		PointXY lr = new PointXY(ll.getX() + 1, ll.getY());
+		
+		if (!isSaturated(ll)) {
+			paths = new ArrayList<PointXY>();
+			paths.add(ul);
+			paths.add(lr);
+			unsaturated.put(ll, paths);
+		}
+		
+		if (!isSaturated(ul)) {
+			paths = new ArrayList<PointXY>();
+			paths.add(ll);
+			paths.add(ur);
+			unsaturated.put(ul, paths);
+		}
+		
+		if (!isSaturated(ur)) {
+			paths = new ArrayList<PointXY>();
+			paths.add(ul);
+			paths.add(lr);
+			unsaturated.put(ur, paths);
+		}
+		
+		if (!isSaturated(lr)) {
+			paths = new ArrayList<PointXY>();
+			paths.add(ur);
+			paths.add(ll);
+			unsaturated.put(lr, paths);
+		}
+		
+		return unsaturated;
+	}
+	
+	/**
+	 * Gives a key-value pair, where the key is the saturated node and the value is the
+	 * collection of adjacent paths which forms the minimal square.
+	 * 
+	 * @param lower left corner of a minimal square (PointXY)
+	 * @return saturated (Map<PointXY, List<PointXY>)
+	 */
+	private Map<PointXY, List<PointXY>> saturatedAndPaths(PointXY ll){
+		Map<PointXY, List<PointXY>> saturated = new HashMap<PointXY, List<PointXY>>();
+		List<PointXY> paths = null;
+		
+		PointXY ul = new PointXY(ll.getX(), ll.getY() + 1);
+		PointXY ur = new PointXY(ll.getX() + 1, ll.getY() + 1);
+		PointXY lr = new PointXY(ll.getX() + 1, ll.getY());
+		
+		if (isSaturated(ll)) {
+			paths = new ArrayList<PointXY>();
+			paths.add(ul);
+			paths.add(lr);
+			saturated.put(ll, paths);
+		}
+		
+		if (isSaturated(ul)) {
+			paths = new ArrayList<PointXY>();
+			paths.add(ll);
+			paths.add(ur);
+			saturated.put(ul, paths);
+		}
+		
+		if (isSaturated(ur)) {
+			paths = new ArrayList<PointXY>();
+			paths.add(ul);
+			paths.add(lr);
+			saturated.put(ur, paths);
+		}
+		
+		if (isSaturated(lr)) {
+			paths = new ArrayList<PointXY>();
+			paths.add(ur);
+			paths.add(ll);
+			saturated.put(lr, paths);
+		}
+		
+		return saturated;
 	}
 	
 	/**
@@ -419,7 +794,7 @@ public class Maze {
 	 * 
 	 * @return dimensions (Rectangle)
 	 */
-	public Rectangle getDimensions() {
+	public PolygonShape getDimensions() {
 		return this.dimensions;
 	}
 	
@@ -440,29 +815,6 @@ public class Maze {
 	 */
 	public MazeNode getNode(PointXY pos) {
 		return this.nodes.get(pos);
-	}
-	
-	/**
-	 * Return whether the two provided points are neighbours of each other in
-	 * the Maze.
-	 * 
-	 * If either point is not a neighbour of the other, or either of the points
-	 * are not in the Maze, false is returned.
-	 * 
-	 * @param pos1 - the first point
-	 * @param pos2 - the second point.
-	 * @return true if the two provided points are both neighbours of each 
-	 * other, false otherwise.
-	 */
-	public boolean areNeighbours(PointXY pos1, PointXY pos2) {
-		MazeNode n1 = nodes.get(pos1);
-		MazeNode n2 = nodes.get(pos2);
-		
-		if (n1 == null || n2 == null) {
-			return false;
-		}
-		
-		return n1.isNeighbour(pos2) && n2.isNeighbour(pos1);
 	}
 	
 	/**
@@ -492,9 +844,12 @@ public class Maze {
 						sb.append(val);
 					}
 					sb.append(" ");
+				} else {
+					sb.append("0000");
+					sb.append(" ");
 				}
 			}
-			if (withinDimensions(pos)) sb.append("\n");
+			sb.append("\n");
 		}
 		return sb.toString();
 	}
