@@ -73,13 +73,11 @@ public class Maze {
 		this.deadends = new ArrayList<PointXY>();
 		this.filled = new ArrayList<PointXY>();
 		this.squares = new ArrayList<PointXY>();
-		PointXY startingPoint = null;
 		
 		createEmptyMaze();
-		startingPoint = getRandomStartingPoint();
-		addInitialPath(startingPoint);
+		addInitialPath();
 		fillRandom();
-		fillIterate(startingPoint);
+		fillIterate();
 		appendDeadends();
 		removeSquares();
 		
@@ -113,24 +111,10 @@ public class Maze {
 	}
 	
 	/**
-	 * Gets a random starting point in maze to start the initial path.
-	 * 
-	 * @return startingPoint (PointXY)
+	 * Adds the initial pat to the maze from a random starting point.
 	 */
-	private PointXY getRandomStartingPoint() {
-		List<PointXY> keys = new ArrayList<PointXY>(nodes.keySet());
-		int random = NumberUtils.randomInt(0, keys.size() - 1);
-		PointXY startingPoint = keys.get(random);
-		
-		return startingPoint;
-	}
-	
-	/**
-	 * Adds the initial pat to the maze from a given starting point.
-	 * 
-	 * @param startingPoint (PointXY)
-	 */
-	private void addInitialPath(PointXY startingPoint) {
+	private void addInitialPath() {
+		PointXY startingPoint = getRandomStartingPoint();
 		filled.add(startingPoint);
 		buildPathRandom(); // Build a path from the starting point
 		deadends.add(startingPoint); // At the starting point to deadends
@@ -154,7 +138,8 @@ public class Maze {
 	 * Creates paths from empty MazeNodes by iterating through the maze.
 	 * Iterate in every direction starting from the initial starting point.
 	 */
-	private void fillIterate(PointXY startingPoint) {
+	private void fillIterate() {
+		PointXY startingPoint = getRandomPathPosition();
 		PointXY emptyPos = null;
 		
 		// Checks lower left of starting point
@@ -251,6 +236,19 @@ public class Maze {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Gets a random starting point in maze to start the initial path.
+	 * 
+	 * @return startingPoint (PointXY)
+	 */
+	private PointXY getRandomStartingPoint() {
+		List<PointXY> keys = new ArrayList<PointXY>(nodes.keySet());
+		int random = NumberUtils.randomInt(0, keys.size() - 1);
+		PointXY startingPoint = keys.get(random);
+		
+		return startingPoint;
 	}
 	
 	/**

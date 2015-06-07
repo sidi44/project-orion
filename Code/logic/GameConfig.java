@@ -19,7 +19,8 @@ public class GameConfig {
 	private int numPrey;
 	private int numPreyPlayer;
 	private boolean hasPills;
-	private List<Powerup> powerups;
+	private List<PredatorPowerUp> predatorPowerUps;
+	private List<PreyPowerUp> preyPowerUps;
 	
 	/**
 	 * Creates an instance of GameConfig.
@@ -31,11 +32,12 @@ public class GameConfig {
 	 * @param numPrey (int)
 	 * @param numPreyPlayer (int)
 	 * @param hasPills (boolean)
-	 * @param powerups (List<Powerup>)
+	 * @param predatorPowerUps (List<PredatorPowerUp>)
+	 * @param preyPowerUps (List<PreyPowerUp>)
 	 */
 	public GameConfig(PolygonShape dimensions, MazeConfig mConfig, int numPred,
 			int numPredPlayer, int numPrey, int numPreyPlayer,
-			boolean hasPills, List<Powerup> powerups) {
+			boolean hasPills, List<PredatorPowerUp> predatorPowerUps, List<PreyPowerUp> preyPowerUps) {
 		this.dimensions = dimensions;
 		this.mConfig = mConfig;
 		this.numPred = numPred;
@@ -43,7 +45,8 @@ public class GameConfig {
 		this.numPrey = numPrey;
 		this.numPreyPlayer = numPreyPlayer;
 		this.hasPills = hasPills;
-		this.powerups = powerups;
+		this.predatorPowerUps = predatorPowerUps;
+		this.preyPowerUps = preyPowerUps;
 		
 		try {
 			if ((this.numPred < this.numPredPlayer) || (this.numPrey < this.numPreyPlayer)){
@@ -182,22 +185,39 @@ public class GameConfig {
 	}
 	
 	/**
-	 * Gets all the powerups.
+	 * Gets all the powerups for predators.
 	 * 
-	 * @return powerups (List<Powerup>)
+	 * @return predatorPowerUps (List<PredatorPowerUp>)
 	 */
-	public List<Powerup> getPowerups() {
-		return this.powerups;
+	public List<PredatorPowerUp> getPredatorPowerUps() {
+		return this.predatorPowerUps;
 	}
 	
 	/**
-	 * Sets the powerups.
+	 * Sets the powerups for predators.
 	 * 
-	 * @param powerups (List<Powerup>)
+	 * @param predatorPowerUps (List<PredatorPowerUp>)
 	 */
-	public void setPTypes(List<Powerup> powerups) {
-		this.powerups = powerups;
+	public void setPredatorPowreUps(List<PredatorPowerUp> predatorPowerUps) {
+		this.predatorPowerUps = predatorPowerUps;
 	}
 	
+	/**
+	 * Gets all the powerups for prey.
+	 * 
+	 * @return preyPowerUps (List<PreyPowerUp>)
+	 */
+	public List<PreyPowerUp> getPreyPowerUps() {
+		return this.preyPowerUps;
+	}
+	
+	/**
+	 * Sets the powerups for prey.
+	 * 
+	 * @param preyPowerUps (List<PreyPowerUp>)
+	 */
+	public void setPreyPowreUps(List<PreyPowerUp> preyPowerUps) {
+		this.preyPowerUps = preyPowerUps;
+	}
 	
 }

@@ -1,44 +1,25 @@
 package logic;
 
 /**
- * Represents the type of powerup and acts as base class for
- * more complex powerups.
+ * Interface for power-ups, which gives predators and prey
+ * special powers for a limited time.
  * 
  * @author Martin Wong
- * @version 2015-01-06
+ * @version 2015-06-04
  */
-public class Powerup {
-	
-	private PowerType pType;
-	private long timeLimit;
+public interface PowerUp {
 	
 	/**
-	 * Creates an instance of Powerup.
+	 * Gets the numerical value representing the powerup.
 	 * 
-	 * @param pType (PowerType)
-	 * @param timeLimit (long)
+	 * @return powerVal (int)
 	 */
-	public Powerup(PowerType pType, long timeLimit) {
-		this.pType = pType;
-		this.timeLimit = timeLimit;
-	}
-	
-	/**
-	 * Gets the power type.
-	 * 
-	 * @return pType (PowerType)
-	 */
-	public PowerType getPType() {
-		return this.pType;
-	}
+	public int getPowerVal();
 	
 	/**
 	 * Gets the time limit for the powerup, i.e. duration.
 	 * 
-	 * @return timeLimit (long)
+	 * @return timeLimit (int)
 	 */
-	public long getTimeLimit() {
-		return this.timeLimit;
-	}
-	
+	public int getTimeLimit();
 }

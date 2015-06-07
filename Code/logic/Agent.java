@@ -6,14 +6,15 @@ import geometry.PointXY;
  * Represents an agent which has a position and is able to move.
  * 
  * @author Martin Wong, Simon Dicken
- * @version 2015-05-31
+ * @version 2015-06-05
  */
-public class Agent {
+public abstract class Agent {
 
 	private PointXY position;
 	private Move nextMove;
 	private int id;
 	private boolean isPlayer;
+	private boolean stacking;
 	private boolean inTransition;
 	
 	/**
@@ -22,12 +23,14 @@ public class Agent {
 	 * @param id - the Agent's ID number (int)
 	 * @param position - the Agent's starting position in the maze (PointXY)
 	 * @param isPlayer - whether the Agent is human-controlled (boolean)
+	 * @param stacking = whether stacking of activated powerups is allowed (boolean)
 	 */
-	public Agent(int id, PointXY position, boolean isPlayer) {
+	public Agent(int id, PointXY position, boolean isPlayer, boolean stacking) {
 		this.id = id;
 		this.nextMove = new Move();
 		this.position = position;
 		this.isPlayer = isPlayer;
+		this.stacking = stacking;
 		this.inTransition = false;
 	}
 	
@@ -125,4 +128,36 @@ public class Agent {
 	public void setInTransition(boolean inTransition) {
 		this.inTransition = inTransition;
 	}
+	
+	/**
+	 * Checks to see whether stacking of activated powerups is allowed.
+	 * 
+	 * @return stacking (boolean)
+	 */
+	public boolean getStacking() {
+		return stacking;
+	}
+	
+	/**
+	 * Sets the stacking status to determine whether stacking of activated
+	 * powerups is allowed.
+	 * 
+	 * @param stacking (boolean)
+	 */
+	public void setStacking(boolean stacking) {
+		this.stacking = stacking;
+	}
+	
+	/**
+	 * Updates activatedPowers of the agent (i.e. remove expired ones).
+	 */
+	public abstract void updateActivatedPowerUps();
+	
+	/**
+	 * Checks whether the agent has an activated power.
+	 * 
+	 * @return hasActivatedPower (boolean)
+	 */
+	public abstract boolean hasActivatedPower();
+	
 }

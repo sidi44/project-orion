@@ -72,7 +72,8 @@ public class GameLogic {
 		Set<PointXY> usedPoints = new HashSet<PointXY>();
 		List<Predator> predators = new ArrayList<Predator>();
 		List<Prey> prey = new ArrayList<Prey>();
-		Map<PointXY, Powerup> powers = new HashMap<PointXY, Powerup>();
+		Map<PointXY, PredatorPowerUp> predatorPowers = new HashMap<PointXY, PredatorPowerUp>();
+		Map<PointXY, PreyPowerUp> preyPowers = new HashMap<PointXY, PreyPowerUp>();
 		
 		// Build maze
 		Maze maze = (gc.getMConfig() == null) ? new Maze(gc.getDimensions()) : new Maze(gc.getDimensions(), gc.getMConfig());
@@ -89,13 +90,22 @@ public class GameLogic {
 			}
 		}
 		
-		// Populate powers (assigned to random positions)
-		for (int i = 0; i < gc.getPowerups().size(); i++) {
+		// Populate predator powers (assigned to random positions)
+		for (int i = 0; i < gc.getPredatorPowerUps().size(); i++) {
 			randomNum = NumberUtils.randomInt(0, allPoints.size() - 1);
 			point = allPoints.get(randomNum);
 			allPoints.remove(randomNum);
 			
-			powers.put(point, gc.getPowerups().get(i));
+			predatorPowers.put(point, gc.getPredatorPowerUps().get(i));
+		}
+		
+		// Populate prey powers (assigned to random positions)
+		for (int i = 0; i < gc.getPreyPowerUps().size(); i++) {
+			randomNum = NumberUtils.randomInt(0, allPoints.size() - 1);
+			point = allPoints.get(randomNum);
+			allPoints.remove(randomNum);
+			
+			preyPowers.put(point, gc.getPreyPowerUps().get(i));
 		}
 		
 		// Populate pred (assigned to random positions)
@@ -115,7 +125,7 @@ public class GameLogic {
 			usedPoints.add(point);
 			isPlayer = (nPredPlayer > 0);
 			
-			predators.add(new Predator(counter, point, isPlayer));
+			predators.add(new Predator(counter, point, isPlayer, true));
 			counter++;
 			nPredPlayer--;
 		}
@@ -136,7 +146,7 @@ public class GameLogic {
 			allPoints.remove(randomNum);
 			isPlayer = (nPreyPlayer > 0);
 			
-			prey.add(new Prey(counter, point, isPlayer));
+			prey.add(new Prey(counter, point, isPlayer, true));
 			counter++;
 			nPreyPlayer--;
 		}
@@ -145,10 +155,10 @@ public class GameLogic {
 		Set<PointXY> pills = (gc.getHasPills()) ? new HashSet<PointXY>(allPoints) : new HashSet<PointXY>();
 		
 		// Create game state
-		this.gs = new GameState(maze, predators, prey, pills, powers);
+		this.gs = new GameState(maze, predators, prey, pills, predatorPowers, preyPowers);
 		
 		try {
-			if ((allPoints.size() + prey.size() + powers.size() != totalNodes) || usedPoints.size() != predators.size() || (predators.size() != gc.getNumPred()) || (prey.size() != gc.getNumPrey())){
+			if ((allPoints.size() + prey.size() + predatorPowers.size() + preyPowers.size() != totalNodes) || usedPoints.size() != predators.size() || (predators.size() != gc.getNumPred()) || (prey.size() != gc.getNumPrey())){
 				throw new Exception("Illegal Game State: the game state does to correspond to the game configurations.");
 			}
 		} catch (Exception e) {
@@ -174,15 +184,6 @@ public class GameLogic {
 		}
 		
 		return go;
-	}
-	
-	/**
-	 * Checks to see whether predators have won.
-	 * 
-	 * @return hasWon (boolean)
-	 */
-	public boolean predatorsWon() {
-		return (gs.getPrey().size() <= 0); // Maybe only need isGameOver method?
 	}
 	
 	/**
@@ -225,8 +226,6 @@ public class GameLogic {
 		List<Agent> nonPlayers = getAllNonPlayers();
 		aiLogic.calcNextMove(nonPlayers, gs);
 	}
-	
-	
 	
 	/**
 	 * Gets the game state.

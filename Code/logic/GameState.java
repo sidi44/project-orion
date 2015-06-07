@@ -3,6 +3,7 @@ package logic;
 import geometry.PointXY;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,8 @@ public class GameState {
 	private Set<PointXY> pills;
 	private List<Predator> predators;
 	private List<Prey> prey;
-	private Map<PointXY, Powerup> powers;
+	private Map<PointXY, PredatorPowerUp> predatorPowerUps;
+	private Map<PointXY, PreyPowerUp> preyPowerUps;
 	private PathFinder pathFinder;
 	
 	/**
@@ -28,17 +30,20 @@ public class GameState {
 	 * 
 	 * @param maze (Maze)
 	 * @param pred (Map<Integer, Predator>)
-	 * @param prey (Map<Integer, Predy>)
+	 * @param prey (Map<Integer, Prey>)
 	 * @param pills (Set<PointXY>)
-	 * @param powers (Map<PointXY, Powerup>)
+	 * @param predatorPowerUps (Map<PointXY, PredatorPowerUp>)
+	 * @param preyPowerUps (Map<PointXY, PreyPowerUp>)
 	 */
 	public GameState(Maze maze, List<Predator> pred, List<Prey> prey,
-			Set<PointXY> pills, Map<PointXY, Powerup> powers) {
+			Set<PointXY> pills, Map<PointXY, PredatorPowerUp> predatorPowerUps,
+			Map<PointXY, PreyPowerUp> preyPowerUps) {
 		this.maze = maze;
 		this.predators = pred;
 		this.prey = prey;
 		this.pills = pills;
-		this.powers = powers;
+		this.predatorPowerUps = predatorPowerUps;
+		this.preyPowerUps = preyPowerUps;
 		
 		this.pathFinder = new PathFinder(maze);
 		//this.pathFinder.generateAllPaths();
@@ -119,33 +124,63 @@ public class GameState {
 	}
 	
 	/**
-	 * Gets the powerups.
+	 * Gets the predator powerups.
 	 * 
-	 * @return powers (Map<PointXY, Powerup>)
+	 * @return predatorPowerUps (Map<PointXY, PredatorPowerUp>)
 	 */
-	public Map<PointXY, Powerup> getPowers() {
-		return this.powers;
+	public Map<PointXY, PredatorPowerUp> getPredatorPowerUps() {
+		return this.predatorPowerUps;
 	}
 	
 	/**
-	 * Sets the powerups.
+	 * Sets the predator powerups.
 	 * 
-	 * @param powers (Map<PointXY, Powerup>)
+	 * @param predatorPowerUps (Map<PointXY, PredatorPowerUp>)
 	 */
-	public void setPowers(Map<PointXY, Powerup> powers) {
-		this.powers = powers;
+	public void setPredatorPowers(Map<PointXY, PredatorPowerUp> predatorPowerUps) {
+		this.predatorPowerUps = predatorPowerUps;
+	}
+	
+	/**
+	 * Gets the prey powerups.
+	 * 
+	 * @return preyPowerUps (Map<PointXY, PreyPowerUp>)
+	 */
+	public Map<PointXY, PreyPowerUp> getPreyPowerUps() {
+		return this.preyPowerUps;
+	}
+	
+	/**
+	 * Sets the prey powerups.
+	 * 
+	 * @param preyPowerUps (Map<PointXY, PreyPowerUp>)
+	 */
+	public void setPreyPowers(Map<PointXY, PreyPowerUp> preyPowerUps) {
+		this.preyPowerUps = preyPowerUps;
 	}
 	
 	/**
 	 * Gets the agents.
 	 * 
-	 * @return agents (Map<Integer, Agent>)
+	 * @return agents (List<Agent>)
 	 */
 	public List<Agent> getAgents() {
 		List<Agent> agents = new ArrayList<Agent>();
 		agents.addAll(predators);
 		agents.addAll(prey);
 		return agents;
+	}
+	
+	/**
+	 * Gets the powerUps.
+	 * 
+	 * @return powerUps (Map<PointXY, PowerUp>)
+	 */
+	public Map<PointXY, PowerUp> getPowerUps() {
+		Map<PointXY, PowerUp> powerUps = new HashMap<PointXY, PowerUp>();
+		powerUps.putAll(predatorPowerUps);
+		powerUps.putAll(preyPowerUps);
+		return powerUps;
 	}
 	
 	/**
