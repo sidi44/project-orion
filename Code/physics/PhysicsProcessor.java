@@ -10,7 +10,7 @@ import logic.GameState;
  * GameState snapshot with the post-simulation data.
  * 
  * @author Simon Dicken
- * @version 2015-05-16
+ * @version 2015-06-09
  */
 public interface PhysicsProcessor {
 	
@@ -21,7 +21,8 @@ public interface PhysicsProcessor {
 	 * with the post-simulation data.
 	 * 
 	 * @param state - a snapshot of the current game data.
+	 * @param timestep - the amount of time to simulate.
 	 */
-	void processGameState(GameState state);
+	void processGameState(GameState state, float timestep);
 	
 }

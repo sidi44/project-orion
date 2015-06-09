@@ -1,5 +1,7 @@
 package physics;
 
+import logic.Direction;
+
 /**
  * PhysicsDataAgent class.
  * 
@@ -7,14 +9,17 @@ package physics;
  * the user data for bodies which are either Predators or Prey.
  * 
  * The additional information comprises an ID number which is used to 
- * distinguish between different Predators/Prey.
+ * distinguish between different Predators/Prey. The direction of the Agent's 
+ * current and previous moves is also included.
  * 
  * @author Simon Dicken
- * @version 2015-05-16
+ * @version 2015-06-09
  */
 public class PhysicsDataAgent extends PhysicsData {
 
-	private int id;
+	private final int id;
+	private Direction previousMove;
+	private Direction currentMove;
 	
 	/**
 	 * Constructor for PhysicsDataAgent.
@@ -34,6 +39,8 @@ public class PhysicsDataAgent extends PhysicsData {
 		}
 		
 		this.id = id;
+		this.previousMove = Direction.None;
+		this.currentMove = Direction.None;
 	}
 	
 	/**
@@ -44,5 +51,40 @@ public class PhysicsDataAgent extends PhysicsData {
 	public int getID() {
 		return id;
 	}
+	
+	/**
+	 * Set the previous move direction.
+	 * 
+	 * @param dir - the direction of the previous move.
+	 */
+	public void setPreviousMove(Direction dir) {
+		this.previousMove = dir;
+	}
+	
+	/**
+	 * Get the previous move direction.
+	 * 
+	 * @return previousMove - the previous move direction.
+	 */
+	public Direction getPreviousMove() {
+		return previousMove;
+	}
 
+	/**
+	 * Set the current move direction.
+	 * 
+	 * @param dir - the direction of the current move.
+	 */
+	public void setCurrentMove(Direction dir) {
+		this.currentMove = dir;
+	}
+	
+	/**
+	 * Get the current move direction.
+	 * 
+	 * @return currentMove - the current move direction.
+	 */
+	public Direction getCurrentMove() {
+		return currentMove;
+	}
 }

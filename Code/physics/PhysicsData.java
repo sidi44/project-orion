@@ -7,10 +7,13 @@ package physics;
  * The basic data comprises an enum which describes the body type and a flag 
  * indicating if the Body should be removed from the world before the next 
  * simulation step.
+ * 
+ * @author Simon Dicken
+ * @version 2015-06-09
  */
 public class PhysicsData {
 
-	private PhysicsBodyType type;
+	private final PhysicsBodyType type;
 	private boolean flaggedForDelete;
 	
 	/**

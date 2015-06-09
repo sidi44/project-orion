@@ -37,7 +37,7 @@ import logic.Prey;
  * game.
  * 
  * @author Simon Dicken
- * @version 2015-06-02
+ * @version 2015-06-09
  */
 public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	
@@ -50,9 +50,6 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	private float pillRadius;
 	private float predatorSpeed;
 	private float preySpeed;
-	
-	// The simulation timestep.
-	private final float timestep = 1/60f;
 	
 	// Defines the different physics body categories. These are used for 
 	// collision filtering.
@@ -313,7 +310,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	}
 	
 	@Override
-	public void processGameState(GameState state) {
+	public void processGameState(GameState state, float timestep) {
 	
 		// For each physics body which is either a Predator or Prey, find the 
 		// equivalent Agent and extract the next move. Use the move to set the 
@@ -329,7 +326,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		}
 		
 		// Run the simulation for one timestep.
-		world.step(timestep, 6, 2);
+		world.step(timestep, 8, 3);
 		
 		// Remove 'dead' bodies from the game and inform the GameState of the 
 		// changes.
@@ -396,6 +393,9 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 				Vector2 velocity = b.getLinearVelocity();
 				updateVelocity(velocity, m, speed);
 				b.setLinearVelocity(velocity);
+				
+				data.setPreviousMove(data.getCurrentMove());
+				data.setCurrentMove(m.getDirection());
 			}
 		}
 	}
