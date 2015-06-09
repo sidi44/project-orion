@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import geometry.Rectangle;
+import geometry.PointXY;
+import geometry.PolygonShape;
 import physics.PhysicsConfiguration;
 import physics.PhysicsProcessor;
 import physics.PhysicsProcessorBox2D;
@@ -15,12 +16,14 @@ import render.Renderer;
 import logic.Agent;
 import logic.GameConfig;
 import logic.GameLogic;
+import logic.GameOver;
 import logic.GameState;
 import logic.MazeConfig;
 import logic.Move;
-import logic.PowerType;
 import logic.Predator;
+import logic.PredatorPowerUp;
 import logic.Prey;
+import logic.PreyPowerUp;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -39,6 +42,8 @@ public class PredatorPreyGame extends ApplicationAdapter {
 	private PhysicsProcessor physProc;
 	private Map<Integer, UserInputProcessor> inputProcs;
 	
+	private float timestep;
+	
 	private GameLogic gameLogic;
 	
 	private Renderer renderer;
@@ -51,7 +56,7 @@ public class PredatorPreyGame extends ApplicationAdapter {
 	@Override
 	public void create () {
 		
-		startTime = System.nanoTime() * nanoToSeconds;
+		startTime = System.nanoTime() / nanoToSeconds;
 		timeLimit = 200; // seconds.
 		
 		// Create the world.
@@ -62,16 +67,23 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		// Do not set numPlayers > 1 for now (see below).
 		int numPlayers = 1; 
 		MazeConfig mazeConfig = new MazeConfig(10, 50, 0.0, 0.8);
-		GameConfig config = new GameConfig(new Rectangle(0, 0, 10, 10), 
+		List<PointXY> vertices = new ArrayList<PointXY>();
+		vertices.add(new PointXY(0, 0));
+		vertices.add(new PointXY(0, 10));
+		vertices.add(new PointXY(10, 10));
+		vertices.add(new PointXY(10, 0));
+		GameConfig config = new GameConfig(new PolygonShape(vertices), 
 				mazeConfig, numPlayers, numPlayers, 5, 0, true, 
-				new ArrayList<PowerType>());
+				new ArrayList<PredatorPowerUp>(), new ArrayList<PreyPowerUp>());
 		gameLogic = new GameLogic(config);
 		
 		PhysicsConfiguration physConfig = 
-				new PhysicsConfiguration(5f, 0.05f, 0.1f, 40f, 32f);
+				new PhysicsConfiguration(5f, 0.05f, 0.1f, 40f, 25f);
 		
 		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
 				physConfig);
+		
+		timestep = Gdx.graphics.getDeltaTime();
 		
 		inputProcs = new HashMap<Integer, UserInputProcessor>();
 		
@@ -87,6 +99,9 @@ public class PredatorPreyGame extends ApplicationAdapter {
 			// two scenarios :-)
 			Gdx.input.setInputProcessor(inputProc);
 		}
+//		UserInputProcessor inputProc = new UserInputProcessor();
+//		inputProcs.put(-1, inputProc);
+//		Gdx.input.setInputProcessor(inputProc);
 		
 		camera = new OrthographicCamera(100, 100);
 		camera.position.x = 25;
@@ -110,7 +125,8 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		inputProcs.get(1).processCameraInputs(camera);
 		
 		GameState state = gameLogic.getGameState();
-		physProc.processGameState(state);
+		timestep = Gdx.graphics.getDeltaTime();
+		physProc.processGameState(state, timestep);
 		
 		checkForGameOver();
 
@@ -131,23 +147,27 @@ public class PredatorPreyGame extends ApplicationAdapter {
 			}
 		}
 		
-		// Do the nonplayer moves.
-		//if (count % 30 == 0) {
-			gameLogic.setNonPlayerMoves();
-		//}
+		gameLogic.setNonPlayerMoves();
 	}
 	
 	private void checkForGameOver() {
-		long elapsedTime = (System.nanoTime() * nanoToSeconds) - startTime;
+		long elapsedTime = (System.nanoTime() / nanoToSeconds) - startTime;
 		long gameTime = timeLimit - elapsedTime;
-		boolean gameOver = gameLogic.isGameOver(gameTime);
-		if (gameOver) {
-			if (gameLogic.predatorsWon()) {
-				System.out.println("Predators won.");
-			} else {
+		GameOver gameOver = gameLogic.isGameOver((int) gameTime);
+		
+		switch (gameOver) {
+			case Pills:
+			case Time:
 				System.out.println("Prey won.");
-			}
+				break;
+			case Prey:
+				System.out.println("Predators won.");
+				break;
+			case No:
+			default:
+				break;
 		}
+		
 	}
 	
 }
