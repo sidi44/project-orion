@@ -5,12 +5,12 @@ package logic;
  * more complex prey powerups.
  * 
  * @author Martin Wong
- * @version 2015-06-04
+ * @version 2015-06-11
  */
 public class PreyPowerUp implements PowerUp {
 	
-	private PreyPowerType pType;
-	private int timeLimit;
+	private final PreyPowerType pType;
+	private final int timeLimit;
 	
 	/**
 	 * Creates an instance of PreyPowerUp.
@@ -47,7 +47,6 @@ public class PreyPowerUp implements PowerUp {
 	 * 
 	 * @return timeLimit (int)
 	 */
-	
 	public int getTimeLimit() {
 		return this.timeLimit;
 	}

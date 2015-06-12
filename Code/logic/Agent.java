@@ -6,13 +6,13 @@ import geometry.PointXY;
  * Represents an agent which has a position and is able to move.
  * 
  * @author Martin Wong, Simon Dicken
- * @version 2015-06-05
+ * @version 2015-06-11
  */
 public abstract class Agent {
 
 	private PointXY position;
 	private Move nextMove;
-	private int id;
+	private final int id;
 	private boolean isPlayer;
 	private boolean stacking;
 	private boolean inTransition;
@@ -23,7 +23,8 @@ public abstract class Agent {
 	 * @param id - the Agent's ID number (int)
 	 * @param position - the Agent's starting position in the maze (PointXY)
 	 * @param isPlayer - whether the Agent is human-controlled (boolean)
-	 * @param stacking = whether stacking of activated powerups is allowed (boolean)
+	 * @param stacking - whether stacking of activated powerups
+	 * 					 is allowed (boolean)
 	 */
 	public Agent(int id, PointXY position, boolean isPlayer, boolean stacking) {
 		this.id = id;
@@ -97,6 +98,15 @@ public abstract class Agent {
 	 */
 	public boolean isPlayer() {
 		return isPlayer;
+	}
+	
+	/**
+	 * Sets the control of the Agent (human or computer).
+	 * 
+	 * @param isPlayer (boolean)
+	 */
+	public void setIsPlayer(boolean isPlayer) {
+		this.isPlayer = isPlayer;
 	}
 	
 	/**

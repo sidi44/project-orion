@@ -1,11 +1,10 @@
 package logic;
 
 /**
- * Interface for power-ups, which gives predators and prey
- * special powers for a limited time.
+ * Interface for power-ups for both prey and predators.
  * 
  * @author Martin Wong
- * @version 2015-06-04
+ * @version 2015-06-11
  */
 public interface PowerUp {
 	

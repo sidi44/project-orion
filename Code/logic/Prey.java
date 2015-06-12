@@ -1,7 +1,5 @@
 package logic;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,15 +9,16 @@ import geometry.PointXY;
  * Represents a prey agent.
  * 
  * @author Martin Wong
- * @version 2015-06-05
+ * @version 2015-06-11
  */
 public class Prey extends Agent {
 	
 	private Map<PreyPowerUp, Integer> storedPowers;
-	private Map<PreyPowerUp, Date> activatedPowers;
+	private Map<PreyPowerUp, Integer> activatedPowers;
 	
 	/**
-	 * Creates an instance of Prey, using id, position, isPlayer and stacking.
+	 * Creates an instance of Prey, using id, position, isPlayer
+	 * and stacking.
 	 * 
 	 * @param id (int)
 	 * @param pos (pointXY)
@@ -30,27 +29,7 @@ public class Prey extends Agent {
 		super(id, pos, isPlayer, stacking);
 		
 		this.storedPowers = new HashMap<PreyPowerUp, Integer>();
-		this.activatedPowers = new HashMap<PreyPowerUp, Date>();
-	}
-	
-	/**
-	 * Creates an instance of Prey, using id, position, isPlayer
-	 * storedPowers and activatedPowers.
-	 * 
-	 * @param id (int)
-	 * @param pos (pointXY)
-	 * @param isPlayer (boolean)
-	 * @param storedPowers (Map<PreyPowerUp, Integer>)
-	 * @param activatedPowers (Map<PreyPowerUp, Date>)
-	 */
-	public Prey(int id, PointXY pos, boolean isPlayer,
-			Map<PreyPowerUp, Integer> storedPowers,
-			Map<PreyPowerUp, Date> activatedPowers,
-			boolean stacking) {
-		super(id, pos, isPlayer, stacking);
-		
-		this.storedPowers = storedPowers;
-		this.activatedPowers = activatedPowers;
+		this.activatedPowers = new HashMap<PreyPowerUp, Integer>();
 	}
 	
 	/**
@@ -75,6 +54,7 @@ public class Prey extends Agent {
 			amount = storedPowers.get(preyPowerUp);
 		}
 		
+		// Either adds or overwrites
 		storedPowers.put(preyPowerUp, amount + 1);
 	}
 	
@@ -85,11 +65,12 @@ public class Prey extends Agent {
 	 */
 	public void removeStoredPower(PreyPowerUp preyPowerUp) {
 		if (storedPowers.containsKey(preyPowerUp)) {
-			if (storedPowers.get(preyPowerUp) > 1) {
-				int amount = storedPowers.get(preyPowerUp);
-				storedPowers.put(preyPowerUp, amount - 1);
-			} else {
+			int updatedAmount = storedPowers.get(preyPowerUp) - 1;
+			
+			if (updatedAmount <= 0) {
 				storedPowers.remove(preyPowerUp);
+			} else {
+				storedPowers.put(preyPowerUp, updatedAmount);
 			}
 		}
 	}
@@ -99,7 +80,7 @@ public class Prey extends Agent {
 	 * 
 	 * @return activatedPowers (Map<PreyPowerUp, Integer>)
 	 */
-	public Map<PreyPowerUp, Date> getActivatedPowers() {
+	public Map<PreyPowerUp, Integer> getActivatedPowers() {
 		return activatedPowers;
 	}
 	
@@ -109,13 +90,7 @@ public class Prey extends Agent {
 	 * @param activatedPowers (PreyPowerUp)
 	 */
 	public void addActivatedPower(PreyPowerUp preyPowerUp) {
-		Date now = new Date();
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(now);
-		cal.add(Calendar.SECOND, preyPowerUp.getTimeLimit());
-		Date endTime = cal.getTime();
-		
-		activatedPowers.put(preyPowerUp, endTime);
+		activatedPowers.put(preyPowerUp, preyPowerUp.getTimeLimit());
 	}
 	
 	/**
@@ -135,9 +110,9 @@ public class Prey extends Agent {
 	 */
 	public boolean activatePowerUp(PreyPowerUp preyPowerUp) {
 		
-		// Checks to see whether stacking is allowed (> 1 activated power)
-		boolean success = (getStacking() || !hasActivatedPower());
-		
+		boolean success = (getStacking() && !isActivated(preyPowerUp))
+				|| !hasActivatedPower();
+
 		if (success) {
 			addActivatedPower(preyPowerUp);
 			removeStoredPower(preyPowerUp);
@@ -150,16 +125,37 @@ public class Prey extends Agent {
 	 * Updates activatedPowers of the prey (i.e. remove expired ones).
 	 */
 	public void updateActivatedPowerUps() {
-		Date now = new Date();
 		
-		for (Map.Entry<PreyPowerUp, Date> aPowers : activatedPowers.entrySet()) {
+		for (Map.Entry<PreyPowerUp, Integer> aPowers : activatedPowers.entrySet()) {
 			PreyPowerUp power = aPowers.getKey();
-			Date endTime = aPowers.getValue();
+			Integer updatedTimeLeft = aPowers.getValue() - 1;
 			
-			if (!now.before(endTime)) {
+			if (updatedTimeLeft <= 0) {
 				removeActivatedPower(power);
+			} else {
+				activatedPowers.put(power, updatedTimeLeft);
 			}
 		}
+	}
+	
+	
+	/**
+	 * Checks whether the same powerup type has already been activated.
+	 * 
+	 * @param preyPowerUp (PreyPowerUp)
+	 * @return isActivated (boolean)
+	 */
+	public boolean isActivated(PreyPowerUp preyPowerUp) {
+		boolean isActivated = false;
+		PreyPowerType pType = preyPowerUp.getPType();
+		
+		for (Map.Entry<PreyPowerUp, Integer> aPowers : activatedPowers.entrySet()) {
+			if (aPowers.getKey().getPType() == pType) {
+				isActivated = true;
+				break;
+			}
+		}
+		return isActivated;
 	}
 	
 	/**

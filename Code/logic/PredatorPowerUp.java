@@ -5,12 +5,12 @@ package logic;
  * more complex predator powerups.
  * 
  * @author Martin Wong
- * @version 2015-06-04
+ * @version 2015-06-11
  */
 public class PredatorPowerUp implements PowerUp {
 	
-	private PredatorPowerType pType;
-	private int timeLimit;
+	private final PredatorPowerType pType;
+	private final int timeLimit;
 	
 	/**
 	 * Creates an instance of PredatorPowerUp.
@@ -43,11 +43,10 @@ public class PredatorPowerUp implements PowerUp {
 	}
 	
 	/**
-	 * Gets the time limit for the powerup, i.e. duration.
+	 * Gets the time limit for the powerup, i.e. the duration.
 	 * 
 	 * @return timeLimit (int)
 	 */
-	
 	public int getTimeLimit() {
 		return this.timeLimit;
 	}
@@ -88,7 +87,6 @@ public class PredatorPowerUp implements PowerUp {
 			return false;
 		return true;
 	}
-	
 	
 	
 }
