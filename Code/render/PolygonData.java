@@ -2,13 +2,13 @@ package render;
 
 import com.badlogic.gdx.math.Vector2;
 
-public class ShapeData {
+public class PolygonData {
 
 	private final float[] mVertices;
 	private int mAddedVertexCount;
 	private short[] mTriangles;
 	
-	public ShapeData( int vertexCount ) {
+	public PolygonData( int vertexCount ) {
 		
 		mVertices = new float[vertexCount * 2];
 	}
@@ -63,7 +63,7 @@ public class ShapeData {
 	 * @param triangles
 	 */
 	 /* For example, the following hexagon
-	 *	  4   _ _ 3
+	 *	  4 _ _ 3
 	 *    /|\   |\
 	 * 5 / | \  | \
 	 *   \ |  \ | / 2 
@@ -71,7 +71,6 @@ public class ShapeData {
 	 *    0     1
 	 *    
 	 * could be represented by the following short array
-	 * 	        |         |         |
 	 * [0, 4, 5 , 0, 1, 4 , 1, 3, 4 , 1, 2, 3]
 	 *  
 	 * 
