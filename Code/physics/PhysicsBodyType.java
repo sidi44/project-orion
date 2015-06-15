@@ -10,9 +10,18 @@ package physics;
  */
 public enum PhysicsBodyType {
 
-	Predator,
-	Prey,
-	Pill,
-	Walls
+	Predator(1),
+	Prey(2),
+	Pill(3),
+	Walls(4);
 	
+	private final int rank;
+	
+	PhysicsBodyType(int rank) {
+	    this.rank = rank;
+	}
+	
+	public int getRank() {
+	    return this.rank;
+	}
 }
