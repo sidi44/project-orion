@@ -6,12 +6,12 @@ package geometry;
  * This class is immutable.
  * 
  * @author Martin Wong
- * @version 2015-05-16
+ * @version 2015-05-19
  */
 final public class PointXY {
 	
-	final private double x;
-	final private double y;
+	private final double x;
+	private final double y;
 	
 	/**
 	 * Creates an instance of PointXY, with co-ordinates (x, y).

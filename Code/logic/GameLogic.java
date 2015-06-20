@@ -16,7 +16,7 @@ import utils.NumberUtils;
  * different game components.
  * 
  * @author Martin Wong
- * @version 2015-06-01
+ * @version 2015-06-19
  */
 public class GameLogic {
 	
@@ -64,12 +64,15 @@ public class GameLogic {
 		int nLimit = 0;
 		int counter = 1;
 		int limitCounter = 0;
-		int loopLimit = (gc.getMConfig() != null) ? gc.getMConfig().getLoopLimit() : defaultLoopLimit;
-		int nPredPlayer = gc.getNumPredPlayer();
-		int nPreyPlayer = gc.getNumPreyPlayer();
 		PointXY point = null;
+		int loopLimit = (gc.getMConfig() != null) ? gc.getMConfig().getLoopLimit() : defaultLoopLimit;
+		
 		List<PointXY> allPoints = new ArrayList<PointXY>();
 		Set<PointXY> usedPoints = new HashSet<PointXY>();
+		AgentConfig aConfig = gc.getAConfig();
+		PowerConfig pConfig = gc.getPConfig();
+		int nPredPlayer = aConfig.getNumPredPlayer();
+		int nPreyPlayer = aConfig.getNumPreyPlayer();
 		List<Predator> predators = new ArrayList<Predator>();
 		List<Prey> prey = new ArrayList<Prey>();
 		Map<PointXY, PredatorPowerUp> predatorPowers = new HashMap<PointXY, PredatorPowerUp>();
@@ -91,25 +94,31 @@ public class GameLogic {
 		}
 		
 		// Populate predator powers (assigned to random positions)
-		for (int i = 0; i < gc.getPredatorPowerUps().size(); i++) {
-			randomNum = NumberUtils.randomInt(0, allPoints.size() - 1);
-			point = allPoints.get(randomNum);
-			allPoints.remove(randomNum);
-			
-			predatorPowers.put(point, gc.getPredatorPowerUps().get(i));
+		for (int i = 0; i < pConfig.getNumPredPow(); i++) {
+			if (pConfig.getPredatorPowerUps().size() > 0) {
+				randomNum = NumberUtils.randomInt(0, allPoints.size() - 1);
+				point = allPoints.get(randomNum);
+				allPoints.remove(randomNum);
+				
+				randomNum = NumberUtils.randomInt(0, pConfig.getPredatorPowerUps().size() - 1);
+				predatorPowers.put(point, pConfig.getPredatorPowerUps().get(randomNum));
+			}
 		}
 		
 		// Populate prey powers (assigned to random positions)
-		for (int i = 0; i < gc.getPreyPowerUps().size(); i++) {
-			randomNum = NumberUtils.randomInt(0, allPoints.size() - 1);
-			point = allPoints.get(randomNum);
-			allPoints.remove(randomNum);
-			
-			preyPowers.put(point, gc.getPreyPowerUps().get(i));
+		for (int i = 0; i < pConfig.getNumPreyPow(); i++) {
+			if (pConfig.getPreyPowerUps().size() > 0) {
+				randomNum = NumberUtils.randomInt(0, allPoints.size() - 1);
+				point = allPoints.get(randomNum);
+				allPoints.remove(randomNum);
+				
+				randomNum = NumberUtils.randomInt(0, pConfig.getPreyPowerUps().size() - 1);
+				preyPowers.put(point, pConfig.getPreyPowerUps().get(randomNum));
+			}
 		}
 		
 		// Populate pred (assigned to random positions)
-		nLimit = counter + gc.getNumPred();
+		nLimit = counter + aConfig.getNumPred();
 		limitCounter = 0;
 		for (int i = counter; i < nLimit; i++) {
 			randomNum = NumberUtils.randomInt(0, allPoints.size() - 1);
@@ -131,7 +140,7 @@ public class GameLogic {
 		}
 		
 		// Populate prey (assigned to random positions)
-		nLimit = counter + gc.getNumPrey();
+		nLimit = counter + aConfig.getNumPrey();
 		limitCounter = 0;
 		for (int i = counter; i < nLimit; i++) {
 			randomNum = NumberUtils.randomInt(0, allPoints.size() - 1);
@@ -158,7 +167,7 @@ public class GameLogic {
 		this.gs = new GameState(maze, predators, prey, pills, predatorPowers, preyPowers);
 		
 		try {
-			if ((allPoints.size() + prey.size() + predatorPowers.size() + preyPowers.size() != totalNodes) || usedPoints.size() != predators.size() || (predators.size() != gc.getNumPred()) || (prey.size() != gc.getNumPrey())){
+			if ((allPoints.size() + prey.size() + predatorPowers.size() + preyPowers.size() != totalNodes) || usedPoints.size() != predators.size() || (predators.size() != aConfig.getNumPred() || (prey.size() != aConfig.getNumPrey()))){
 				throw new Exception("Illegal Game State: the game state does to correspond to the game configurations.");
 			}
 		} catch (Exception e) {

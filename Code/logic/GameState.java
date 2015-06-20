@@ -13,7 +13,7 @@ import java.util.Set;
  * Represents the state of the game.
  * 
  * @author Martin Wong, Simon Dicken
- * @version 2015-05-31
+ * @version 2015-06-19
  */
 public class GameState {
 	
@@ -90,7 +90,7 @@ public class GameState {
 	/**
 	 * Get the predators.
 	 * 
-	 * @return pred (Map<Integer, Predator>)
+	 * @return predators (Map<Integer, Predator>)
 	 */
 	public List<Predator> getPredators() {
 		return this.predators;
@@ -99,7 +99,7 @@ public class GameState {
 	/**
 	 * Set the predators.
 	 * 
-	 * @param pred (Map<Integer, Predator>)
+	 * @param predators (Map<Integer, Predator>)
 	 */
 	public void setPred(List<Predator> predators) {
 		this.predators = predators;
@@ -195,7 +195,7 @@ public class GameState {
 	}
 	
 	/**
-	 * Add predators.
+	 * Add a predator.
 	 * 
 	 * @param id (int)
 	 * @param predator (Predator)
@@ -205,7 +205,7 @@ public class GameState {
  	}
 	
  	/**
- 	 * Remove predators by id.
+ 	 * Remove a predator by id.
  	 * 
  	 * @param id (int)
  	 */
@@ -237,7 +237,7 @@ public class GameState {
 	}
 	
 	/**
-	 * Add prey.
+	 * Add a prey.
 	 * 
 	 * @param id (int)
 	 * @param p (Prey)
@@ -247,7 +247,7 @@ public class GameState {
  	}
  	
  	/**
- 	 * Remove prey by id.
+ 	 * Remove a prey by id.
  	 * 
  	 * @param id (int)
  	 */

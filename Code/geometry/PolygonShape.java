@@ -1,5 +1,8 @@
 package geometry;
 
+import java.awt.geom.Line2D;
+import java.awt.geom.PathIterator;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,15 +11,17 @@ import java.util.List;
  * This class is immutable.
  * 
  * @author Martin Wong
- * @version 2015-06-01
+ * @version 2015-06-19
  */
 public class PolygonShape extends java.awt.Polygon {
 	
 	// Serial ID
 	private static final long serialVersionUID = 1L;
-
+	//private final double offset = 0.0000000001;
+	
 	/**
-	 * Creates an instance of PolygonShape from a list of coordinates.
+	 * Creates an instance of PolygonShape from a list of coordinates
+	 * (draw in the order of the coordinates).
 	 * 
 	 * @param coordinates (List<PointXY>)
 	 */
@@ -30,7 +35,7 @@ public class PolygonShape extends java.awt.Polygon {
 	 * @return minX (int)
 	 */
 	public int getMinX() {
-		return (int) (getBounds().getX());
+		return (int) (getBounds().getMinX());
 	}
 	
 	/**
@@ -39,7 +44,7 @@ public class PolygonShape extends java.awt.Polygon {
 	 * @return minY (int)
 	 */
 	public int getMinY() {
-		return (int) (getBounds().getY());
+		return (int) (getBounds().getMinY());
 	}
 	
 	/**
@@ -48,7 +53,7 @@ public class PolygonShape extends java.awt.Polygon {
 	 * @return maxX (int)
 	 */
 	public int getMaxX() {
-		return (int) (getBounds().getX() + getBounds().getWidth() - 1);
+		return (int) (getBounds().getMaxX());
 	}
 	
 	/**
@@ -57,17 +62,118 @@ public class PolygonShape extends java.awt.Polygon {
 	 * @return maxY (int)
 	 */
 	public int getMaxY() {
-		return (int) (getBounds().getY() + getBounds().getHeight() - 1);
+		return (int) (getBounds().getMaxY());
 	}
 	
+//	// More efficient but has error margin of: offset * 2.
+//	/**
+//	 * Checks whether the given point is within the shape.
+//	 * 
+//	 * @param p (PointXY)
+//	 * @return isInside (boolean)
+//	 */
+//	public boolean contains(PointXY p) {
+//		boolean isInside = contains((int) p.getX(), (int) p.getY());
+//		
+//		if (!isInside) {
+//			/*
+//			 * Contains method is outline exclusive, to make this inclusive:
+//			 * form a small square with size: offset * 2 and check if
+//			 * intersect with outline, if does then assume 
+//			 * (error margin = offset * 2) p is part of boundary.
+//			 */
+//			isInside = intersects(p.getX() - offset, p.getY() - offset,
+//					offset * 2, offset * 2);
+//		}
+//		
+//		return isInside;
+//	}
+	
+	// Has no error margin but less efficient.
 	/**
-	 * Checks whether the given point is within the shape.
+	 * Checks whether the given point is within the shape (outline inclusive).
 	 * 
 	 * @param p (PointXY)
 	 * @return isInside (boolean)
 	 */
 	public boolean contains(PointXY p) {
+		boolean isInside = containsExclusive(p);
+
+		if (!isInside) {
+			isInside = onOutline(p);
+		}
+		
+		return isInside;
+	}
+	
+	/**
+	 * Checks whether the given point is within the shape (outline exclusive).
+	 * 
+	 * @param p (PointXY)
+	 * @return isInside (boolean)
+	 */
+	public boolean containsExclusive(PointXY p) {
 		return contains((int) p.getX(), (int) p.getY());
+	}
+	
+	/**
+	 * Checks whether the given point is on the outline of the shape.
+	 * 
+	 * @param p (PointXY)
+	 * @return isOutline (boolean)
+	 */
+	public boolean onOutline(PointXY p) {
+		boolean isOutline = false;
+		List<PointXY> allPoints = getAllPoints();
+		
+		
+		if (allPoints.size() > 0) {
+			int j = 0;
+			PointXY point1;
+			PointXY point2;
+			Line2D.Double line;
+			
+			for (int i = 0; i < allPoints.size(); i++) {
+				j = (i == allPoints.size() - 1) ? 0 : i + 1;
+				point1 = allPoints.get(i);
+				point2 = allPoints.get(j);
+				
+				line = new Line2D.Double(point1.getX(), point1.getY(), 
+						point2.getX(), point2.getY());
+				
+				if (line.intersectsLine(p.getX(), p.getY(), p.getX(), p.getY())) {
+					isOutline = true;
+					break;
+				}
+			}
+		}
+		return isOutline;
+	}
+	
+	/**
+	 * Gets the points which form the polygon.
+	 * 
+	 * @return allPoints (List<PointXY)
+	 */
+	public List<PointXY> getAllPoints() {
+		PathIterator pathIt = getPathIterator(null);
+		List<PointXY> allPoints = new ArrayList<PointXY>();
+		double[] dArray = new double[6]; // Stores the segment details
+		PointXY previousPoint = null;
+		PointXY currentPoint = null;
+		
+		while (!pathIt.isDone()) {
+			pathIt.currentSegment(dArray); // Gets part of polygon
+			currentPoint = new PointXY(dArray[0], dArray[1]);
+			
+			// Do not include successive repeated points
+			if (!currentPoint.equals(previousPoint)) {
+				allPoints.add(currentPoint);
+			}
+			previousPoint = currentPoint;
+			pathIt.next(); // Move on to next segment
+		}
+		return allPoints;
 	}
 	
 	/**

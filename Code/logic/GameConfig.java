@@ -1,7 +1,5 @@
 package logic;
 
-import java.util.List;
-
 import geometry.PolygonShape;
 
 /**
@@ -13,48 +11,28 @@ import geometry.PolygonShape;
 public class GameConfig {
 	
 	private PolygonShape dimensions;
-	private MazeConfig mConfig;
-	private int numPred;
-	private int numPredPlayer;
-	private int numPrey;
-	private int numPreyPlayer;
 	private boolean hasPills;
-	private List<PredatorPowerUp> predatorPowerUps;
-	private List<PreyPowerUp> preyPowerUps;
+	private MazeConfig mConfig;
+	private AgentConfig aConfig;
+	private PowerConfig pConfig;
 	
 	/**
 	 * Creates an instance of GameConfig.
 	 * 
 	 * @param dimensions (Rectangle)
-	 * @param mConfig (MazeConfig)
-	 * @param numPred (int)
-	 * @param numPredPlayer (int)
-	 * @param numPrey (int)
-	 * @param numPreyPlayer (int)
 	 * @param hasPills (boolean)
-	 * @param predatorPowerUps (List<PredatorPowerUp>)
-	 * @param preyPowerUps (List<PreyPowerUp>)
+	 * @param mConfig (MazeConfig)
+	 * @param aConfig (AgentConfig)
+	 * @param pConfig (PowerConfig)
 	 */
-	public GameConfig(PolygonShape dimensions, MazeConfig mConfig, int numPred,
-			int numPredPlayer, int numPrey, int numPreyPlayer,
-			boolean hasPills, List<PredatorPowerUp> predatorPowerUps, List<PreyPowerUp> preyPowerUps) {
-		this.dimensions = dimensions;
-		this.mConfig = mConfig;
-		this.numPred = numPred;
-		this.numPredPlayer = numPredPlayer;
-		this.numPrey = numPrey;
-		this.numPreyPlayer = numPreyPlayer;
-		this.hasPills = hasPills;
-		this.predatorPowerUps = predatorPowerUps;
-		this.preyPowerUps = preyPowerUps;
+	public GameConfig(PolygonShape dimensions, boolean hasPills,
+			MazeConfig mConfig, AgentConfig aConfig, PowerConfig pConfig) {
 		
-		try {
-			if ((this.numPred < this.numPredPlayer) || (this.numPrey < this.numPreyPlayer)){
-				throw new Exception("Illegal Game Configuration: the predator / prey configurations are incorrect.");
-			}
-		} catch (Exception e) {
-			System.err.println(e.toString());
-		}
+		this.dimensions = dimensions;
+		this.hasPills = hasPills;
+		this.mConfig = mConfig;
+		this.aConfig = aConfig;
+		this.pConfig = pConfig;
 	}
 	
 	/**
@@ -73,96 +51,6 @@ public class GameConfig {
 	 */
 	public void setDimensions(PolygonShape dimensions) {
 		this.dimensions = dimensions;
-	}
-	
-	/**
-	 * Gets the maze configurations of the game.
-	 * 
-	 * @return mConfig (MazeConfig)
-	 */
-	public MazeConfig getMConfig() {
-		return this.mConfig;
-	}
-	
-	/**
-	 * Sets the maze configurations of the game.
-	 * 
-	 * @param mConfig (MazeConfig)
-	 */
-	public void setMConfig(MazeConfig mConfig) {
-		this.mConfig = mConfig;
-	}
-	
-	/**
-	 * Gets the total number of predators.
-	 * 
-	 * @return numPred (int)
-	 */
-	public int getNumPred() {
-		return this.numPred;
-	}
-	
-	/**
-	 * Sets the total number of predators.
-	 * 
-	 * @param numPred (int)
-	 */
-	public void setNumPred(int numPred) {
-		this.numPred = numPred;
-	}
-	
-	/**
-	 * Gets the total number of human predator players.
-	 * 
-	 * @return numPredPlayer (int)
-	 */
-	public int getNumPredPlayer() {
-		return this.numPredPlayer;
-	}
-
-	/**
-	 * Sets the total number of human predator players.
-	 * 
-	 * @param numPredPlayer (int)
-	 */
-	public void setNumPredPlayer(int numPredPlayer) {
-		this.numPredPlayer = numPredPlayer;
-	}
-	
-	/**
-	 * Gets the total number of prey.
-	 * 
-	 * @return numPrey (int)
-	 */
-	public int getNumPrey() {
-		return this.numPrey;
-	}
-	
-	/**
-	 * Sets the total number of prey.
-	 * 
-	 * @param numPrey (int)
-	 */
-	public void setNumPrey(int numPrey) {
-		this.numPrey = numPrey;
-	}
-	
-	/**
-	 * Gets the total number of human prey players.
-	 * 
-	 * @return numPreyPlayer (int)
-	 */
-	public int getNumPreyPlayer() {
-		return this.numPreyPlayer;
-	}
-	
-	/**
-	 * Sets the total number of human prey players.
-	 * 
-	 * @param numPreyPlayer (int)
-	 */
-	public void setNumPreyPlayer(int numPreyPlayer) {
-		this.numPreyPlayer = numPreyPlayer;
 	}
 	
 	/**
@@ -185,39 +73,57 @@ public class GameConfig {
 	}
 	
 	/**
-	 * Gets all the powerups for predators.
+	 * Gets the maze configurations of the game.
 	 * 
-	 * @return predatorPowerUps (List<PredatorPowerUp>)
+	 * @return mConfig (MazeConfig)
 	 */
-	public List<PredatorPowerUp> getPredatorPowerUps() {
-		return this.predatorPowerUps;
+	public MazeConfig getMConfig() {
+		return this.mConfig;
 	}
 	
 	/**
-	 * Sets the powerups for predators.
+	 * Sets the maze configurations of the game.
 	 * 
-	 * @param predatorPowerUps (List<PredatorPowerUp>)
+	 * @param mConfig (MazeConfig)
 	 */
-	public void setPredatorPowreUps(List<PredatorPowerUp> predatorPowerUps) {
-		this.predatorPowerUps = predatorPowerUps;
+	public void setMConfig(MazeConfig mConfig) {
+		this.mConfig = mConfig;
 	}
 	
 	/**
-	 * Gets all the powerups for prey.
+	 * Gets the agent configurations of the game.
 	 * 
-	 * @return preyPowerUps (List<PreyPowerUp>)
+	 * @return aConfig (MazeConfig)
 	 */
-	public List<PreyPowerUp> getPreyPowerUps() {
-		return this.preyPowerUps;
+	public AgentConfig getAConfig() {
+		return this.aConfig;
 	}
 	
 	/**
-	 * Sets the powerups for prey.
+	 * Sets the agent configurations of the game.
 	 * 
-	 * @param preyPowerUps (List<PreyPowerUp>)
+	 * @param mConfig (MazeConfig)
 	 */
-	public void setPreyPowreUps(List<PreyPowerUp> preyPowerUps) {
-		this.preyPowerUps = preyPowerUps;
+	public void setAConfig(AgentConfig aConfig) {
+		this.aConfig = aConfig;
+	}
+	
+	/**
+	 * Gets the power configurations of the game.
+	 * 
+	 * @return pConfig (PowerConfig)
+	 */
+	public PowerConfig getPConfig() {
+		return this.pConfig;
+	}
+	
+	/**
+	 * Sets the power configurations of the game.
+	 * 
+	 * @param pConfig (PowerConfig)
+	 */
+	public void setPConfig(PowerConfig pConfig) {
+		this.pConfig = pConfig;
 	}
 	
 }
