@@ -1,14 +1,12 @@
 package render;
 
-import java.util.Iterator;
+import java.util.List;
 
-import physics.PhysicsBodyType;
-import physics.PhysicsDataAgent;
 import logic.Direction;
+import physics.PhysicsDataAgent;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -24,7 +22,6 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.Shape.Type;
 import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
@@ -43,35 +40,36 @@ public class Renderer {
 
 	// Reusable globals
 	private static final Vector2[] mVertices = new Vector2[3];
+	private static final Vector2 mVector2 = new Vector2();
+	private static final float[] boundingBox = 
+								 new float[4]; // {minX, maxX, minY, maxY}
 	private static final Color COLOR_STATIC = new Color(0.5f, 0.9f, 0.5f, 1);
 	private static final Color COLOR_KINEMATIC = new Color(0.5f, 0.5f, 0.9f, 1);
 	private static final Color COLOR_DYNAMIC = new Color(0.9f, 0.7f, 0.7f, 1);
 	private static final Color COLOR_UNDEFINED = new Color(0.2f, 0.2f, 0.2f, 1);
 
+	// World bodies
 	private final Array<Body> mBodies = new Array<Body>();
+	private final BodyComparator bodyComparator = new BodyComparator();
 	
 	// Triangulation fields
 	private final EarClippingTriangulator triangulator = 
 			  							  new EarClippingTriangulator();
 	
-	// Text drawing
+	// Animation drawing
 	private SpriteBatch spriteBatch;
-	private BitmapFont textFont; 
-	private final Animator mAnimator = new Animator();
+	private AnimationConfiguration animationConfig;
+	private final Animator mAnimator = Animator.getInstance();
 	
 	public Renderer() {
-		this(false, true, false, false);
+		this(false, true);
 	}
 	
 	public Renderer(boolean drawDebug, 
-					boolean drawSolids, 
-					boolean drawSprites, 
-					boolean drawAnimations) {
+					boolean drawSolids) {
 		
 		mDrawDebug = drawDebug;
 		mDrawSolids = drawSolids;
-		mDrawAnimations = drawAnimations;
-		
 		mDebugRenderer = new Box2DDebugRenderer();
 		
 		for (int i = 0; i < mVertices.length; i++) {
@@ -81,68 +79,12 @@ public class Renderer {
 		// Assume no shape will have more than 100 vertices for now.
 		mShapeRenderer = new ShapeRenderer(100);
 		
-		// TODO asset loading should be automated using config from a file.
-		// 1. Load assets.
-		String animationGroupName = PhysicsBodyType.Predator.name();
-		mAnimator.loadAnimation(animationGroupName,
-								"DOWN",
-								"predator2.png", 
-								4, 11, 
-								2, 7, 
-								1.5f*4/60f);
-		mAnimator.loadAnimation(animationGroupName,
-								"UP",
-								"predator2.png", 
-								4, 11, 
-								2+11, 7+11, 
-								1.5f*4/60f);
-		mAnimator.loadAnimation(animationGroupName, 
-								"LEFT",
-								"predator2.png", 
-								4, 11, 
-								2+11*2, 7+11*2, 
-								1.5f*4/60f);
-		mAnimator.loadAnimation(animationGroupName,
-								"RIGHT",
-								"predator2.png", 
-								4, 11, 
-								2+11*3, 7+11*3, 
-								1.5f*4/60f);
-		mAnimator.loadAnimation(animationGroupName,
-								"DOWN-STOP", 
-								"predator2.png", 
-								4, 11, 
-								1, 1, 
-								4/60f);
-		mAnimator.loadAnimation(animationGroupName,
-								"UP-STOP", 
-								"predator2.png", 
-								4, 11, 
-								1+11, 1+11, 
-								4/60f);
-		mAnimator.loadAnimation(animationGroupName,
-								"LEFT-STOP", 
-								"predator2.png", 
-								4, 11, 
-								1+11*2, 1+11*2, 
-								4/60f);
-		mAnimator.loadAnimation(animationGroupName,
-								"RIGHT-STOP", 
-								"predator2.png", 
-								4, 11, 
-								1+11*3, 1+11*3, 
-								4/60f);
 		spriteBatch = new SpriteBatch();
-		textFont = new BitmapFont();
-		// Clarifications
-		// 1. Include IDs
-		// 2. Some logic to sorts (pills go on the bottom)
-		// 3. drawTimer (long seconds)
 	}
 
 	public void render(World world, Matrix4 projMatrix) {
 
-		// Utility renderers.
+		// Utility renderers
 		if (mDrawDebug) {
 			mDebugRenderer.render(world, projMatrix);
 		}
@@ -150,16 +92,12 @@ public class Renderer {
 		if (mDrawSolids) {
 			mShapeRenderer.setProjectionMatrix(projMatrix);
 		}
-		
-		// Bodies
+
 		world.getBodies(mBodies);
+		mBodies.sort(bodyComparator);
 		
-		// TODO implement the comparator mBodies.sort(comparator);
-		// This is for drawing objects in a certain order.
-		// if (sortNeeded) { mBodies.sort(..); }
-		
-		for(Iterator<Body> iter = mBodies.iterator(); iter.hasNext(); ){
-			Body body = iter.next();
+		for (int i = 0; i < mBodies.size; i++) {
+			Body body = mBodies.get(i);
 			if (mDrawSolids) {
 				drawBody(body);
 			}
@@ -167,16 +105,13 @@ public class Renderer {
 				drawAnimation(body, projMatrix);
 			}
 		}
-				
-		// Timer
-		drawTimer(301);
 	}
-			
+				
 	private void drawBody(Body body) {
 		
 		Transform transform = body.getTransform();
 
-		for(Fixture fixture : body.getFixtureList()) {
+		for (Fixture fixture : body.getFixtureList()) {
 			
 			if (fixture.getType() == Type.Circle) {
 				CircleShape circle = (CircleShape) fixture.getShape();
@@ -237,81 +172,66 @@ public class Renderer {
 	}
 
 	private void drawAnimation(Body body, Matrix4 projMatrix) {
-
+		
 		spriteBatch.begin();
-		spriteBatch.setProjectionMatrix(projMatrix);
+		spriteBatch.setProjectionMatrix(projMatrix);	
+		
+		TextureRegion frame = null;
 		
 		if (body.getUserData() instanceof PhysicsDataAgent) {
 
 			float deltaTime = Gdx.graphics.getDeltaTime();
-			String animationName = "";
-			TextureRegion frame = null;
-			
 			PhysicsDataAgent data = (PhysicsDataAgent) body.getUserData();
-//			int id = data.getID();
+			String bodyId = String.valueOf(data.getID());
 			String animationGroupName = data.getType().name();		
 			Direction currentDirection = data.getCurrentMove();
-			Direction previousDirection = data.getPreviousMove();
-//		Vector2 size = data.getSize() // TODO			
-			
-			switch (currentDirection) {
-			
-			case None:
+			Direction previousDirection = data.getPreviousMove();		
+			String animationName = getNameByDirection(animationGroupName,
+													  currentDirection,
+													  previousDirection);
 
-				if (previousDirection == Direction.None ||
-					previousDirection == Direction.Down) {
-					animationName = "DOWN-STOP";
-				} 
-				else if (previousDirection == Direction.Up){
-					animationName = "UP-STOP";
-				}
-				else if (previousDirection == Direction.Left) {
-					animationName = "LEFT-STOP";
-				}
-				else if (previousDirection == Direction.Right) {
-					animationName = "RIGHT-STOP";
-				}
-				break;
-			case Up:
-				animationName = "UP";
-				break;
-			case Down:
-				animationName = "DOWN";
-				break;
-			case Left:
-				animationName = "LEFT";
-				break;
-			case Right:
-				animationName = "RIGHT";
-				break;
-			}
-			frame = mAnimator.getAnimationFrame("PREDATOR1", 
+			frame = mAnimator.getAnimationFrame(bodyId, 
 												animationGroupName,
 												animationName, 
 												deltaTime);
-			
-			// TODO Width and Height should come with user data
-			Shape shape = body.getFixtureList().get(0).getShape();
-			float width = shape.getRadius()*6;
-			float height = shape.getRadius()*7;
-			spriteBatch.draw(frame, 
-							  body.getPosition().x - width / 2,
-							  body.getPosition().y - height / 2, 
-							  width, height);
+		} 
+		else {
+			spriteBatch.end();
+			return;
+			// TODO we haven't really discussed how 
+			// everything else should be drawn
+//			frame = mAnimator.getAnimationFrame("", 
+//					  							"SQUARE",
+//					  							"SQUARE", 
+//					  							0.1f);
 		}
+
+		getBoundingBox(body);
+		float width = boundingBox[1] - boundingBox[0];
+		float height = boundingBox[3] - boundingBox[2];
+		float shapeCentreX = boundingBox[1] - width / 2;
+		float shapeCentreY = boundingBox[3] - height / 2;
+			
+		Vector2 position = mVector2;
+		position.x = shapeCentreX - width / 2f;
+		position.y = shapeCentreY - height / 2f; 
+
+		body.getTransform().mul(position);
 		
+		if (animationConfig != null && animationConfig.isAllowRotations()) {
+			spriteBatch.draw(frame, 
+					 position.x,
+					 position.y,
+					 0f, 0f, 
+					 width, height, 
+					 1, 1, 
+					 (float) Math.toDegrees(body.getAngle()));
+		}
+		else {
+			spriteBatch.draw(frame, position.x, position.y, width, height);
+		}
 		spriteBatch.end();
-	}
-	
-	public void drawTimer(long seconds) {
-		spriteBatch.begin();
-		textFont.setColor(Color.ORANGE);
-		textFont.draw(spriteBatch, 
-					  String.format("%02d:%02d", seconds/60, seconds % 60), 
-					  50, 50);
-		spriteBatch.end();
-	}
-	
+	}	
 
 	private void drawLine(Vector2 startPoint, Vector2 endPoint, Color color) {
 		mShapeRenderer.begin(ShapeType.Line);
@@ -341,7 +261,6 @@ public class Renderer {
 		mShapeRenderer.setColor(color);
 		mShapeRenderer.triangle(x1, y1, x2, y2, x3, y3);
 		mShapeRenderer.end();
-		
 	}
 
 	/**
@@ -382,6 +301,169 @@ public class Renderer {
 			return COLOR_DYNAMIC;
 		} else {
 			return COLOR_UNDEFINED;
+		}
+	}
+	
+	/**
+	 * Obtains the width and height of a body, based on the farthest
+	 * vertical and horizontal distances between the boundaries of shapes
+	 * that make up the fixtures in the body.
+	 * 
+	 * @param body - The body to be measured.
+	 * @return A vector whose x component represents the width, and the y
+	 * component represents the height of the body.
+	 * 
+	 * TODO - This should be moved to one of the PhysicsData classes, so it 
+	 * could be computed once and then included in user data. Otherwise it 
+	 * needs to be optimised.
+	 */
+	private float[] getBoundingBox(Body body) {
+
+		float minX = 0f;
+		float maxX = 0f;
+		float minY = 0f;
+		float maxY = 0f;
+
+		for (Fixture fixture : body.getFixtureList()) {
+
+			Type shapeType = fixture.getType();
+			
+			if (shapeType == Type.Circle) {
+				
+				CircleShape circle = (CircleShape) fixture.getShape();
+				float posX = circle.getPosition().x;
+				float posY = circle.getPosition().y;
+				float radius = circle.getRadius();
+				
+				minX = Math.min(minX, posX-radius);
+				maxX = Math.max(maxX, posX+radius);
+				minY = Math.min(minY, posY-radius);
+				maxY = Math.max(maxY, posY+radius);
+			}
+			else if (shapeType == Type.Polygon){
+				
+				PolygonShape polygon = (PolygonShape) fixture.getShape();
+				
+				for (int i = 0; i < polygon.getVertexCount(); i++) {
+					polygon.getVertex(i, mVector2);
+					minX = Math.min(minX, mVector2.x);
+					maxX = Math.max(maxX, mVector2.x);
+					minY = Math.min(minY, mVector2.y);
+					maxY = Math.max(maxY, mVector2.y);
+				}
+			}
+			else if (shapeType == Type.Edge) {
+				
+				EdgeShape edge = (EdgeShape) fixture.getShape();
+				
+				edge.getVertex1(mVector2);
+				minX = Math.min(minX, mVector2.x);
+				maxX = Math.max(maxX, mVector2.x);
+				minY = Math.min(minY, mVector2.y);
+				maxY = Math.max(maxY, mVector2.y);
+				
+				edge.getVertex2(mVector2);
+				minX = Math.min(minX, mVector2.x);
+				maxX = Math.max(maxX, mVector2.x);
+				minY = Math.min(minY, mVector2.y);
+				maxY = Math.max(maxY, mVector2.y);
+			}
+			else if (shapeType == Type.Chain) {
+				
+				ChainShape chain = (ChainShape) fixture.getShape();
+				
+				for (int i = 0; i < chain.getVertexCount(); i++) {
+					chain.getVertex(i, mVector2);
+					minX = Math.min(minX, mVector2.x);
+					maxX = Math.max(maxX, mVector2.x);
+					minY = Math.min(minY, mVector2.y);
+					maxY = Math.max(maxY, mVector2.y);
+				}
+			}
+			else {
+				throw new IllegalStateException("Invalid shape type: " + 
+												shapeType);
+			}
+		}
+
+		boundingBox[0] = minX;
+		boundingBox[1] = maxX;
+		boundingBox[2] = minY;
+		boundingBox[3] = maxY;
+		
+		return boundingBox;
+	}
+	
+	private String getNameByDirection(String animationGroupName,
+									  Direction direction,
+									  Direction previousDirection) {
+		String animationName = "";
+		
+		switch (direction) {
+		case None:
+			if (previousDirection == Direction.None ||
+				previousDirection == Direction.Down) {
+				animationName = AnimationConfiguration.ANIMATION_DOWN_STOP;
+			} 
+			else if (previousDirection == Direction.Up) {
+				animationName = AnimationConfiguration.ANIMATION_UP_STOP;
+			}
+			else if (previousDirection == Direction.Left) {
+				animationName = AnimationConfiguration.ANIMATION_LEFT_STOP;
+			}
+			else if (previousDirection == Direction.Right) {
+				animationName = AnimationConfiguration.ANIMATION_RIGHT_STOP;
+			}
+			break;
+		case Up:
+			animationName = AnimationConfiguration.ANIMATION_UP;
+			break;
+		case Down:
+			animationName = AnimationConfiguration.ANIMATION_DOWN;
+			break;
+		case Left:
+			animationName = AnimationConfiguration.ANIMATION_LEFT;
+			break;
+		case Right:
+			animationName = AnimationConfiguration.ANIMATION_RIGHT;
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid direction "+direction);
+		}
+		
+		return animationName;
+	}
+	
+	/**
+	 * Loads the animations as defined in the animation configuration. 
+	 * Assumes that all values in the config have already been set when 
+	 * this method is called. 
+	 * <p>
+	 * Note: the renderer won't draw any animations until this method is called.
+	 * 
+	 * @param config - The animation configuration
+	 */
+	public void loadAnimations(AnimationConfiguration config) {
+		
+		if (config == null) {
+			return;
+		}
+		
+		animationConfig = config;
+		mDrawAnimations = true;
+		
+		List<AnimationDefinition> definitions = animationConfig
+												.getAnimationDefinitions();
+		
+		for (AnimationDefinition definition : definitions) {
+			mAnimator.loadAnimation(definition.getAnimationGroupName(),
+									definition.getAnimationName(), 
+									definition.getFilename(),
+									definition.getRows(),
+									definition.getColumns(),
+									definition.getStartFrame(),
+									definition.getEndFrame(),
+									definition.getFrameDuration());
 		}
 	}
 

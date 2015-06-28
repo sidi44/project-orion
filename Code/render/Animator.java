@@ -11,18 +11,31 @@ import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+/**
+ * This class provides a logical grouping of rectangular regions in 
+ * sprite-sheets that collectively define an animation.
+ */
 public class Animator {
 
+	private static Animator instance;
 	private final Map<String, Animation> mAnimations;
 	private final Map<String, Map<String, Animation>> animationGroups;
 	private final Map<String, AnimationState> animationStates;
 	private final Map<String, Texture> spriteSheets;
 	
-	public Animator() {
+	// Singleton
+	private Animator() {
 		mAnimations = new HashMap<String, Animation>();
 		animationGroups = new HashMap<String, Map<String, Animation>>();
 		animationStates = new HashMap<String, AnimationState>();
 		spriteSheets = new HashMap<String, Texture>();
+	}
+	
+	public static Animator getInstance() {
+		if (instance == null) {
+			instance = new Animator();
+		}
+		return instance;
 	}
 
 	public void loadAnimation(String animationGroupName,
@@ -77,13 +90,14 @@ public class Animator {
 										   String animationGruopId,	
 										   String animationId,
 										   float stateTimeDelta) {
+		String compositeId = animationGruopId + bodyId;
 		
-		if (animationStates.get(bodyId) == null) {
+		if (animationStates.get(compositeId) == null) {
 			AnimationState state = new AnimationState();
-			animationStates.put(bodyId, state);
+			animationStates.put(compositeId, state);
 		}
 		
-		AnimationState state = animationStates.get(bodyId);
+		AnimationState state = animationStates.get(compositeId);
 		float stateTime = state.getStateTime(animationId, stateTimeDelta);
 				
 		Animation animation = null;
