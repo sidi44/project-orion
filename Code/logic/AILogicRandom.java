@@ -1,5 +1,6 @@
 package logic;
 
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -21,17 +22,18 @@ public class AILogicRandom implements AILogic {
 	}
 	
 	@Override
-	public void calcNextMove(Agent agent, GameState state) {
+	public void calcNextMove(List<Agent> agents, GameState state) {
 
 		Random r = new Random();
 		
 		// Get all possible directions.
 		Direction[] allDir = Direction.values();
 		
-		// Get a random direction and set the Agent's next move.
-		int dirNum = r.nextInt(allDir.length);
-		agent.setNextMoveDirection(allDir[dirNum]);
-		
+		for (Agent agent : agents) {
+			// Get a random direction and set the Agent's next move.
+			int dirNum = r.nextInt(allDir.length);
+			agent.setNextMoveDirection(allDir[dirNum]);
+		}
 	}
 
 }

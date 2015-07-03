@@ -228,7 +228,9 @@ public class Renderer {
 					 (float) Math.toDegrees(body.getAngle()));
 		}
 		else {
-			spriteBatch.draw(frame, position.x, position.y, width, height);
+			if (frame != null) {
+				spriteBatch.draw(frame, position.x, position.y, width, height);
+			}
 		}
 		spriteBatch.end();
 	}	
