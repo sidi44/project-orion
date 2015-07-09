@@ -39,10 +39,10 @@ public class Animator {
 	}
 
 	public void loadAnimation(String animationGroupName,
-							  String animationName,
 							  String filename,
 							  int rows,
 							  int columns,
+							  String animationName,
 							  int startFrame,
 							  int endFrame,
 							  float frameDuration) {

@@ -22,18 +22,18 @@ public class AnimationConfiguration {
 	
 	private boolean allowRotations;
 
-	private final List<AnimationDefinition> animationDefinitions =
-			  new ArrayList<AnimationDefinition>();
+	private final List<AnimationGroupDefinition> animationGroupDefinitions =
+			  new ArrayList<AnimationGroupDefinition>();
 
-	public void addAnimation(AnimationDefinition animDef) {
+	public void addAnimationGroup(AnimationGroupDefinition animGroupDef) {
 		
-		if (animDef != null) {
-			animationDefinitions.add(animDef);
+		if (animGroupDef != null) {
+			animationGroupDefinitions.add(animGroupDef);
 		}
 	}
 	
-	public List<AnimationDefinition> getAnimationDefinitions() {
-		return animationDefinitions;
+	public List<AnimationGroupDefinition> getAnimationGroupDefinitions() {
+		return animationGroupDefinitions;
 	}
 
 	public boolean isAllowRotations() {
@@ -43,5 +43,4 @@ public class AnimationConfiguration {
 	public void setAllowRotations(boolean allowRotations) {
 		this.allowRotations = allowRotations;
 	}
-
 }
