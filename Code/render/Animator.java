@@ -13,7 +13,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 /**
  * This class provides a logical grouping of rectangular regions in 
- * sprite-sheets that collectively define an animation.
+ * sprite sheets that collectively define an animation.
  */
 public class Animator {
 
@@ -105,8 +105,8 @@ public class Animator {
 		
 		if (group == null || (animation = group.get(animationId)) == null) {
 			
-			throw new IllegalStateException("Animation " + animationGruopId +" " 
-										 + animationId + " hasn't been loaded");
+			throw new IllegalStateException("Animation \"" + animationGruopId +
+								   		 animationId + "\" hasn't been loaded");
 		} 
 		
 		return animation.getKeyFrame(stateTime, true);
