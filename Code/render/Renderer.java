@@ -3,10 +3,13 @@ package render;
 import java.util.List;
 
 import logic.Direction;
+import physics.PhysicsBodyType;
+import physics.PhysicsData;
 import physics.PhysicsDataAgent;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -27,6 +30,9 @@ import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
+/**
+ * This class is responsible for rendering the main game screen.
+ */
 public class Renderer {
 
 	// Rendering wrappers
@@ -34,13 +40,13 @@ public class Renderer {
 	private ShapeRenderer mShapeRenderer;
 	
 	// Flags
-	private boolean mDrawDebug;
-	private boolean mDrawSolids;
-	private boolean mDrawAnimations;
+	private boolean drawDebug;
+	private boolean drawFilled;
+	private boolean texturesLoaded;
 
 	// Reusable globals
-	private static final Vector2[] mVertices = new Vector2[3];
-	private static final Vector2 mVector2 = new Vector2();
+	private static final Vector2[] vertices = new Vector2[3];
+	private static final Vector2 vector2 = new Vector2();
 	private static final float[] boundingBox = 
 								 new float[4]; // {minX, maxX, minY, maxY}
 	private static final Color COLOR_STATIC = new Color(0.5f, 0.9f, 0.5f, 1);
@@ -49,31 +55,40 @@ public class Renderer {
 	private static final Color COLOR_UNDEFINED = new Color(0.2f, 0.2f, 0.2f, 1);
 
 	// World bodies
-	private final Array<Body> mBodies = new Array<Body>();
+	private final Array<Body> bodies = new Array<Body>();
 	private final BodyComparator bodyComparator = new BodyComparator();
 	
 	// Triangulation fields
 	private final EarClippingTriangulator triangulator = 
 			  							  new EarClippingTriangulator();
 	
-	// Animation drawing
-	private SpriteBatch spriteBatch;
-	private AnimationConfiguration animationConfig;
-	private final Animator mAnimator = Animator.getInstance();
+	// Texture drawing
+	private RendererConfiguration rendererConfig;
+	private final SpriteBatch spriteBatch;
+	private final Animator animator = Animator.getInstance();
+	private TextureRegion wallTile;
+	private TextureRegion background;
 	
 	public Renderer() {
 		this(false, true);
 	}
 	
+	/**
+	 * Constructor for the main game screen renderer.
+	 * 
+	 * @param drawDebug - true if the default Box2D debug 
+	 * renderer should be enabled. This renderer will only draw shape outlines.
+	 * @param drawFilled - true to enable rendering of filled shapes.
+	 */
 	public Renderer(boolean drawDebug, 
-					boolean drawSolids) {
+					boolean drawFilled) {
 		
-		mDrawDebug = drawDebug;
-		mDrawSolids = drawSolids;
+		this.drawDebug = drawDebug;
+		this.drawFilled = drawFilled;
 		mDebugRenderer = new Box2DDebugRenderer();
 		
-		for (int i = 0; i < mVertices.length; i++) {
-			mVertices[i] = new Vector2();
+		for (int i = 0; i < vertices.length; i++) {
+			vertices[i] = new Vector2();
 		}
 		
 		// Assume no shape will have more than 100 vertices for now.
@@ -82,29 +97,62 @@ public class Renderer {
 		spriteBatch = new SpriteBatch();
 	}
 
+	/**
+	 * Render the world and the bodies within it that have valid shapes.
+	 * 
+	 * @param world - The world to render.
+	 * @param projMatrix - The projection matrix is responsible for doing the
+	 * size and location conversions between the world and the context of the 
+	 * current screen.
+	 */
 	public void render(World world, Matrix4 projMatrix) {
 
-		// Utility renderers
-		if (mDrawDebug) {
+		if (texturesLoaded) {
+			drawBackground(0, 0, projMatrix);
+		}
+		
+		if (drawDebug) {
 			mDebugRenderer.render(world, projMatrix);
 		}
 		
-		if (mDrawSolids) {
+		if (drawFilled) {
 			mShapeRenderer.setProjectionMatrix(projMatrix);
 		}
 
-		world.getBodies(mBodies);
-		mBodies.sort(bodyComparator);
+		world.getBodies(bodies);
+		bodies.sort(bodyComparator);
 		
-		for (int i = 0; i < mBodies.size; i++) {
-			Body body = mBodies.get(i);
-			if (mDrawSolids) {
+		for (int i = 0; i < bodies.size; i++) {
+			Body body = bodies.get(i);
+			if (drawFilled) {
 				drawBody(body);
 			}
-			if (mDrawAnimations) {
-				drawAnimation(body, projMatrix);
+			if (texturesLoaded) {
+//				drawBoundingBox(body, projMatrix);
+				drawTexture(body, projMatrix);
 			}
 		}
+	}
+	
+	/**
+	 * Draws the background image at the specified world coordinates. Assumes
+	 * the image has already been loaded into memory.
+	 * 
+	 * @param x - the x-coordinate of the background image centre.
+	 * @param y - the y-coordinate of the background image centre.
+	 * @param projMatrix - the projection matrix
+	 */
+	private void drawBackground(float x, float y, Matrix4 projMatrix) {
+		Vector2 dimensions = rendererConfig.getBackgroundDimensions();
+		
+		spriteBatch.begin();
+		spriteBatch.setProjectionMatrix(projMatrix);
+		spriteBatch.draw(background, 
+				         x - dimensions.x / 2,
+				         y - dimensions.y / 2,
+				         dimensions.x, 
+				         dimensions.y);
+		spriteBatch.end();
 	}
 				
 	private void drawBody(Body body) {
@@ -123,11 +171,11 @@ public class Renderer {
 			if (fixture.getType() == Type.Edge) {
 				EdgeShape edge = (EdgeShape) fixture.getShape();
 				
-				edge.getVertex1(mVertices[0]);
-				edge.getVertex2(mVertices[1]);
+				edge.getVertex1(vertices[0]);
+				edge.getVertex2(vertices[1]);
 				
-				drawLine(transform.mul(mVertices[0]),
-						 transform.mul(mVertices[1]),
+				drawLine(transform.mul(vertices[0]),
+						 transform.mul(vertices[1]),
 						 getColorByBody(body));
 				continue;
 			}
@@ -137,10 +185,10 @@ public class Renderer {
 				int vertexCount = chain.getVertexCount();
 				if(vertexCount > 1){
 					for (int i = 0; i < vertexCount-1; i++) {
-						chain.getVertex(i, mVertices[0]);
-						chain.getVertex(i+1, mVertices[1]);
-						drawLine(transform.mul(mVertices[0]),
-								 transform.mul(mVertices[1]),
+						chain.getVertex(i, vertices[0]);
+						chain.getVertex(i+1, vertices[1]);
+						drawLine(transform.mul(vertices[0]),
+								 transform.mul(vertices[1]),
 								 getColorByBody(body));
 					}
 				}
@@ -170,40 +218,111 @@ public class Renderer {
 			}
 		}
 	}
-
-	private void drawAnimation(Body body, Matrix4 projMatrix) {
+	
+	// This method exists for debug purposes only
+//	private void drawBoundingBox(Body body, Matrix4 projMatrix) {
+//		
+//		spriteBatch.begin();
+//		spriteBatch.setProjectionMatrix(projMatrix);
+//		
+//		TextureRegion frame = animator.getAnimationFrame("", 
+//														 "SQUARE",
+//														 "", 
+//														 0);
+//		
+//		getBoundingBox(body);
+//		float width = boundingBox[1] - boundingBox[0];
+//		float height = boundingBox[3] - boundingBox[2];
+//		float shapeCentreX = boundingBox[1] - width / 2;
+//		float shapeCentreY = boundingBox[3] - height / 2;
+//			
+//		Vector2 position = vector2;
+//		position.x = shapeCentreX - width / 2f;
+//		position.y = shapeCentreY - height / 2f; 
+//
+//		body.getTransform().mul(position);
+//		
+//		if (rendererConfig != null && rendererConfig.isAllowRotations()) {
+//			spriteBatch.draw(frame, 
+//					 position.x,
+//					 position.y,
+//					 0f, 0f, 
+//					 width, height, 
+//					 1, 1, 
+//					 (float) Math.toDegrees(body.getAngle()));
+//		}
+//		else {
+//			spriteBatch.draw(frame, position.x, position.y, width, height);
+//		}
+//		spriteBatch.end();
+//	}
+	
+	private void drawTexture(Body body, Matrix4 projMatrix) {
+		
+		if (body.getUserData() == null) {
+			return;
+		}
+		
+		// We assume user data can be casted to PhysicsData.
+		PhysicsData data = (PhysicsData) body.getUserData();
 		
 		spriteBatch.begin();
 		spriteBatch.setProjectionMatrix(projMatrix);	
 		
 		TextureRegion frame = null;
+		float deltaTime = Gdx.graphics.getDeltaTime();
 		
-		if (body.getUserData() instanceof PhysicsDataAgent) {
+		if (data.getType() == PhysicsBodyType.Predator ||
+			data.getType() == PhysicsBodyType.Prey) {
 
-			float deltaTime = Gdx.graphics.getDeltaTime();
-			PhysicsDataAgent data = (PhysicsDataAgent) body.getUserData();
-			String bodyId = String.valueOf(data.getID());
-			String animationGroupName = data.getType().name();		
-			Direction currentDirection = data.getCurrentMove();
-			Direction previousDirection = data.getPreviousMove();		
+			PhysicsDataAgent agentData = (PhysicsDataAgent) body.getUserData();
+			
+			String bodyId = String.valueOf(agentData.getID());
+			String animationGroupName = agentData.getType().name();		
+			Direction currentDirection = agentData.getCurrentMove();
+			Direction previousDirection = agentData.getPreviousMove();		
+			
 			String animationName = getNameByDirection(animationGroupName,
 													  currentDirection,
 													  previousDirection);
 
-			frame = mAnimator.getAnimationFrame(bodyId, 
+			frame = animator.getAnimationFrame(bodyId, 
 												animationGroupName,
 												animationName, 
 												deltaTime);
 		} 
-		else {
+		else if (data.getType() == PhysicsBodyType.Pill) {
+			frame = animator.getAnimationFrame("", 
+												PhysicsBodyType.Pill.name(),
+												"", 
+												deltaTime);
+		}
+		else if (data.getType() == PhysicsBodyType.Walls) {
+
+			getBoundingBox(body);
+			float width = boundingBox[1] - boundingBox[0];
+			float height = boundingBox[3] - boundingBox[2];
+			float shapeCentreX = boundingBox[1] - width / 2;
+			float shapeCentreY = boundingBox[3] - height / 2;
+				
+			Vector2 position = vector2;
+			position.x = shapeCentreX - width / 2f;
+			position.y = shapeCentreY - height / 2f; 
+			
+			body.getTransform().mul(position);
+			float tileEdge = Math.min(width, height) * rendererConfig
+													   .getWallTextureScale();
+			drawRepeatingTexture(spriteBatch, wallTile,
+								 position.x, position.y, 
+								 (float) Math.toDegrees(body.getAngle()),
+								 tileEdge, tileEdge,
+								 width, height);
 			spriteBatch.end();
 			return;
-			// TODO we haven't really discussed how 
-			// everything else should be drawn
-//			frame = mAnimator.getAnimationFrame("", 
-//					  							"SQUARE",
-//					  							"SQUARE", 
-//					  							0.1f);
+		}
+		else {
+			throw new IllegalArgumentException("Invalid user data type: " + 
+											   data.getType());
 		}
 
 		getBoundingBox(body);
@@ -212,13 +331,13 @@ public class Renderer {
 		float shapeCentreX = boundingBox[1] - width / 2;
 		float shapeCentreY = boundingBox[3] - height / 2;
 			
-		Vector2 position = mVector2;
+		Vector2 position = vector2;
 		position.x = shapeCentreX - width / 2f;
 		position.y = shapeCentreY - height / 2f; 
 
 		body.getTransform().mul(position);
 		
-		if (animationConfig != null && animationConfig.isAllowRotations()) {
+		if (rendererConfig != null && rendererConfig.isAllowRotations()) {
 			spriteBatch.draw(frame, 
 					 position.x,
 					 position.y,
@@ -232,7 +351,137 @@ public class Renderer {
 		}
 		spriteBatch.end();
 	}	
+	
+	/**
+	 * Draws a repeating texture (tile) to fill up a specified area. The 
+	 * drawing is done by first filling up the area with as many columns of 
+	 * full tiles as possible, starting from the bottom left corner, and then 
+	 * filling in the remaining area with tiles that had their edges 
+	 * appropriately cut off.
+	 * 
+	 * @param batch - The sprite batch that does the actual drawing. Assumes
+	 * that the begin() method was called before calling this method.
+	 * @param sprite - The texture that will be repeatedly drawn to fill up the
+	 * specified area.
+	 * @param x - The x-coordinate of the bottom left tile.
+	 * @param y - The y-coordinate of the bottom left tile.
+	 * @param angleDeg - The rotation angle of the tiles in degrees. 
+	 * @param tileWidth - The tile width in world measurements.
+	 * @param tileHeight - The tile height in world measurements.
+	 * @param areaWidth - The width of the area to be filled with tiles.
+	 * @param areaHeight - The height of the area to be filled with tiles.
+	 */
+	public void drawRepeatingTexture(SpriteBatch batch, TextureRegion sprite,
+							  float x, float y, float angleDeg, 
+							  float tileWidth, float tileHeight, 
+							  float areaWidth, float areaHeight) {
 
+		float angleRad = (float) Math.toRadians(angleDeg);
+		
+		// How many full tiles we can draw horizontally / vertically.
+		int tileCountX = (int) (areaWidth / tileWidth);
+		int tileCountY = (int) (areaHeight / tileHeight);
+		
+		// The deltas to adjust the drawing point coordinates.
+		final float deltaHeightX = (float) (tileHeight * -Math.sin(angleRad));
+		final float deltaHeightY = (float) (tileHeight * Math.cos(angleRad));
+		final float deltaWidthX = (float) (tileWidth * Math.cos(angleRad));
+		final float deltaWidthY = (float) (tileWidth * Math.sin(angleRad));
+		
+		float startX = x, startY = y;
+		float previousBottomX = startX, previousBottomY = startY;
+		
+		// 1. Draw full tiles
+		for (int countX = tileCountX; countX > 0; countX--) {
+			for (int countY = tileCountY; countY > 0; countY--) {
+				batch.draw(sprite, 
+						   x, y,
+						   0f, 0f, 
+						   tileWidth, tileHeight, 
+						   1, 1, 
+						   angleDeg);
+				
+				x += deltaHeightX;
+				y += deltaHeightY;
+			}			
+			// Move right to the new bottom drawing point
+			x = previousBottomX + deltaWidthX;
+			y = previousBottomY + deltaWidthY;
+			
+			previousBottomX = x;
+			previousBottomY = y;
+		}			
+		
+		// 2. Fill in the remaining space with partial tiles.
+		float remainingX = areaWidth - tileCountX * tileWidth;
+		float remainingY = areaHeight - tileCountY * tileHeight;
+		
+		float topLeftX = startX + tileCountY * deltaHeightX;
+		float topLeftY = startY + tileCountY * deltaHeightY;
+		
+		if (remainingY > 0) {
+			// Fill in the top edge, excluding the top-right corner.
+			float originalV = sprite.getV();
+			float tempV = (tileHeight - remainingY) / tileHeight; 
+			sprite.setV(tempV);
+
+			for (int countX = tileCountX; countX > 0; countX--) {
+				batch.draw(sprite, 
+						   topLeftX, topLeftY, 
+						   0, 0, 
+						   tileWidth, remainingY, 
+						   1, 1, 
+						   angleDeg);
+				
+				topLeftX += deltaWidthX;
+				topLeftY += deltaWidthY;
+			}
+			sprite.setV(originalV);
+		}
+
+		float bottomRightX = startX + tileCountX * deltaWidthX;
+		float bottomRightY = startY + tileCountX * deltaWidthY;
+		
+		float topRightX = bottomRightX + tileCountY * deltaHeightX;
+		float topRightY = bottomRightY + tileCountY * deltaHeightY;
+
+		if (remainingX > 0) {
+			// Fill in the right edge, including the top-right corner.
+			float originalU2 = sprite.getU2();
+			float tempU2 = remainingX / tileWidth;
+			sprite.setU2(tempU2);
+			
+			for (int countY = tileCountY; countY > 0; countY--) {
+				batch.draw(sprite, 
+						   bottomRightX, bottomRightY,
+						   0, 0,
+						   remainingX, tileHeight,
+						   1, 1, 
+						   angleDeg);
+				
+				bottomRightX += deltaHeightX;
+				bottomRightY += deltaHeightY;
+			}
+
+			if (remainingY > 0) {
+				// Fill in the top-right corner.
+				float originalV = sprite.getV();
+				float tempV = (tileHeight - remainingY) / tileHeight; 
+				sprite.setV(tempV);
+				
+				batch.draw(sprite, 
+						   topRightX, topRightY,
+						   0, 0, 
+						   remainingX, remainingY, 
+						   1, 1, 
+						   angleDeg);
+				
+				sprite.setV(originalV);
+			}
+			sprite.setU2(originalU2);		
+		}
+	}
+	
 	private void drawLine(Vector2 startPoint, Vector2 endPoint, Color color) {
 		mShapeRenderer.begin(ShapeType.Line);
 		mShapeRenderer.setColor(color);
@@ -264,7 +513,7 @@ public class Renderer {
 	}
 
 	/**
-	 * @param mVertices
+	 * @param vertices
 	 * @param color
 	 */
 	public void drawPolygon(PolygonShape polygon,
@@ -275,17 +524,17 @@ public class Renderer {
 		short[] triangles = data.getTriangles();
 		
 		for (int i = 0; i < triangles.length; i += 3) {
-			polygon.getVertex(triangles[i], mVertices[0]);
-			polygon.getVertex(triangles[i+1], mVertices[1]);
-			polygon.getVertex(triangles[i+2], mVertices[2]);
+			polygon.getVertex(triangles[i], vertices[0]);
+			polygon.getVertex(triangles[i+1], vertices[1]);
+			polygon.getVertex(triangles[i+2], vertices[2]);
 			
-			transform.mul(mVertices[0]);
-			transform.mul(mVertices[1]);
-			transform.mul(mVertices[2]);
+			transform.mul(vertices[0]);
+			transform.mul(vertices[1]);
+			transform.mul(vertices[2]);
 			
-			drawTriangle(mVertices[0].x, mVertices[0].y,
-						 mVertices[1].x, mVertices[1].y,
-						 mVertices[2].x, mVertices[2].y,
+			drawTriangle(vertices[0].x, vertices[0].y,
+						 vertices[1].x, vertices[1].y,
+						 vertices[2].x, vertices[2].y,
 						 color);
 		}
 		
@@ -313,7 +562,7 @@ public class Renderer {
 	 * @return A vector whose x component represents the width, and the y
 	 * component represents the height of the body.
 	 * 
-	 * TODO - This should be moved to one of the PhysicsData classes, so it 
+	 * FIXME - This should be moved to one of the PhysicsData classes, so it 
 	 * could be computed once and then included in user data. Otherwise it 
 	 * needs to be optimised.
 	 */
@@ -345,39 +594,39 @@ public class Renderer {
 				PolygonShape polygon = (PolygonShape) fixture.getShape();
 				
 				for (int i = 0; i < polygon.getVertexCount(); i++) {
-					polygon.getVertex(i, mVector2);
-					minX = Math.min(minX, mVector2.x);
-					maxX = Math.max(maxX, mVector2.x);
-					minY = Math.min(minY, mVector2.y);
-					maxY = Math.max(maxY, mVector2.y);
+					polygon.getVertex(i, vector2);
+					minX = Math.min(minX, vector2.x);
+					maxX = Math.max(maxX, vector2.x);
+					minY = Math.min(minY, vector2.y);
+					maxY = Math.max(maxY, vector2.y);
 				}
 			}
 			else if (shapeType == Type.Edge) {
 				
 				EdgeShape edge = (EdgeShape) fixture.getShape();
 				
-				edge.getVertex1(mVector2);
-				minX = Math.min(minX, mVector2.x);
-				maxX = Math.max(maxX, mVector2.x);
-				minY = Math.min(minY, mVector2.y);
-				maxY = Math.max(maxY, mVector2.y);
+				edge.getVertex1(vector2);
+				minX = Math.min(minX, vector2.x);
+				maxX = Math.max(maxX, vector2.x);
+				minY = Math.min(minY, vector2.y);
+				maxY = Math.max(maxY, vector2.y);
 				
-				edge.getVertex2(mVector2);
-				minX = Math.min(minX, mVector2.x);
-				maxX = Math.max(maxX, mVector2.x);
-				minY = Math.min(minY, mVector2.y);
-				maxY = Math.max(maxY, mVector2.y);
+				edge.getVertex2(vector2);
+				minX = Math.min(minX, vector2.x);
+				maxX = Math.max(maxX, vector2.x);
+				minY = Math.min(minY, vector2.y);
+				maxY = Math.max(maxY, vector2.y);
 			}
 			else if (shapeType == Type.Chain) {
 				
 				ChainShape chain = (ChainShape) fixture.getShape();
 				
 				for (int i = 0; i < chain.getVertexCount(); i++) {
-					chain.getVertex(i, mVector2);
-					minX = Math.min(minX, mVector2.x);
-					maxX = Math.max(maxX, mVector2.x);
-					minY = Math.min(minY, mVector2.y);
-					maxY = Math.max(maxY, mVector2.y);
+					chain.getVertex(i, vector2);
+					minX = Math.min(minX, vector2.x);
+					maxX = Math.max(maxX, vector2.x);
+					minY = Math.min(minY, vector2.y);
+					maxY = Math.max(maxY, vector2.y);
 				}
 			}
 			else {
@@ -403,29 +652,29 @@ public class Renderer {
 		case None:
 			if (previousDirection == Direction.None ||
 				previousDirection == Direction.Down) {
-				animationName = AnimationConfiguration.ANIMATION_DOWN_STOP;
+				animationName = RendererConfiguration.ANIMATION_DOWN_STOP;
 			} 
 			else if (previousDirection == Direction.Up) {
-				animationName = AnimationConfiguration.ANIMATION_UP_STOP;
+				animationName = RendererConfiguration.ANIMATION_UP_STOP;
 			}
 			else if (previousDirection == Direction.Left) {
-				animationName = AnimationConfiguration.ANIMATION_LEFT_STOP;
+				animationName = RendererConfiguration.ANIMATION_LEFT_STOP;
 			}
 			else if (previousDirection == Direction.Right) {
-				animationName = AnimationConfiguration.ANIMATION_RIGHT_STOP;
+				animationName = RendererConfiguration.ANIMATION_RIGHT_STOP;
 			}
 			break;
 		case Up:
-			animationName = AnimationConfiguration.ANIMATION_UP;
+			animationName = RendererConfiguration.ANIMATION_UP;
 			break;
 		case Down:
-			animationName = AnimationConfiguration.ANIMATION_DOWN;
+			animationName = RendererConfiguration.ANIMATION_DOWN;
 			break;
 		case Left:
-			animationName = AnimationConfiguration.ANIMATION_LEFT;
+			animationName = RendererConfiguration.ANIMATION_LEFT;
 			break;
 		case Right:
-			animationName = AnimationConfiguration.ANIMATION_RIGHT;
+			animationName = RendererConfiguration.ANIMATION_RIGHT;
 			break;
 		default:
 			throw new IllegalArgumentException("Invalid direction "+direction);
@@ -443,28 +692,44 @@ public class Renderer {
 	 * 
 	 * @param config - The animation configuration
 	 */
-	public void loadAnimations(AnimationConfiguration config) {
+	public void loadTextures(RendererConfiguration config) {
 		
-		if (config == null) {
+		if (config == null || texturesLoaded) {
 			return;
 		}
 		
-		animationConfig = config;
-		mDrawAnimations = true;
+		rendererConfig = config;
+		texturesLoaded = true;
 		
-		List<AnimationDefinition> definitions = animationConfig
-												.getAnimationDefinitions();
+		// 1. Dynamic content textures that make up animations.
+		List<AnimationGroupDefinition> groupDefs = 
+								 rendererConfig.getAnimationGroupDefinitions();
 		
-		for (AnimationDefinition definition : definitions) {
-			mAnimator.loadAnimation(definition.getAnimationGroupName(),
-									definition.getAnimationName(), 
-									definition.getFilename(),
-									definition.getRows(),
-									definition.getColumns(),
-									definition.getStartFrame(),
-									definition.getEndFrame(),
-									definition.getFrameDuration());
+		for (AnimationGroupDefinition groupDef : groupDefs) {
+			
+			List<AnimationDefinition> animationDefs = groupDef
+													 .getAnimationDefinitions();
+			
+			for (AnimationDefinition animationDef : animationDefs) {
+				animator.loadAnimation(groupDef.getAnimationGroupName(),
+										groupDef.getFilename(),
+										groupDef.getRows(),
+										groupDef.getColumns(),
+										animationDef.getAnimationName(),
+										animationDef.getStartFrame(),
+										animationDef.getEndFrame(),
+										animationDef.getFrameDuration());
+			}
 		}
+		
+		// 2. Static content textures (background and walls)
+		Texture wallTexture = animator.getTexture(
+									   config.getWallTextureFilename());
+		wallTile = new TextureRegion(wallTexture);
+		
+		Texture backgroundTexture = animator.getTexture(
+									        config.getBackgroundFilename());
+		background = new TextureRegion(backgroundTexture);
 	}
 
 	private void triangulatePolygon(Fixture fixture, PolygonShape polygon){
@@ -472,8 +737,8 @@ public class Renderer {
 		PolygonData data = new PolygonData(vertexCount);
 		
 		for( int i = 0; i < vertexCount; i++){
-			polygon.getVertex(i, mVertices[0]);
-			data.addVertex(mVertices[0]);
+			polygon.getVertex(i, vertices[0]);
+			data.addVertex(vertices[0]);
 		}
 		
 		// Check if we successfully built the float-vertex array
