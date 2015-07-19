@@ -16,12 +16,12 @@ import utils.NumberUtils;
  * different game components.
  * 
  * @author Martin Wong
- * @version 2015-06-19
+ * @version 2015-07-19
  */
 public class GameLogic {
 	
 	private GameState gs;
-	private GameConfig gc;
+	private GameConfiguration gc;
 	private AILogic aiLogic;
 	
 	/**
@@ -29,7 +29,7 @@ public class GameLogic {
 	 * 
 	 * @param gc (GameConfig)
 	 */
-	public GameLogic(GameConfig gc) {
+	public GameLogic(GameConfiguration gc) {
 		this.gc = gc;
 		this.aiLogic = new AILogicSimple();
 		

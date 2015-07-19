@@ -1,6 +1,8 @@
 package logic;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import geometry.PointXY;
@@ -9,12 +11,12 @@ import geometry.PointXY;
  * Represents a prey agent.
  * 
  * @author Martin Wong
- * @version 2015-06-11
+ * @version 2015-07-19
  */
 public class Prey extends Agent {
 	
 	private Map<PreyPowerUp, Integer> storedPowers;
-	private Map<PreyPowerUp, Integer> activatedPowers;
+	private List<PreyPowerUp> activatedPowers;
 	
 	/**
 	 * Creates an instance of Prey, using id, position, isPlayer
@@ -29,7 +31,7 @@ public class Prey extends Agent {
 		super(id, pos, isPlayer, stacking);
 		
 		this.storedPowers = new HashMap<PreyPowerUp, Integer>();
-		this.activatedPowers = new HashMap<PreyPowerUp, Integer>();
+		this.activatedPowers = new ArrayList<PreyPowerUp>();
 	}
 	
 	/**
@@ -78,9 +80,9 @@ public class Prey extends Agent {
 	/**
 	 * Gets the activatedPowers of the prey.
 	 * 
-	 * @return activatedPowers (Map<PreyPowerUp, Integer>)
+	 * @return activatedPowers (List<PreyPowerUp>)
 	 */
-	public Map<PreyPowerUp, Integer> getActivatedPowers() {
+	public List<PreyPowerUp> getActivatedPowers() {
 		return activatedPowers;
 	}
 	
@@ -90,7 +92,7 @@ public class Prey extends Agent {
 	 * @param activatedPowers (PreyPowerUp)
 	 */
 	public void addActivatedPower(PreyPowerUp preyPowerUp) {
-		activatedPowers.put(preyPowerUp, preyPowerUp.getTimeLimit());
+		activatedPowers.add(preyPowerUp);
 	}
 	
 	/**
@@ -125,15 +127,11 @@ public class Prey extends Agent {
 	 * Updates activatedPowers of the prey (i.e. remove expired ones).
 	 */
 	public void updateActivatedPowerUps() {
-		
-		for (Map.Entry<PreyPowerUp, Integer> aPowers : activatedPowers.entrySet()) {
-			PreyPowerUp power = aPowers.getKey();
-			Integer updatedTimeLeft = aPowers.getValue() - 1;
-			
-			if (updatedTimeLeft <= 0) {
-				removeActivatedPower(power);
-			} else {
-				activatedPowers.put(power, updatedTimeLeft);
+		for (PreyPowerUp powerUp : activatedPowers) {
+			powerUp.decrementTimeRemaining();
+			double timeRemaining = powerUp.getTimeRemaining();
+			if (timeRemaining <= 0) {
+				removeActivatedPower(powerUp);
 			}
 		}
 	}
@@ -149,12 +147,13 @@ public class Prey extends Agent {
 		boolean isActivated = false;
 		PreyPowerType pType = preyPowerUp.getPType();
 		
-		for (Map.Entry<PreyPowerUp, Integer> aPowers : activatedPowers.entrySet()) {
-			if (aPowers.getKey().getPType() == pType) {
+		for (PreyPowerUp powerUp : activatedPowers) {
+			if (powerUp.getPType() == pType) {
 				isActivated = true;
 				break;
 			}
 		}
+		
 		return isActivated;
 	}
 	
@@ -166,8 +165,17 @@ public class Prey extends Agent {
 	public boolean hasActivatedPower() {
 		return (activatedPowers.size() > 0 );
 	}
-	
-	
-	
+
+	@Override
+	public PowerUp getFirstStoredPowerUp() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void activatePowerUp(PowerUp powerUp) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

@@ -13,7 +13,8 @@ public class UserInputProcessor implements InputProcessor {
 
 	private Move mMove;
 	private final LinkedList<Direction> mPressedMoveKeys;
-
+	private boolean mPressedEnter;
+	
 	// Camera movement
 	private boolean mCamZoomChanged;
 	private float mCamDeltaZoom;
@@ -26,6 +27,7 @@ public class UserInputProcessor implements InputProcessor {
 		mMove = new Move();
 		mPressedMoveKeys = new LinkedList<Direction>();
 		mPressedCamKeys = new LinkedList<Direction>();
+		mPressedEnter = false;
 	}
 
 	public Move getNextMove() {
@@ -36,6 +38,8 @@ public class UserInputProcessor implements InputProcessor {
 		else {
 			mMove.setDirection( mPressedMoveKeys.getLast() );
 		}
+		mMove.setUsePowerUp(mPressedEnter);
+		mPressedEnter = false;
 		
 		return mMove;
 	}
@@ -74,7 +78,8 @@ public class UserInputProcessor implements InputProcessor {
 	public boolean keyDown(int keycode) {
 
 		boolean keyProcessed = true;
-
+		mPressedEnter = false;
+		
 		switch (keycode) {
 
 		case Input.Keys.LEFT:
@@ -91,6 +96,10 @@ public class UserInputProcessor implements InputProcessor {
 
 		case Input.Keys.DOWN:
 			mPressedMoveKeys.add( Direction.Down );
+			break;
+			
+		case Input.Keys.ENTER:
+			mPressedEnter = true;
 			break;
 
 		// Camera movements inputs

@@ -13,7 +13,7 @@ import java.util.Set;
  * Represents the state of the game.
  * 
  * @author Martin Wong, Simon Dicken
- * @version 2015-06-19
+ * @version 2015-07-19
  */
 public class GameState {
 	
@@ -195,6 +195,28 @@ public class GameState {
 	}
 	
 	/**
+	 * Removes predator power ups by position.
+	 * 
+	 * @param pos (PointXY)
+	 */
+	public void removePredatorPowerUp(PointXY pos) {
+		if (predatorPowerUps.containsKey(pos)) {
+			predatorPowerUps.remove(pos);
+		}
+	}
+
+	/**
+	 * Removes prey power ups by position.
+	 * 
+	 * @param pos (PointXY)
+	 */
+	public void removePreyPowerUp(PointXY pos) {
+		if (preyPowerUps.containsKey(pos)) {
+			preyPowerUps.remove(pos);
+		}
+	}
+	
+	/**
 	 * Add a predator.
 	 * 
 	 * @param id (int)
@@ -334,5 +356,41 @@ public class GameState {
 	public Path getClosestPillPath(PointXY start) {
 		return pathFinder.shortestPath(start, pills);
 	}
+	
+	/**
+	 * Inform the game state that the predator with the given id has collected 
+	 * the power up at the given position.
+	 * 
+	 * @param agentID - the id of the predator that has collected the power up.
+	 * @param powerUpPos - the position in the maze of the power up that has 
+	 * been collected.
+	 */
+	public void PredatorPowerUpCollected(int agentID, PointXY powerUpPos) {
+		Predator p = getPredator(agentID);
+		PredatorPowerUp powerUp = predatorPowerUps.get(powerUpPos);
 
+		if (p != null && powerUp != null) {
+			p.addStoredPower(powerUp);
+			removePredatorPowerUp(powerUpPos);
+		}
+	}
+
+	/**
+	 * Inform the game state that the prey with the given id has collected the
+	 * power up at the given position.
+	 * 
+	 * @param agentID - the id of the prey that has collected the power up.
+	 * @param powerUpPos - the position in the maze of the power up that has 
+	 * been collected.
+	 */
+	public void PreyPowerUpCollected(int agentID, PointXY powerUpPos) {
+		Prey p = getPrey(agentID);
+		PreyPowerUp powerUp = preyPowerUps.get(powerUpPos);
+
+		if (p != null && powerUp != null) {
+			p.addStoredPower(powerUp);
+			removePreyPowerUp(powerUpPos);
+		}
+	}
+	
 }

@@ -1,12 +1,14 @@
 package logic;
 
+import java.util.List;
+
 import geometry.PointXY;
 
 /**
  * Represents an agent which has a position and is able to move.
  * 
  * @author Martin Wong, Simon Dicken
- * @version 2015-06-11
+ * @version 2015-07-19
  */
 public abstract class Agent {
 
@@ -170,4 +172,30 @@ public abstract class Agent {
 	 */
 	public abstract boolean hasActivatedPower();
 	
+	/**
+	 * Returns the list of power ups that the Agent currently has activated.
+	 * 
+	 * @return the list of power ups that the Agent currently has activated.
+	 */
+	public abstract List<? extends PowerUp> getActivatedPowers();
+
+	/***
+	 * Return the first power up in the Agent's collection of stored power ups.
+	 * 
+	 * @return the first power up in the Agent's collection of stored power ups.
+	 */
+	public abstract PowerUp getFirstStoredPowerUp();
+
+	/**
+	 * Activate the provided power up.
+	 * 
+	 * The power up will not be activated if:
+	 * 	- the power up is not currently stored by the agent.
+	 *  - the Agent already has a power up activated and stacking is not 
+	 *  enabled.
+	 *  - the power up is already activated.
+	 * 
+	 * @param powerUp - the power up to activate.
+	 */
+	public abstract void activatePowerUp(PowerUp powerUp);
 }

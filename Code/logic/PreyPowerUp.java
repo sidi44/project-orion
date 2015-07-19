@@ -5,12 +5,11 @@ package logic;
  * more complex prey powerups.
  * 
  * @author Martin Wong
- * @version 2015-06-11
+ * @version 2015-07-19
  */
-public class PreyPowerUp implements PowerUp {
+public class PreyPowerUp extends PowerUp {
 	
 	private final PreyPowerType pType;
-	private final int timeLimit;
 	
 	/**
 	 * Creates an instance of PreyPowerUp.
@@ -19,8 +18,8 @@ public class PreyPowerUp implements PowerUp {
 	 * @param timeLimit (int)
 	 */
 	public PreyPowerUp(PreyPowerType pType, int timeLimit) {
+		super(timeLimit);
 		this.pType = pType;
-		this.timeLimit = timeLimit;
 	}
 	
 	/**
@@ -32,61 +31,35 @@ public class PreyPowerUp implements PowerUp {
 		return this.pType;
 	}
 	
-	/**
-	 * Gets the numerical value representing the powerup.
-	 * 
-	 * @return powerVal (int)
-	 */
 	@Override
 	public int getPowerVal() {
 		return getPType().ordinal();
 	}
-	
-	/**
-	 * Gets the time limit for the powerup, i.e. duration.
-	 * 
-	 * @return timeLimit (int)
-	 */
-	public int getTimeLimit() {
-		return this.timeLimit;
-	}
-	
-	/**
-	 * Generates hash code for object.
-	 * If objects are "equal" then will have same hash code.
-	 * 
-	 * @return result (int)
-	 */
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + ((pType == null) ? 0 : pType.hashCode());
-		result = prime * result + timeLimit;
 		return result;
 	}
-	
-	/**
-	 * Checks whether two objects are equal.
-	 * 
-	 * @param o (Object)
-	 * @return isEqual (boolean)
-	 */
+
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (!(obj instanceof PreyPowerUp)) {
 			return false;
+		}
 		PreyPowerUp other = (PreyPowerUp) obj;
-		if (pType != other.pType)
+		if (pType != other.pType) {
 			return false;
-		if (timeLimit != other.timeLimit)
-			return false;
+		}
 		return true;
 	}
-
 	
 }

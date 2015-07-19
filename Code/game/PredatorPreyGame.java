@@ -16,10 +16,10 @@ import render.AnimationDefinition;
 import render.AnimationGroupDefinition;
 import render.Renderer;
 import render.RendererConfiguration;
-//import xml.ConfigurationXMLParser;
+import xml.ConfigurationXMLParser;
 import logic.Agent;
 import logic.AgentConfig;
-import logic.GameConfig;
+import logic.GameConfiguration;
 import logic.GameLogic;
 import logic.GameOver;
 import logic.GameState;
@@ -62,11 +62,12 @@ public class PredatorPreyGame extends ApplicationAdapter {
 	@Override
 	public void create() {
 
-//		String filename = "xml\\Configuration.xml";
-//		ConfigurationXMLParser xmlParser = new ConfigurationXMLParser(filename);
-//		xmlParser.parseXML();
-//		PhysicsConfiguration test = xmlParser.getPhysicsConfig();
-//		RendererConfiguration test2 = xmlParser.getRendererConfig();
+		String filename = "xml\\Configuration.xml";
+		ConfigurationXMLParser xmlParser = new ConfigurationXMLParser(filename);
+		xmlParser.parseXML();
+		GameConfiguration gameConfig = xmlParser.getGameConfig();
+		PhysicsConfiguration physicsConfig = xmlParser.getPhysicsConfig();
+		RendererConfiguration rendererConfig = xmlParser.getRendererConfig();
 		
 		startTime = System.nanoTime() / nanoToSeconds;
 		timeLimit = 200; // seconds.
@@ -76,31 +77,31 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		boolean doSleep = true;
 		world = new World(gravity, doSleep);
 
-		// Do not set numPlayers > 1 for now (see below).
-		int numPlayers = 1; 
-		MazeConfig mazeConfig = new MazeConfig(10, 50, 0.0, 0.8);
-		List<PointXY> vertices = new ArrayList<PointXY>();
-		vertices.add(new PointXY(0, 0));
-		vertices.add(new PointXY(0, 12));
-		vertices.add(new PointXY(12, 12));
-		vertices.add(new PointXY(12, 0));
-		List<PredatorPowerUp> predPowerUps = new ArrayList<PredatorPowerUp>();
-		PredatorPowerUp pow1 = 
-				new PredatorPowerUp(PredatorPowerType.SpeedUpPredator, 300);
-		predPowerUps.add(pow1);
-		
-		AgentConfig agentConfig = new AgentConfig(numPlayers, numPlayers, 5, 0);
-		PowerConfig powerUpConfig = new PowerConfig(1, predPowerUps, 0, 
-				new ArrayList<PreyPowerUp>());
-		GameConfig config = new GameConfig(new PolygonShape(vertices), true,
-				mazeConfig, agentConfig, powerUpConfig);
-		gameLogic = new GameLogic(config);
+//		// Do not set numPlayers > 1 for now (see below).
+//		int numPlayers = 1; 
+//		MazeConfig mazeConfig = new MazeConfig(10, 50, 0.0, 0.8);
+//		List<PointXY> vertices = new ArrayList<PointXY>();
+//		vertices.add(new PointXY(0, 0));
+//		vertices.add(new PointXY(0, 12));
+//		vertices.add(new PointXY(12, 12));
+//		vertices.add(new PointXY(12, 0));
+//		List<PredatorPowerUp> predPowerUps = new ArrayList<PredatorPowerUp>();
+//		PredatorPowerUp pow1 = 
+//				new PredatorPowerUp(PredatorPowerType.SpeedUpPredator, 300);
+//		predPowerUps.add(pow1);
+//		
+//		AgentConfig agentConfig = new AgentConfig(numPlayers, numPlayers, 5, 0);
+//		PowerConfig powerUpConfig = new PowerConfig(1, predPowerUps, 0, 
+//				new ArrayList<PreyPowerUp>());
+//		GameConfig config = new GameConfig(new PolygonShape(vertices), true,
+//				mazeConfig, agentConfig, powerUpConfig);
+		gameLogic = new GameLogic(gameConfig);
 
-		PhysicsConfiguration physConfig = 
-				new PhysicsConfiguration(5f, 0.1f, 0.2f, 40f, 25f);
+//		PhysicsConfiguration physConfig = 
+//				new PhysicsConfiguration(5f, 0.1f, 0.2f, 0.7f, 40f, 25f);
 
 		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
-				physConfig);
+				physicsConfig);
 
 		timestep = Gdx.graphics.getDeltaTime();
 
@@ -129,7 +130,9 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		camera.update();
 		renderer = new Renderer(false, false);
 		
-		defineAnimations(config, physConfig);
+//		defineAnimations(config, physConfig);
+		
+		renderer.loadTextures(rendererConfig);
 		
 		//shortestPath();
 	}
@@ -193,7 +196,7 @@ public class PredatorPreyGame extends ApplicationAdapter {
 
 	}
 
-	private void defineAnimations(GameConfig gameConfig, 
+	private void defineAnimations(GameConfiguration gameConfig, 
 			PhysicsConfiguration physicsConfig) {
 
 		// Define the Predator Animation Group
@@ -332,7 +335,7 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		pillDef.setColumns(10);
 		pillDef.setRows(1);
 		
-		// Define the Prey animations
+		// Define the Pill animations
 		AnimationDefinition def17 = new AnimationDefinition();
 		def17.setAnimationName("");
 		def17.setStartFrame(1);
@@ -341,11 +344,47 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		pillDef.addAnimation(def17);
 		
 		
+		// Define the Predator Power Up Animation Group
+		AnimationGroupDefinition predatorPowerUpDef = 
+				new AnimationGroupDefinition();
+		predatorPowerUpDef.setAnimationGroupName("PowerUpPredator");
+		predatorPowerUpDef.setFilename("assets/icons-pow-up.png");
+		predatorPowerUpDef.setColumns(3);
+		predatorPowerUpDef.setRows(4);
+		
+		// Define the Predator Power Up animations
+		AnimationDefinition def18 = new AnimationDefinition();
+		def18.setAnimationName("");
+		def18.setStartFrame(12);
+		def18.setEndFrame(12);
+		def18.setFrameDuration(1.0f);
+		predatorPowerUpDef.addAnimation(def18);
+		
+		
+		// Define the Predator Power Up Animation Group
+		AnimationGroupDefinition preyPowerUpDef = 
+				new AnimationGroupDefinition();
+		preyPowerUpDef.setAnimationGroupName("PowerUpPrey");
+		preyPowerUpDef.setFilename("assets/icons-pow-up.png");
+		preyPowerUpDef.setColumns(3);
+		preyPowerUpDef.setRows(4);
+		
+		// Define the Predator Power Up animations
+		AnimationDefinition def19 = new AnimationDefinition();
+		def19.setAnimationName("");
+		def19.setStartFrame(9);
+		def19.setEndFrame(9);
+		def19.setFrameDuration(1.0f);
+		preyPowerUpDef.addAnimation(def19);
+		
+		
 		// Define the configuration
 		RendererConfiguration rendererConfig = new RendererConfiguration();
 		rendererConfig.addAnimationGroup(predatorDef);
 		rendererConfig.addAnimationGroup(preyDef);
 		rendererConfig.addAnimationGroup(pillDef);
+		rendererConfig.addAnimationGroup(predatorPowerUpDef);
+		rendererConfig.addAnimationGroup(preyPowerUpDef);
 		
 		rendererConfig.setAllowRotations(true);
 		rendererConfig.setBackgroundFilename("assets/vortex_0.png");

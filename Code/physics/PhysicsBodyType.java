@@ -6,12 +6,14 @@ package physics;
  * Contains each category of body that is used in the Physics world.
  * 
  * @author Simon Dicken
- * @version 2015-05-16
+ * @version 2015-07-19
  */
 public enum PhysicsBodyType {
 
 	Predator,
 	Prey,
+	PowerUpPredator,
+	PowerUpPrey,
 	Pill,
 	Walls
 	

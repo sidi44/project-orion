@@ -143,15 +143,16 @@ public class Renderer {
 	 * @param projMatrix - the projection matrix
 	 */
 	private void drawBackground(float x, float y, Matrix4 projMatrix) {
-		Vector2 dimensions = rendererConfig.getBackgroundDimensions();
+		Vector2 bottomLeft = rendererConfig.getBackgroundBottomLeft();
+		Vector2 topRight = rendererConfig.getBackgroundTopRight();
 		
 		spriteBatch.begin();
 		spriteBatch.setProjectionMatrix(projMatrix);
 		spriteBatch.draw(background, 
-				         x - dimensions.x / 2,
-				         y - dimensions.y / 2,
-				         dimensions.x, 
-				         dimensions.y);
+				         bottomLeft.x,
+				         bottomLeft.y,
+				         topRight.x - bottomLeft.x, 
+				         topRight.y - bottomLeft.y);
 		spriteBatch.end();
 	}
 				
@@ -264,10 +265,7 @@ public class Renderer {
 		}
 		
 		// We assume user data can be casted to PhysicsData.
-		PhysicsData data = (PhysicsData) body.getUserData();
-		
-		spriteBatch.begin();
-		spriteBatch.setProjectionMatrix(projMatrix);	
+		PhysicsData data = (PhysicsData) body.getUserData();	
 		
 		TextureRegion frame = null;
 		float deltaTime = Gdx.graphics.getDeltaTime();
@@ -298,27 +296,45 @@ public class Renderer {
 												deltaTime);
 		}
 		else if (data.getType() == PhysicsBodyType.Walls) {
-
-			getBoundingBox(body);
-			float width = boundingBox[1] - boundingBox[0];
-			float height = boundingBox[3] - boundingBox[2];
-			float shapeCentreX = boundingBox[1] - width / 2;
-			float shapeCentreY = boundingBox[3] - height / 2;
-				
-			Vector2 position = vector2;
-			position.x = shapeCentreX - width / 2f;
-			position.y = shapeCentreY - height / 2f; 
 			
-			body.getTransform().mul(position);
-			float tileEdge = Math.min(width, height) * rendererConfig
-													   .getWallTextureScale();
-			drawRepeatingTexture(spriteBatch, wallTile,
-								 position.x, position.y, 
-								 (float) Math.toDegrees(body.getAngle()),
-								 tileEdge, tileEdge,
-								 width, height);
+			spriteBatch.begin();
+			spriteBatch.setProjectionMatrix(projMatrix);
+			
+			for (Fixture fixture : body.getFixtureList()) {	
+				
+				getBoundingBox(fixture);
+				float width = boundingBox[1] - boundingBox[0];
+				float height = boundingBox[3] - boundingBox[2];
+				float shapeCentreX = boundingBox[1] - width / 2;
+				float shapeCentreY = boundingBox[3] - height / 2;
+				
+				Vector2 position = vector2;
+				position.x = shapeCentreX - width / 2f;
+				position.y = shapeCentreY - height / 2f; 
+				
+				body.getTransform().mul(position);
+				float tileEdge = Math.min(width, height) * rendererConfig
+														   .getWallTextureScale();
+				drawRepeatingTexture(spriteBatch, wallTile,
+									 position.x, position.y, 
+									 (float) Math.toDegrees(body.getAngle()),
+									 tileEdge, tileEdge,
+									 width, height);
+			}
 			spriteBatch.end();
 			return;
+		} 
+		else if (data.getType() == PhysicsBodyType.PowerUpPredator) {
+			frame = animator.getAnimationFrame("", 
+					PhysicsBodyType.PowerUpPredator.name(),
+					"", 
+					deltaTime);
+		}
+		else if (data.getType() == PhysicsBodyType.PowerUpPrey) {
+			frame = animator.getAnimationFrame("", 
+					PhysicsBodyType.PowerUpPrey.name(),
+					"", 
+					deltaTime);
 		}
 		else {
 			throw new IllegalArgumentException("Invalid user data type: " + 
@@ -336,6 +352,9 @@ public class Renderer {
 		position.y = shapeCentreY - height / 2f; 
 
 		body.getTransform().mul(position);
+		
+		spriteBatch.begin();
+		spriteBatch.setProjectionMatrix(projMatrix);
 		
 		if (rendererConfig != null && rendererConfig.isAllowRotations()) {
 			spriteBatch.draw(frame, 
@@ -568,71 +587,19 @@ public class Renderer {
 	 */
 	private float[] getBoundingBox(Body body) {
 
-		float minX = 0f;
-		float maxX = 0f;
-		float minY = 0f;
-		float maxY = 0f;
+		float minX = Float.MAX_VALUE;
+		float maxX = -Float.MAX_VALUE;
+		float minY = Float.MAX_VALUE;
+		float maxY = -Float.MAX_VALUE;
 
 		for (Fixture fixture : body.getFixtureList()) {
 
-			Type shapeType = fixture.getType();
+			float[] fixtureBox = getBoundingBox(fixture);
+			minX = Math.min(minX, fixtureBox[0]);
+			maxX = Math.max(maxX, fixtureBox[1]);
+			minY = Math.min(minY, fixtureBox[2]);
+			maxY = Math.max(maxY, fixtureBox[3]);
 			
-			if (shapeType == Type.Circle) {
-				
-				CircleShape circle = (CircleShape) fixture.getShape();
-				float posX = circle.getPosition().x;
-				float posY = circle.getPosition().y;
-				float radius = circle.getRadius();
-				
-				minX = Math.min(minX, posX-radius);
-				maxX = Math.max(maxX, posX+radius);
-				minY = Math.min(minY, posY-radius);
-				maxY = Math.max(maxY, posY+radius);
-			}
-			else if (shapeType == Type.Polygon){
-				
-				PolygonShape polygon = (PolygonShape) fixture.getShape();
-				
-				for (int i = 0; i < polygon.getVertexCount(); i++) {
-					polygon.getVertex(i, vector2);
-					minX = Math.min(minX, vector2.x);
-					maxX = Math.max(maxX, vector2.x);
-					minY = Math.min(minY, vector2.y);
-					maxY = Math.max(maxY, vector2.y);
-				}
-			}
-			else if (shapeType == Type.Edge) {
-				
-				EdgeShape edge = (EdgeShape) fixture.getShape();
-				
-				edge.getVertex1(vector2);
-				minX = Math.min(minX, vector2.x);
-				maxX = Math.max(maxX, vector2.x);
-				minY = Math.min(minY, vector2.y);
-				maxY = Math.max(maxY, vector2.y);
-				
-				edge.getVertex2(vector2);
-				minX = Math.min(minX, vector2.x);
-				maxX = Math.max(maxX, vector2.x);
-				minY = Math.min(minY, vector2.y);
-				maxY = Math.max(maxY, vector2.y);
-			}
-			else if (shapeType == Type.Chain) {
-				
-				ChainShape chain = (ChainShape) fixture.getShape();
-				
-				for (int i = 0; i < chain.getVertexCount(); i++) {
-					chain.getVertex(i, vector2);
-					minX = Math.min(minX, vector2.x);
-					maxX = Math.max(maxX, vector2.x);
-					minY = Math.min(minY, vector2.y);
-					maxY = Math.max(maxY, vector2.y);
-				}
-			}
-			else {
-				throw new IllegalStateException("Invalid shape type: " + 
-												shapeType);
-			}
 		}
 
 		boundingBox[0] = minX;
@@ -641,6 +608,81 @@ public class Renderer {
 		boundingBox[3] = maxY;
 		
 		return boundingBox;
+	}
+	
+	private float[] getBoundingBox(Fixture fixture) {
+		
+		float minX = Float.MAX_VALUE;
+		float maxX = -Float.MAX_VALUE;
+		float minY = Float.MAX_VALUE;
+		float maxY = -Float.MAX_VALUE;
+		
+		Type shapeType = fixture.getType();
+		
+		if (shapeType == Type.Circle) {
+			
+			CircleShape circle = (CircleShape) fixture.getShape();
+			float posX = circle.getPosition().x;
+			float posY = circle.getPosition().y;
+			float radius = circle.getRadius();
+			
+			minX = Math.min(minX, posX-radius);
+			maxX = Math.max(maxX, posX+radius);
+			minY = Math.min(minY, posY-radius);
+			maxY = Math.max(maxY, posY+radius);
+		}
+		else if (shapeType == Type.Polygon){
+			
+			PolygonShape polygon = (PolygonShape) fixture.getShape();
+			
+			for (int i = 0; i < polygon.getVertexCount(); i++) {
+				polygon.getVertex(i, vector2);
+				minX = Math.min(minX, vector2.x);
+				maxX = Math.max(maxX, vector2.x);
+				minY = Math.min(minY, vector2.y);
+				maxY = Math.max(maxY, vector2.y);
+			}
+		}
+		else if (shapeType == Type.Edge) {
+			
+			EdgeShape edge = (EdgeShape) fixture.getShape();
+			
+			edge.getVertex1(vector2);
+			minX = Math.min(minX, vector2.x);
+			maxX = Math.max(maxX, vector2.x);
+			minY = Math.min(minY, vector2.y);
+			maxY = Math.max(maxY, vector2.y);
+			
+			edge.getVertex2(vector2);
+			minX = Math.min(minX, vector2.x);
+			maxX = Math.max(maxX, vector2.x);
+			minY = Math.min(minY, vector2.y);
+			maxY = Math.max(maxY, vector2.y);
+		}
+		else if (shapeType == Type.Chain) {
+			
+			ChainShape chain = (ChainShape) fixture.getShape();
+			
+			for (int i = 0; i < chain.getVertexCount(); i++) {
+				chain.getVertex(i, vector2);
+				minX = Math.min(minX, vector2.x);
+				maxX = Math.max(maxX, vector2.x);
+				minY = Math.min(minY, vector2.y);
+				maxY = Math.max(maxY, vector2.y);
+			}
+		}
+		else {
+			throw new IllegalStateException("Invalid shape type: " + 
+											shapeType);
+		}
+		
+		boundingBox[0] = minX;
+		boundingBox[1] = maxX;
+		boundingBox[2] = minY;
+		boundingBox[3] = maxY;
+		
+		return boundingBox;
+		
 	}
 	
 	private String getNameByDirection(String animationGroupName,

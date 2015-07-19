@@ -1,11 +1,15 @@
 package logic;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * Represents the configurations used to build a maze.
  * 
  * @author Martin Wong
- * @version 2015-05-19
+ * @version 2015-07-19
  */
+@XmlRootElement(name = "MazeConfiguration")
 public class MazeConfig {
 	
 	private int maxLength; // Length to extend paths before terminating
@@ -13,6 +17,16 @@ public class MazeConfig {
 	private double deadEndMinProp; // Minimum proportion of deadend nodes to total nodes
 	private double ranPathMaxProp; // Maximum proportion of nodes filled by
 									// random path creations to total nodes
+	
+	/**
+	 * Default constructor for MazeConfig.
+	 */
+	public MazeConfig() {
+		this.maxLength = 10;
+		this.loopLimit = 50;
+		this.deadEndMinProp = 0.0;
+		this.ranPathMaxProp = 0.8;
+	}
 	
 	/**
 	 * Creates an instance of MazeConfig.
@@ -42,6 +56,7 @@ public class MazeConfig {
 	 * Sets the maximum allowed path length for path generation.
 	 * 
 	 */
+	@XmlElement (name = "MaxLength")
 	public void setMaxLength(int maxLength) {
 		this.maxLength = maxLength;
 	}
@@ -60,6 +75,7 @@ public class MazeConfig {
 	 * 
 	 * @param loopLimit (int)
 	 */
+	@XmlElement (name = "LoopLimit")
 	public void setLoopLimit(int loopLimit) {
 		this.loopLimit = loopLimit;
 	}
@@ -80,6 +96,7 @@ public class MazeConfig {
 	 * 
 	 * @return deadEndMinProp (double)
 	 */
+	@XmlElement (name = "DeadEndMinProp")
 	public void setDeadEndMinProp(double deadEndMinProp) {
 		this.deadEndMinProp = deadEndMinProp;
 	}
@@ -99,6 +116,7 @@ public class MazeConfig {
 	 * 
 	 * @return deadEndMinProp (double)
 	 */
+	@XmlElement (name = "RanPathMaxProp")
 	public void setRanPathMaxProp(double ranPathMaxProp) {
 		this.ranPathMaxProp = ranPathMaxProp;
 	}

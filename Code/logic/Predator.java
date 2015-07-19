@@ -1,7 +1,10 @@
 package logic;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import geometry.PointXY;
 
@@ -9,12 +12,12 @@ import geometry.PointXY;
  * Represents a predator agent.
  * 
  * @author Martin Wong
- * @version 2015-06-11
+ * @version 2015-07-19
  */
 public class Predator extends Agent {
 	
 	private Map<PredatorPowerUp, Integer> storedPowers;
-	private Map<PredatorPowerUp, Integer> activatedPowers;
+	private List<PredatorPowerUp> activatedPowers;
 	
 	/**
 	 * Creates an instance of Predator, using id, position, isPlayer
@@ -29,7 +32,7 @@ public class Predator extends Agent {
 		super(id, pos, isPlayer, stacking);
 		
 		this.storedPowers = new HashMap<PredatorPowerUp, Integer>();
-		this.activatedPowers = new HashMap<PredatorPowerUp, Integer>();
+		this.activatedPowers = new ArrayList<PredatorPowerUp>();
 	}
 	
 	/**
@@ -78,19 +81,20 @@ public class Predator extends Agent {
 	/**
 	 * Gets the activatedPowers of the predator.
 	 * 
-	 * @return activatedPowers (Map<PredatorPowerUp, Integer>)
+	 * @return activatedPowers (List<PredatorPowerUp>)
 	 */
-	public Map<PredatorPowerUp, Integer> getActivatedPowers() {
+	public List<PredatorPowerUp> getActivatedPowers() {
 		return activatedPowers;
 	}
 	
 	/**
 	 * Adds a powerup to the predator's activatedPowers.
 	 * 
-	 * @param activatedPowers (PredatorPowerUp)
+	 * @param predatorPowerUp (PredatorPowerUp)
 	 */
 	public void addActivatedPower(PredatorPowerUp predatorPowerUp) {
-		activatedPowers.put(predatorPowerUp, predatorPowerUp.getTimeLimit());
+		activatedPowers.add(predatorPowerUp);
+		predatorPowerUp.activate();
 	}
 	
 	/**
@@ -124,16 +128,15 @@ public class Predator extends Agent {
 	/**
 	 * Updates activatedPowers of the predator (i.e. remove expired ones).
 	 */
-	public void updateActivatedPowerUps() {
+	public void updateActivatedPowerUps() {	
 		
-		for (Map.Entry<PredatorPowerUp, Integer> aPowers : activatedPowers.entrySet()) {
-			PredatorPowerUp power = aPowers.getKey();
-			Integer updatedTimeLeft = aPowers.getValue() - 1;
-			
-			if (updatedTimeLeft <= 0) {
-				removeActivatedPower(power);
-			} else {
-				activatedPowers.put(power, updatedTimeLeft);
+		for (int i = 0; i < activatedPowers.size(); ++i) {
+			PredatorPowerUp powerUp = activatedPowers.get(i);
+			powerUp.decrementTimeRemaining();
+			double timeRemaining = powerUp.getTimeRemaining();
+			if (timeRemaining <= 0) {
+				removeActivatedPower(powerUp);
+				--i;
 			}
 		}
 	}
@@ -149,12 +152,13 @@ public class Predator extends Agent {
 		boolean isActivated = false;
 		PredatorPowerType pType = predatorPowerUp.getPType();
 		
-		for (Map.Entry<PredatorPowerUp, Integer> aPowers : activatedPowers.entrySet()) {
-			if (aPowers.getKey().getPType() == pType) {
+		for (PredatorPowerUp powerUp : activatedPowers) {
+			if (powerUp.getPType() == pType) {
 				isActivated = true;
 				break;
 			}
 		}
+		
 		return isActivated;
 	}
 	
@@ -166,8 +170,24 @@ public class Predator extends Agent {
 	public boolean hasActivatedPower() {
 		return (activatedPowers.size() > 0 );
 	}
-	
-	
-	
+
+	@Override
+	public PowerUp getFirstStoredPowerUp() {
+		
+		Set<PredatorPowerUp> powerUps = storedPowers.keySet();
+		for (PredatorPowerUp powerUp : powerUps) {
+			return powerUp;
+		}
+		
+		return null;
+	}
+
+	@Override
+	public void activatePowerUp(PowerUp powerUp) {
+		if (powerUp instanceof PredatorPowerUp) {
+			PredatorPowerUp predPowerUp = (PredatorPowerUp) powerUp;
+			activatePowerUp(predPowerUp);
+		}
+	}
 	
 }

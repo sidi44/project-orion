@@ -1,16 +1,31 @@
 package logic;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  * The configuration for the agents.
  * 
  * @author Martin Wong
- * @version 2015-06-19
+ * @version 2015-07-19
  */
+@XmlRootElement(name = "AgentConfiguration")
 public class AgentConfig {
+	
 	private int numPred;
 	private int numPredPlayer;
 	private int numPrey;
 	private int numPreyPlayer;
+	
+	/**
+	 * Default constructor for AgentConfig.
+	 */
+	public AgentConfig() {
+		this.numPred = 1;
+		this.numPredPlayer = 1;
+		this.numPrey = 5;
+		this.numPredPlayer = 0;
+	}
 	
 	/**
 	 * Creates an instance of AgentConfig.
@@ -55,6 +70,7 @@ public class AgentConfig {
 	 * 
 	 * @param numPred (int)
 	 */
+	@XmlElement (name = "NumPredator")
 	public void setNumPred(int numPred) {
 		this.numPred = numPred;
 	}
@@ -73,6 +89,7 @@ public class AgentConfig {
 	 * 
 	 * @param numPredPlayer (int)
 	 */
+	@XmlElement (name = "NumPredatorPlayer")
 	public void setNumPredPlayer(int numPredPlayer) {
 		this.numPredPlayer = numPredPlayer;
 	}
@@ -91,6 +108,7 @@ public class AgentConfig {
 	 * 
 	 * @param numPrey (int)
 	 */
+	@XmlElement (name = "NumPrey")
 	public void setNumPrey(int numPrey) {
 		this.numPrey = numPrey;
 	}
@@ -109,6 +127,7 @@ public class AgentConfig {
 	 * 
 	 * @param numPreyPlayer (int)
 	 */
+	@XmlElement (name = "NumPreyPlayer")
 	public void setNumPreyPlayer(int numPreyPlayer) {
 		this.numPreyPlayer = numPreyPlayer;
 	}

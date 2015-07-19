@@ -22,8 +22,11 @@ import logic.Maze;
 import logic.MazeNode;
 import logic.Move;
 import logic.Direction;
+import logic.PowerUp;
 import logic.Predator;
+import logic.PredatorPowerUp;
 import logic.Prey;
+import logic.PreyPowerUp;
 
 /**
  * PhysicsProcessorBox2D class.
@@ -37,17 +40,22 @@ import logic.Prey;
  * game.
  * 
  * @author Simon Dicken
- * @version 2015-06-09
+ * @version 2015-07-19
  */
 public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	
 	// The Box2D world.
 	private World world;
 	
+	// The class used to handle the game's power ups, including changing the 
+	// physics properties of the world as appropriate.
+	private PowerUpProcessor powerUpProc;
+	
 	// Physics world geometry and kinematics.
 	private float squareSize;
 	private float wallWidth;
 	private float pillRadius;
+	private float powerUpRadius;
 	private float predatorSpeed;
 	private float preySpeed;
 	
@@ -57,14 +65,20 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	private final short CATEGORY_PREDATOR = 0x0002;
 	private final short CATEGORY_PREY = 0x0004;
 	private final short CATEGORY_PILL = 0x0008;
+	private final short CATEGORY_POWERUP_PREDATOR = 0x0016;
+	private final short CATEGORY_POWERUP_PREY = 0x0032;
 	
 	// Masks are used in collision filtering. Define which physics bodies 
 	// collide. E.g. Predators will collide with walls and prey, but not other 
 	// predators or pills.
-	private final short MASK_PREDATOR = CATEGORY_WALL | CATEGORY_PREY;
-	private final short MASK_PREY = 
-			CATEGORY_WALL | CATEGORY_PILL | CATEGORY_PREDATOR;
+	private final short MASK_PREDATOR = CATEGORY_WALL | CATEGORY_PREY | 
+			CATEGORY_POWERUP_PREDATOR;
+	private final short MASK_PREY = CATEGORY_WALL | CATEGORY_PILL | 
+			CATEGORY_PREDATOR | CATEGORY_POWERUP_PREY;
 	private final short MASK_PILL = CATEGORY_WALL | CATEGORY_PREY;
+	private final short MASK_POWERUP_PREDATOR = CATEGORY_WALL | 
+			CATEGORY_PREDATOR;
+	private final short MASK_POWERUP_PREY = CATEGORY_WALL | CATEGORY_PREY;
 	
 	// This determines how much of a square from each of its borders is
 	// considered as a 'transition zone'. If the centre of an agent is in this
@@ -85,10 +99,14 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 		this.world = world;
 		
+		this.powerUpProc = new PowerUpProcessor(world);
+		
 		this.squareSize = config.getSquareSize();
 		this.wallWidth = (config.getWallWidthRatio() / 2) * squareSize;
 		this.pillRadius = 
 				(squareSize / 2 - wallWidth) * config.getPillRadiusRatio();
+		this.powerUpRadius = 
+				(squareSize / 2 - wallWidth) * config.getPowerUpRadiusRatio();
 		
 		this.predatorSpeed = config.getPredatorSpeed();
 		this.preySpeed = config.getPreySpeed();
@@ -133,8 +151,19 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		for (Prey p : prey) {
 			createPrey(p);
 		}
-	}
+		
+		Map<PointXY, PredatorPowerUp> predatorPowerUps = 
+				state.getPredatorPowerUps();
+		for (PointXY pos : predatorPowerUps.keySet()) {
+			createPredatorPowerUp(predatorPowerUps.get(pos), pos);
+		}
 
+		Map<PointXY, PreyPowerUp> preyPowerUps = state.getPreyPowerUps();
+		for (PointXY pos : preyPowerUps.keySet()) {
+			createPreyPowerUp(preyPowerUps.get(pos), pos);
+		}
+	}
+	
 	/**
 	 * Creates the physics body for the walls from the given MazeNode and its 
 	 * position in the maze.
@@ -309,6 +338,69 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		agentBody.setUserData(data);
 	}
 	
+	/**
+	 * Creates the physics body for a Power Up used by Predators.
+	 * 
+	 * @param powerUp - the Predator Power Up from which to create the power up 
+	 * physics body.
+	 * @param pos - the position of the power up in the maze.
+	 */
+	private void createPredatorPowerUp(PredatorPowerUp powerUp, PointXY pos) {
+		createPowerUp(powerUp, pos, CATEGORY_POWERUP_PREDATOR, 
+				MASK_POWERUP_PREDATOR, PhysicsBodyType.PowerUpPredator);
+	}
+
+	/**
+	 * Creates the physics body for a Power Up used by Prey.
+	 * 
+	 * @param powerUp - the Prey Power Up from which to create the power up 
+	 * physics body.
+	 * @param pos - the position of the power up in the maze.
+	 */
+	private void createPreyPowerUp(PreyPowerUp powerUp, PointXY pos) {
+		createPowerUp(powerUp, pos, CATEGORY_POWERUP_PREY, 
+				MASK_POWERUP_PREY, PhysicsBodyType.PowerUpPrey);
+	}
+
+	/**
+	 * Creates the physics body for the power up from the given PowerUp and its 
+	 * position in the maze.
+	 * 
+	 * @param powerUp - the Power Up from which to create the power up body.
+	 * @param pos - the position of the power up in the maze.
+	 * @param categoryBits - the category to use for this physics body (used for 
+	 * collision filtering).
+	 * @param maskBits - the mask to use for this physics body. Indicates with 
+	 * which other bodies this body will collide.
+	 * @param bodyType - the Power Up's physics body type identifier.
+	 */
+	private void createPowerUp(PowerUp powerUp, PointXY pos, short categoryBits, 
+			short maskBits, PhysicsBodyType bodyType) {
+
+		Body powerUpBody;
+
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyType.DynamicBody;
+
+		Vector2 worldPos = stateToWorld(pos);
+		bodyDef.position.set(worldPos);
+
+		powerUpBody = world.createBody(bodyDef);
+
+		FixtureDef fixtureDef = new FixtureDef();
+		CircleShape circle = new CircleShape();
+		circle.setRadius(powerUpRadius);
+		fixtureDef.shape = circle;
+
+		fixtureDef.filter.categoryBits = categoryBits;
+		fixtureDef.filter.maskBits = maskBits;
+		
+		powerUpBody.createFixture(fixtureDef);
+
+		PhysicsData data = new PhysicsDataPowerUp(bodyType, pos);
+		powerUpBody.setUserData(data);
+	}
+	
 	@Override
 	public void processGameState(GameState state, float timestep) {
 	
@@ -354,6 +446,8 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		PhysicsBodyType type = data.getType();
 		
 		switch (type) {
+			case PowerUpPredator:
+			case PowerUpPrey:
 			case Pill:
 			case Walls:
 				return;
@@ -374,30 +468,59 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	/**
 	 * Finds the Agent which corresponds to the physics body, extracts the next
 	 * move from the Agent and updates the velocity of the physics body 
-	 * accordingly.
+	 * accordingly, along with processing any activated power up.
 	 * 
-	 * @param b - the body thats velocity should be updated.
+	 * @param body - the body thats velocity should be updated.
 	 * @param agents - the list of Agents, one of which corresponds to the body.
 	 * @param speed - the magnitude of the velocity that will be applied to 
 	 * the body.
 	 */
-	private void processAgent(Body b, List<? extends Agent> agents, 
+	private void processAgent(Body body, List<? extends Agent> agents, 
 			float speed) {
 		
-		PhysicsDataAgent data = (PhysicsDataAgent) b.getUserData();
+		PhysicsDataAgent data = (PhysicsDataAgent) body.getUserData();
 		int bodyID = data.getID();
 		
-		for(Agent a : agents) {
-			if (a.getID() == bodyID) {
-				Move m = a.getNextMove();
-				Vector2 velocity = b.getLinearVelocity();
-				updateVelocity(velocity, m, speed);
-				b.setLinearVelocity(velocity);
+		for(Agent agent : agents) {
+			if (agent.getID() == bodyID) {
+				Move move = agent.getNextMove();
+				Vector2 velocity = body.getLinearVelocity();
+				updateVelocity(velocity, move, speed);
+				body.setLinearVelocity(velocity);
+				
+				processPowerUps(agent, move, body);
 				
 				data.setPreviousMove(data.getCurrentMove());
-				data.setCurrentMove(m.getDirection());
+				data.setCurrentMove(move.getDirection());
 			}
 		}
+	}
+	
+	/**
+	 * Activates a power up if the provided Move indicates that one should be. 
+	 * If a power up is already activated, any action related to this power up
+	 * is carried out.
+	 * 
+	 * @param agent - the Agent currently being processed.
+	 * @param move - the current Move of the Agent.
+	 * @param body - the body associated with the agent.
+	 */
+	private void processPowerUps(Agent agent, Move move, Body body) {
+
+		if (move.getUsePowerUp()) {
+			PowerUp powerUp = agent.getFirstStoredPowerUp();
+			if (powerUp != null) {
+				agent.activatePowerUp(powerUp);
+			}
+		}
+
+		if (agent.hasActivatedPower()) {
+			List<? extends PowerUp> powerUps = agent.getActivatedPowers();
+			for (PowerUp powerUp : powerUps) {
+				powerUpProc.processPowerUp(powerUp, body);
+			}
+		}
+		agent.updateActivatedPowerUps();
 	}
 	
 	/**
@@ -460,7 +583,19 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 				int predatorID = predatorData.getID();
 				state.removePredator(predatorID);
 				break;
-		
+				
+			case PowerUpPrey:
+				PhysicsDataPowerUp preyPowerUpData = (PhysicsDataPowerUp) data;
+				PointXY preyPowerUpPos = preyPowerUpData.getPosition();
+				int preyID2 = preyPowerUpData.getAgentID();
+				state.PredatorPowerUpCollected(preyID2, preyPowerUpPos);
+
+			case PowerUpPredator:
+				PhysicsDataPowerUp predPowerUpData = (PhysicsDataPowerUp) data;
+				PointXY predPowerUpPos = predPowerUpData.getPosition();
+				int predatorID2 = predPowerUpData.getAgentID();
+				state.PredatorPowerUpCollected(predatorID2, predPowerUpPos);
+				
 			default:
 				break;
 		}
@@ -480,6 +615,8 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		PhysicsBodyType type = data.getType();
 		
 		switch (type) {
+			case PowerUpPredator:
+			case PowerUpPrey:
 			case Pill:
 			case Walls:
 				return;
@@ -593,6 +730,5 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		}
 		
 	}
-	
-		    
+			    
 }

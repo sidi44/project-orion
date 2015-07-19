@@ -23,7 +23,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
  * postSolve() here and the other methods are left empty. 
  * 
  * @author Simon Dicken
- * @version 2015-05-16
+ * @version 2015-07-19
  */
 public class PhysicsContact implements ContactListener {
 
@@ -81,6 +81,31 @@ public class PhysicsContact implements ContactListener {
 			
 			data1.setFlaggedForDelete(true);
 			
+		} else if ((type1 == PhysicsBodyType.Predator &&
+					type2 == PhysicsBodyType.PowerUpPredator)) {
+
+			data2.setFlaggedForDelete(true);
+			PhysicsDataAgent agentData = (PhysicsDataAgent) data1;
+			PhysicsDataPowerUp powerUpData = (PhysicsDataPowerUp) data2;
+			powerUpData.setAgentID(agentData.getID());
+
+		} else if ((type1 == PhysicsBodyType.PowerUpPredator &&
+					type2 == PhysicsBodyType.Predator)) {
+
+			data1.setFlaggedForDelete(true);
+			PhysicsDataAgent agentData = (PhysicsDataAgent) data2;
+			PhysicsDataPowerUp powerUpData = (PhysicsDataPowerUp) data1;
+			powerUpData.setAgentID(agentData.getID());
+
+		} else if ((type1 == PhysicsBodyType.Prey &&
+					type2 == PhysicsBodyType.PowerUpPrey)) {
+
+			data2.setFlaggedForDelete(true);
+
+		} else if ((type1 == PhysicsBodyType.PowerUpPrey &&
+					type2 == PhysicsBodyType.Prey)) {
+
+			data1.setFlaggedForDelete(true);
 		}
 	}
 
