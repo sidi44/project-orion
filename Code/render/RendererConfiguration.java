@@ -3,6 +3,9 @@ package render;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.badlogic.gdx.math.Vector2;
 
 /**
@@ -11,6 +14,7 @@ import com.badlogic.gdx.math.Vector2;
  * all the values have been set, an instance of this class should then be 
  * passed on to the renderer.
  */
+@XmlRootElement(name = "RendererConfiguration")
 public class RendererConfiguration {
 	
 	public static final String ANIMATION_DOWN_STOP = "DOWN-STOP";
@@ -21,15 +25,18 @@ public class RendererConfiguration {
 	public static final String ANIMATION_LEFT = "LEFT";
 	public static final String ANIMATION_RIGHT_STOP = "RIGHT-STOP";
 	public static final String ANIMATION_RIGHT = "RIGHT";
+	
 	private boolean allowRotations;
 	
 	private String wallTextureFilename;
 	private float wallTextureScale;
 	
-	private Vector2 backgroundDimensions;
+	private Vector2 backgroundBottomLeft;
+	private Vector2 backgroundTopRight;
+	
 	private String backroundFilename;
 	
-	private final List<AnimationGroupDefinition> animationGroupDefinitions =
+	private List<AnimationGroupDefinition> animationGroupDefinitions =
 			  new ArrayList<AnimationGroupDefinition>();
 
 	public void addAnimationGroup(AnimationGroupDefinition animGroupDef) {
@@ -42,36 +49,45 @@ public class RendererConfiguration {
 		return animationGroupDefinitions;
 	}
 	
+	@XmlElement (name = "AnimationGroupDefinition")
+	public void setAnimationGroupDefinitions(
+			List<AnimationGroupDefinition> animationGroupDefinitions) {
+		this.animationGroupDefinitions = animationGroupDefinitions;
+	}
+	
 	public String getBackgroundFilename() {
 		return this.backroundFilename;
 	}
 	
+	@XmlElement (name = "BackgroundFilename")
 	public void setBackgroundFilename(String filename) {
 		this.backroundFilename = filename;
-	}
-	
-	public Vector2 getBackgroundDimensions() {
-		return this.backgroundDimensions;
 	}
 	
 	/**
 	 * The background dimensions should be given in world measurements and not
 	 * pixels
-	 * @param width - the width of the background image
-	 * @param height - the height of the background image
+	 * @param bottomLeft - the bottom left coordinate of the background image
+	 * @param topRight - the top right coordinate of the background image
 	 */
-	public void setBackgroundDimensions(float width, float height) {
-		if (backgroundDimensions == null) {
-			backgroundDimensions = new Vector2();
-		}
-		backgroundDimensions.x = width;
-		backgroundDimensions.y = height;
+	public void setBackgroundDimensions(Vector2 bottomLeft, Vector2 topRight) {
+		this.backgroundBottomLeft = bottomLeft;
+		this.backgroundTopRight = topRight;
+	}
+	
+	public Vector2 getBackgroundBottomLeft() {
+		return this.backgroundBottomLeft;
+	}
+	
+	public Vector2 getBackgroundTopRight() {
+		return this.backgroundTopRight;
 	}
 	
 	public float getWallTextureScale() {
 		return this.wallTextureScale;
 	}
 	
+	@XmlElement (name = "WallTextureScale")
 	public void setWallTextureScale(float scale) {
 		if (scale < 0 || scale > 1) {
 			throw new IllegalArgumentException("Scale must be between 0 and 1");
@@ -83,6 +99,7 @@ public class RendererConfiguration {
 		return this.wallTextureFilename;
 	}
 	
+	@XmlElement (name = "WallTextureFilename")
 	public void setWallTextureFilename(String filename) {
 		this.wallTextureFilename = filename;
 	}
@@ -91,6 +108,7 @@ public class RendererConfiguration {
 		return allowRotations;
 	}
 
+	@XmlElement (name = "AllowRotations")
 	public void setAllowRotations(boolean allowRotations) {
 		this.allowRotations = allowRotations;
 	}
