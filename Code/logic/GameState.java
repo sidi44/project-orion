@@ -370,7 +370,7 @@ public class GameState {
 		PredatorPowerUp powerUp = predatorPowerUps.get(powerUpPos);
 
 		if (p != null && powerUp != null) {
-			p.addStoredPower(powerUp);
+			p.addStoredPowerUp(powerUp);
 			removePredatorPowerUp(powerUpPos);
 		}
 	}
@@ -388,7 +388,7 @@ public class GameState {
 		PreyPowerUp powerUp = preyPowerUps.get(powerUpPos);
 
 		if (p != null && powerUp != null) {
-			p.addStoredPower(powerUp);
+			p.addStoredPowerUp(powerUp);
 			removePreyPowerUp(powerUpPos);
 		}
 	}

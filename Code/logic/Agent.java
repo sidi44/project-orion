@@ -170,24 +170,24 @@ public abstract class Agent {
 	 * 
 	 * @return hasActivatedPower (boolean)
 	 */
-	public abstract boolean hasActivatedPower();
+	public abstract boolean hasActivatedPowerUp();
 	
 	/**
 	 * Returns the list of power ups that the Agent currently has activated.
 	 * 
 	 * @return the list of power ups that the Agent currently has activated.
 	 */
-	public abstract List<? extends PowerUp> getActivatedPowers();
-
+	public abstract List<? extends PowerUp> getActivatedPowerUps();
+	
 	/***
-	 * Return the first power up in the Agent's collection of stored power ups.
+	 * Return the selected power up in the Agent's collection of stored power ups.
 	 * 
-	 * @return the first power up in the Agent's collection of stored power ups.
+	 * @return the selected power up in the Agent's collection of stored power ups.
 	 */
-	public abstract PowerUp getFirstStoredPowerUp();
+	public abstract PowerUp getSelectedStoredPowerUp();
 
 	/**
-	 * Activate the provided power up.
+	 * Activate the selected power up.
 	 * 
 	 * The power up will not be activated if:
 	 * 	- the power up is not currently stored by the agent.
@@ -195,7 +195,6 @@ public abstract class Agent {
 	 *  enabled.
 	 *  - the power up is already activated.
 	 * 
-	 * @param powerUp - the power up to activate.
 	 */
-	public abstract void activatePowerUp(PowerUp powerUp);
+	public abstract boolean activatePowerUp();
 }

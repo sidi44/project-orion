@@ -2,19 +2,19 @@ package xml;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import logic.PredatorPowerType;
+import logic.PredatorPowerUpType;
 
 public class PredatorPowerUpTypeAdapter 
-	extends XmlAdapter<Integer, PredatorPowerType> {
+	extends XmlAdapter<Integer, PredatorPowerUpType> {
 
 	@Override
-	public Integer marshal(PredatorPowerType v) throws Exception {
+	public Integer marshal(PredatorPowerUpType v) throws Exception {
 		throw new UnsupportedOperationException("Marshalling not implemented.");
 	}
 
 	@Override
-	public PredatorPowerType unmarshal(Integer v) throws Exception {
-		PredatorPowerType[] types = PredatorPowerType.values();
+	public PredatorPowerUpType unmarshal(Integer v) throws Exception {
+		PredatorPowerUpType[] types = PredatorPowerUpType.values();
 		return types[v];
 	}
 

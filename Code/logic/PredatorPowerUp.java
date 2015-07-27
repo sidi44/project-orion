@@ -9,7 +9,7 @@ package logic;
  */
 public class PredatorPowerUp extends PowerUp {
 	
-	private final PredatorPowerType pType;
+	private final PredatorPowerUpType pType;
 	
 	/**
 	 * Creates an instance of PredatorPowerUp.
@@ -17,7 +17,7 @@ public class PredatorPowerUp extends PowerUp {
 	 * @param pType (PowerType)
 	 * @param timeLimit (int)
 	 */
-	public PredatorPowerUp(PredatorPowerType pType, int timeLimit) {
+	public PredatorPowerUp(int timeLimit, PredatorPowerUpType pType) {
 		super(timeLimit);
 		this.pType = pType;
 	}
@@ -27,7 +27,7 @@ public class PredatorPowerUp extends PowerUp {
 	 * 
 	 * @return pType (PowerType)
 	 */
-	public PredatorPowerType getPType() {
+	public PredatorPowerUpType getPType() {
 		return this.pType;
 	}
 	

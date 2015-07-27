@@ -2,18 +2,18 @@ package xml;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import logic.PreyPowerType;
+import logic.PreyPowerUpType;
 
-public class PreyPowerUpTypeAdapter extends XmlAdapter<Integer, PreyPowerType> {
+public class PreyPowerUpTypeAdapter extends XmlAdapter<Integer, PreyPowerUpType> {
 
 	@Override
-	public Integer marshal(PreyPowerType v) throws Exception {
+	public Integer marshal(PreyPowerUpType v) throws Exception {
 		throw new UnsupportedOperationException("Marshalling not implemented.");
 	}
 
 	@Override
-	public PreyPowerType unmarshal(Integer v) throws Exception {
-		return PreyPowerType.values()[v];
+	public PreyPowerUpType unmarshal(Integer v) throws Exception {
+		return PreyPowerUpType.values()[v];
 	}
 
 }

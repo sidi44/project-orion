@@ -4,18 +4,18 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import logic.PredatorPowerType;
+import logic.PredatorPowerUpType;
 
 @XmlRootElement (name = "PredatorPowerUp")
 public class XmlPredatorPowerUp {
 
-	private PredatorPowerType powerUpType;
+	private PredatorPowerUpType powerUpType;
 	private int timeLimit;
 	
 	/**
 	 * @return the powerUpType
 	 */
-	public PredatorPowerType getPowerUpType() {
+	public PredatorPowerUpType getPowerUpType() {
 		return powerUpType;
 	}
 	
@@ -24,7 +24,7 @@ public class XmlPredatorPowerUp {
 	 */
 	@XmlElement (name = "PredatorPowerUpType")
 	@XmlJavaTypeAdapter(PredatorPowerUpTypeAdapter.class)
-	public void setPowerUpType(PredatorPowerType powerUpType) {
+	public void setPowerUpType(PredatorPowerUpType powerUpType) {
 		this.powerUpType = powerUpType;
 	}
 	

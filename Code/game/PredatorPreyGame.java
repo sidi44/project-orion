@@ -25,9 +25,9 @@ import logic.GameOver;
 import logic.GameState;
 import logic.MazeConfig;
 import logic.Move;
-import logic.PowerConfig;
+import logic.PowerUpConfig;
 import logic.Predator;
-import logic.PredatorPowerType;
+import logic.PredatorPowerUpType;
 import logic.PredatorPowerUp;
 import logic.Prey;
 import logic.PreyPowerUp;
@@ -62,7 +62,7 @@ public class PredatorPreyGame extends ApplicationAdapter {
 	@Override
 	public void create() {
 
-		String filename = "xml\\Configuration.xml";
+		String filename = "Configuration.xml";
 		ConfigurationXMLParser xmlParser = new ConfigurationXMLParser(filename);
 		xmlParser.parseXML();
 		GameConfiguration gameConfig = xmlParser.getGameConfig();

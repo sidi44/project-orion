@@ -16,14 +16,14 @@ import xml.PredatorPowerUpAdapter;
  * @version 2015-07-19
  */
 @XmlRootElement(name = "PowerUpConfiguration")
-public class PowerConfig {
+public class PowerUpConfig {
 	
 	private int numPredPow;
 	private List<PredatorPowerUp> predatorPowerUps;
 	private int numPreyPow;
 	private List<PreyPowerUp> preyPowerUps;
 	
-	public PowerConfig() {
+	public PowerUpConfig() {
 		this.numPredPow = 0;
 		this.numPreyPow = 0;
 		this.predatorPowerUps = new ArrayList<PredatorPowerUp>();
@@ -38,7 +38,7 @@ public class PowerConfig {
 	 * @param predatorPowerUps (List<PredatorPowerUp>)
 	 * @param preyPowerUps (List<PreyPowerUp>)
 	 */
-	public PowerConfig(int numPredPow, List<PredatorPowerUp> predatorPowerUps,
+	public PowerUpConfig(int numPredPow, List<PredatorPowerUp> predatorPowerUps,
 			int numPreyPow, List<PreyPowerUp> preyPowerUps) {
 		
 		this.numPredPow = numPredPow;

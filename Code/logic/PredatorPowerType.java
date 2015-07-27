@@ -6,7 +6,7 @@ package logic;
  * @author Martin Wong
  * @version 2015-06-11
  */
-public enum PredatorPowerType {
+public enum PredatorPowerUpType {
 	
 	SpeedUpPredator,
 	Reverse,

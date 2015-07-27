@@ -24,7 +24,7 @@ public class GameConfiguration {
 	private boolean hasPills;
 	private MazeConfig mConfig;
 	private AgentConfig aConfig;
-	private PowerConfig pConfig;
+	private PowerUpConfig pConfig;
 	
 	/**
 	 * Default constructor for GameConfiguration.
@@ -45,7 +45,7 @@ public class GameConfiguration {
 		this.hasPills = true;
 		this.mConfig = new MazeConfig();
 		this.aConfig = new AgentConfig();
-		this.pConfig = new PowerConfig();
+		this.pConfig = new PowerUpConfig();
 	}
 	
 	/**
@@ -58,7 +58,7 @@ public class GameConfiguration {
 	 * @param pConfig (PowerConfig)
 	 */
 	public GameConfiguration(PolygonShape dimensions, boolean hasPills,
-			MazeConfig mConfig, AgentConfig aConfig, PowerConfig pConfig) {
+			MazeConfig mConfig, AgentConfig aConfig, PowerUpConfig pConfig) {
 		
 		this.dimensions = dimensions;
 		this.hasPills = hasPills;
@@ -150,7 +150,7 @@ public class GameConfiguration {
 	 * 
 	 * @return pConfig (PowerConfig)
 	 */
-	public PowerConfig getPConfig() {
+	public PowerUpConfig getPConfig() {
 		return this.pConfig;
 	}
 	
@@ -160,7 +160,7 @@ public class GameConfiguration {
 	 * @param pConfig (PowerConfig)
 	 */
 	@XmlElement (name = "PowerUpConfiguration")
-	public void setPConfig(PowerConfig pConfig) {
+	public void setPConfig(PowerUpConfig pConfig) {
 		this.pConfig = pConfig;
 	}
 	

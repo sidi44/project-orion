@@ -70,7 +70,7 @@ public class GameLogic {
 		List<PointXY> allPoints = new ArrayList<PointXY>();
 		Set<PointXY> usedPoints = new HashSet<PointXY>();
 		AgentConfig aConfig = gc.getAConfig();
-		PowerConfig pConfig = gc.getPConfig();
+		PowerUpConfig pConfig = gc.getPConfig();
 		int nPredPlayer = aConfig.getNumPredPlayer();
 		int nPreyPlayer = aConfig.getNumPreyPlayer();
 		List<Predator> predators = new ArrayList<Predator>();
