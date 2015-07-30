@@ -20,7 +20,7 @@ public class PowerUpProcessor {
 
 	private World world;
 	
-	private final float speedUpRatio = 10f;
+	private final float speedUpRatio = 2f;
 	
 	public PowerUpProcessor(World world) {
 		this.world = world;

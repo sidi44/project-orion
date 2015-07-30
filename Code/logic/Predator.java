@@ -112,6 +112,7 @@ public class Predator extends Agent {
 	 */
 	public void addActivatedPowerUp(PredatorPowerUp predatorPowerUp) {
 		activatedPowerUps.add(predatorPowerUp);
+		predatorPowerUp.activate();
 	}
 	
 	/**
@@ -147,12 +148,13 @@ public class Predator extends Agent {
 	 */
 	public void updateActivatedPowerUps() {
 		
-		for (int i = 0; i < activatedPowerUps.size(); i++) {
-			if (activatedPowerUps.get(i).getTimeRemaining() <= 1) {
-				activatedPowerUps.remove(activatedPowerUps.get(i));
-				i--;
-			} else {
-				activatedPowerUps.get(i).decrementTimeRemaining();
+		for (int i = 0; i < activatedPowerUps.size(); ++i) {
+			PredatorPowerUp powerUp = activatedPowerUps.get(i);
+			powerUp.decrementTimeRemaining();
+			double timeRemaining = powerUp.getTimeRemaining();
+			if (timeRemaining <= 0) {
+				removeActivatedPowerUp(powerUp);
+				--i;
 			}
 		}
 	}
