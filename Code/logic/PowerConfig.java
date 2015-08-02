@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import xml.PredatorPowerUpAdapter;
+import xml.PreyPowerUpAdapter;
 
 /**
  * The configuration for the powerups.
@@ -119,6 +120,8 @@ public class PowerConfig {
 	 * 
 	 * @param preyPowerUps (List<PreyPowerUp>)
 	 */
+	@XmlElement (name = "PreyPowerUps")
+	@XmlJavaTypeAdapter (PreyPowerUpAdapter.class)
 	public void setPreyPowreUps(List<PreyPowerUp> preyPowerUps) {
 		this.preyPowerUps = preyPowerUps;
 	}

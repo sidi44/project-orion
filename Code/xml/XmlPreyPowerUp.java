@@ -3,26 +3,26 @@ package xml;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import logic.PredatorPowerType;
+import logic.PreyPowerType;
 
-@XmlRootElement (name = "PredatorPowerUp")
-public class XmlPredatorPowerUp {
+@XmlRootElement (name = "PreyPowerUp")
+public class XmlPreyPowerUp {
 
-	private PredatorPowerType powerUpType;
+	private PreyPowerType powerUpType;
 	private int timeLimit;
 	
 	/**
 	 * @return the powerUpType
 	 */
-	public PredatorPowerType getPowerUpType() {
+	public PreyPowerType getPowerUpType() {
 		return powerUpType;
 	}
 	
 	/**
 	 * @param powerUpType the powerUpType to set
 	 */
-	@XmlElement (name = "PredatorPowerUpType")
-	public void setPowerUpType(PredatorPowerType powerUpType) {
+	@XmlElement (name = "PreyPowerUpType")
+	public void setPowerUpType(PreyPowerType powerUpType) {
 		this.powerUpType = powerUpType;
 	}
 	

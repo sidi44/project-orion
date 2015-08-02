@@ -6,9 +6,14 @@ import geometry.PolygonShape;
 import java.io.File;
 import java.net.URL;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+
+import org.xml.sax.SAXException;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -21,9 +26,16 @@ public class ConfigurationXMLParser {
 
 	private Configuration config;
 	private String filename;
+	private String schemaFilename;
 	
 	public ConfigurationXMLParser(String filename) {
 		this.filename = filename;
+		this.schemaFilename = "";
+	}
+	
+	public ConfigurationXMLParser(String filename, String schemaFilename) {
+		this.filename = filename;
+		this.schemaFilename = schemaFilename;
 	}
 	
 	public void parseXML() {
@@ -33,6 +45,20 @@ public class ConfigurationXMLParser {
 			URL url = ClassLoader.getSystemResource(filename);
 			File file = new File(url.getFile());
 			Unmarshaller unmarshaller = context.createUnmarshaller();
+			
+			if (!schemaFilename.isEmpty()) {
+		        SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		        try {
+					URL schemaUrl = ClassLoader.getSystemResource(schemaFilename);
+					File schemaFile = new File(schemaUrl.getFile());
+					Schema schema = sf.newSchema(schemaFile);
+					unmarshaller.setSchema(schema);
+					//unmarshaller.setEventHandler(new MyValidationEventHandler());
+				} catch (SAXException e) {
+					e.printStackTrace();
+				}
+			}
+			
 			config = (Configuration) unmarshaller.unmarshal(file);
 			
 		} catch (JAXBException e1) {

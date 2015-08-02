@@ -37,10 +37,16 @@
             <NumberPreyPowerUps>0</NumberPreyPowerUps>
             <PredatorPowerUps>
                 <PredatorPowerUp>
-                    <PredatorPowerUpType>0</PredatorPowerUpType>
+                    <PredatorPowerUpType>SpeedUpPredator</PredatorPowerUpType>
                     <TimeLimit>120</TimeLimit>
                 </PredatorPowerUp>
             </PredatorPowerUps>
+			<PreyPowerUps>
+                <PreyPowerUp>
+                    <PreyPowerUpType>SpeedUpPrey</PreyPowerUpType>
+                    <TimeLimit>120</TimeLimit>
+                </PreyPowerUp>
+            </PreyPowerUps>
         </PowerUpConfiguration>
     </GameConfiguration>
 	<PhysicsConfiguration>
@@ -53,14 +59,14 @@
 	</PhysicsConfiguration>
 	<RendererConfiguration>
 	    <AllowRotations>true</AllowRotations>
-	    <WallTextureFilename>assets/wall.png</WallTextureFilename>
+	    <WallTextureFilename>wall.png</WallTextureFilename>
 	    <WallTextureScale>1.0</WallTextureScale>
-	    <BackgroundFilename>assets/vortex_0.png</BackgroundFilename>
+	    <BackgroundFilename>vortex_0.png</BackgroundFilename>
 	    <AnimationGroupDefinition>
 	        <AnimationGroupName>Predator</AnimationGroupName>
 	        <Rows>4</Rows>
 	        <Columns>11</Columns>
-	        <Filename>assets/Predator3.png</Filename>
+	        <Filename>Predator3.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName>DOWN-STOP</AnimationName>
 	            <StartFrame>1</StartFrame>
@@ -114,7 +120,7 @@
 	        <AnimationGroupName>Prey</AnimationGroupName>
 	        <Rows>4</Rows>
 	        <Columns>11</Columns>
-	        <Filename>assets/prey.png</Filename>
+	        <Filename>prey.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName>DOWN-STOP</AnimationName>
 	            <StartFrame>1</StartFrame>
@@ -168,7 +174,7 @@
 	        <AnimationGroupName>Pill</AnimationGroupName>
 	        <Rows>1</Rows>
 	        <Columns>10</Columns>
-	        <Filename>assets/coin.png</Filename>
+	        <Filename>coin.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName></AnimationName>
 	            <StartFrame>1</StartFrame>
@@ -180,7 +186,7 @@
 	        <AnimationGroupName>PowerUpPredator</AnimationGroupName>
 	        <Rows>4</Rows>
 	        <Columns>3</Columns>
-	        <Filename>assets/icons-pow-up.png</Filename>
+	        <Filename>icons-pow-up.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName></AnimationName>
 	            <StartFrame>12</StartFrame>
@@ -192,7 +198,7 @@
 	        <AnimationGroupName>PowerUpPrey</AnimationGroupName>
 	        <Rows>4</Rows>
 	        <Columns>3</Columns>
-	        <Filename>assets/icons-pow-up.png</Filename>
+	        <Filename>icons-pow-up.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName></AnimationName>
 	            <StartFrame>9</StartFrame>
