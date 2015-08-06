@@ -30,7 +30,9 @@ public class ConfigurationXMLParser {
 		
 		try {
 			JAXBContext context = JAXBContext.newInstance(Configuration.class);
+			
 			URL url = ClassLoader.getSystemResource(filename);
+			String FILENAME = url.getFile();
 			File file = new File(url.getFile());
 			Unmarshaller unmarshaller = context.createUnmarshaller();
 			config = (Configuration) unmarshaller.unmarshal(file);

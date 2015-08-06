@@ -36,8 +36,8 @@ import com.badlogic.gdx.utils.Array;
 public class Renderer {
 
 	// Rendering wrappers
-	private Box2DDebugRenderer mDebugRenderer;
-	private ShapeRenderer mShapeRenderer;
+	private Box2DDebugRenderer debugRenderer;
+	private ShapeRenderer shapeRenderer;
 	
 	// Flags
 	private boolean drawDebug;
@@ -85,14 +85,14 @@ public class Renderer {
 		
 		this.drawDebug = drawDebug;
 		this.drawFilled = drawFilled;
-		mDebugRenderer = new Box2DDebugRenderer();
+		debugRenderer = new Box2DDebugRenderer();
 		
 		for (int i = 0; i < vertices.length; i++) {
 			vertices[i] = new Vector2();
 		}
 		
 		// Assume no shape will have more than 100 vertices for now.
-		mShapeRenderer = new ShapeRenderer(100);
+		shapeRenderer = new ShapeRenderer(100);
 		
 		spriteBatch = new SpriteBatch();
 	}
@@ -112,11 +112,11 @@ public class Renderer {
 		}
 		
 		if (drawDebug) {
-			mDebugRenderer.render(world, projMatrix);
+			debugRenderer.render(world, projMatrix);
 		}
 		
 		if (drawFilled) {
-			mShapeRenderer.setProjectionMatrix(projMatrix);
+			shapeRenderer.setProjectionMatrix(projMatrix);
 		}
 
 		world.getBodies(bodies);
@@ -502,10 +502,10 @@ public class Renderer {
 	}
 	
 	private void drawLine(Vector2 startPoint, Vector2 endPoint, Color color) {
-		mShapeRenderer.begin(ShapeType.Line);
-		mShapeRenderer.setColor(color);
-		mShapeRenderer.line(startPoint, endPoint);
-		mShapeRenderer.end();
+		shapeRenderer.begin(ShapeType.Line);
+		shapeRenderer.setColor(color);
+		shapeRenderer.line(startPoint, endPoint);
+		shapeRenderer.end();
 	}
 
 	/**
@@ -514,10 +514,10 @@ public class Renderer {
 	 * @param color - Color of the format (red, green, blue, alpha)
 	 */
 	private void drawCircle(Vector2 centrePos, float radius, Color color) {
-		mShapeRenderer.begin(ShapeType.Filled);
-		mShapeRenderer.setColor(color);
-		mShapeRenderer.circle(centrePos.x, centrePos.y, radius, 20);
-		mShapeRenderer.end();
+		shapeRenderer.begin(ShapeType.Filled);
+		shapeRenderer.setColor(color);
+		shapeRenderer.circle(centrePos.x, centrePos.y, radius, 20);
+		shapeRenderer.end();
 	}
 
 	private void drawTriangle(float x1, float y1,
@@ -525,10 +525,10 @@ public class Renderer {
 							  float x3, float y3,
 							  Color color){
 		
-		mShapeRenderer.begin(ShapeType.Filled);
-		mShapeRenderer.setColor(color);
-		mShapeRenderer.triangle(x1, y1, x2, y2, x3, y3);
-		mShapeRenderer.end();
+		shapeRenderer.begin(ShapeType.Filled);
+		shapeRenderer.setColor(color);
+		shapeRenderer.triangle(x1, y1, x2, y2, x3, y3);
+		shapeRenderer.end();
 	}
 
 	/**
