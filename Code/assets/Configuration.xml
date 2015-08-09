@@ -61,12 +61,12 @@
 	    <AllowRotations>true</AllowRotations>
 	    <WallTextureFilename>wall.png</WallTextureFilename>
 	    <WallTextureScale>1.0</WallTextureScale>
-	    <BackgroundFilename>vortex_0.png</BackgroundFilename>
+	    <BackgroundFilename>background_1.png</BackgroundFilename>
 	    <AnimationGroupDefinition>
 	        <AnimationGroupName>Predator</AnimationGroupName>
 	        <Rows>4</Rows>
 	        <Columns>11</Columns>
-	        <Filename>Predator3.png</Filename>
+	        <Filename>Predator.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName>DOWN-STOP</AnimationName>
 	            <StartFrame>1</StartFrame>
@@ -172,13 +172,13 @@
 	    </AnimationGroupDefinition>
 	    <AnimationGroupDefinition>
 	        <AnimationGroupName>Pill</AnimationGroupName>
-	        <Rows>1</Rows>
-	        <Columns>10</Columns>
-	        <Filename>coin.png</Filename>
+	        <Rows>3</Rows>
+	        <Columns>8</Columns>
+	        <Filename>coins.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName></AnimationName>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>10</EndFrame>
+	            <EndFrame>24</EndFrame>
 	            <FrameDuration>1</FrameDuration>
 	        </AnimationDefinition>
 	   	</AnimationGroupDefinition>

@@ -14,7 +14,7 @@ import xml.PreyPowerUpAdapter;
  * The configuration for the powerups.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-08-09
  */
 @XmlRootElement(name = "PowerUpConfiguration")
 public class PowerConfig {
@@ -24,6 +24,11 @@ public class PowerConfig {
 	private int numPreyPow;
 	private List<PreyPowerUp> preyPowerUps;
 	
+	/**
+	 * Default constructor for PowerConfig.
+	 * 
+	 * Sets parameters to their default values.
+	 */
 	public PowerConfig() {
 		this.numPredPow = 0;
 		this.numPreyPow = 0;

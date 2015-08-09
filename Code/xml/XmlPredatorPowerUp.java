@@ -5,6 +5,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import logic.PredatorPowerType;
 
+/**
+ * A class representing a predator power up which can be interpreted by a JAXB 
+ * Xml parser.
+ * 
+ * @author Simon Dicken
+ * @version 2015-08-09
+ */
 @XmlRootElement (name = "PredatorPowerUp")
 public class XmlPredatorPowerUp {
 
@@ -12,14 +19,18 @@ public class XmlPredatorPowerUp {
 	private int timeLimit;
 	
 	/**
-	 * @return the powerUpType
+	 * Get the power up type.
+	 * 
+	 * @return the type of this power up.
 	 */
 	public PredatorPowerType getPowerUpType() {
 		return powerUpType;
 	}
 	
 	/**
-	 * @param powerUpType the powerUpType to set
+	 * Set the power up type.
+	 * 
+	 * @param powerUpType - the type of this power up.
 	 */
 	@XmlElement (name = "PredatorPowerUpType")
 	public void setPowerUpType(PredatorPowerType powerUpType) {
@@ -27,14 +38,18 @@ public class XmlPredatorPowerUp {
 	}
 	
 	/**
-	 * @return the timeLimit
+	 * Get the time limit of this power up in seconds.
+	 * 
+	 * @return The timeLimit of this power up in seconds.
 	 */
 	public int getTimeLimit() {
 		return timeLimit;
 	}
 	
 	/**
-	 * @param timeLimit the timeLimit to set
+	 * Set the time limit of this power up in seconds.
+	 * 
+	 * @param timeLimit - the time limit of this power up in seconds.
 	 */
 	@XmlElement (name = "TimeLimit")
 	public void setTimeLimit(int timeLimit) {
