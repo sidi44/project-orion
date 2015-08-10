@@ -42,8 +42,8 @@ public class PreyPowerUpAdapter
 		
 		for (XmlPreyPowerUp xmlPowerUp : xmlPowerUps) {
 			PreyPowerUp powerUp = 
-					new PreyPowerUp(xmlPowerUp.getPowerUpType(), 
-							xmlPowerUp.getTimeLimit());
+					new PreyPowerUp(xmlPowerUp.getTimeLimit(),
+							xmlPowerUp.getPowerUpType());
 			powerUps.add(powerUp);
 		}
 		

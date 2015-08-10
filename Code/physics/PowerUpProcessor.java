@@ -6,7 +6,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
 import logic.PowerUp;
-import logic.PredatorPowerType;
+import logic.PredatorPowerUpType;
 import logic.PredatorPowerUp;
 import logic.PreyPowerUp;
 
@@ -37,7 +37,7 @@ public class PowerUpProcessor {
 	
 	private void processPredatorPowerUp(PredatorPowerUp powerUp, Body body) {
 		
-		PredatorPowerType type = powerUp.getPType();
+		PredatorPowerUpType type = powerUp.getPType();
 		
 		switch (type) {
 			case Freeze:
