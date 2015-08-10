@@ -63,7 +63,9 @@ public class PredatorPreyGame extends ApplicationAdapter {
 	public void create() {
 
 		String filename = "Configuration.xml";
-		ConfigurationXMLParser xmlParser = new ConfigurationXMLParser(filename);
+		String schemaFilename = "Configuration.xsd";
+		ConfigurationXMLParser xmlParser = 
+				new ConfigurationXMLParser(filename, schemaFilename);
 		xmlParser.parseXML();
 		GameConfiguration gameConfig = xmlParser.getGameConfig();
 		PhysicsConfiguration physicsConfig = xmlParser.getPhysicsConfig();

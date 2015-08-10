@@ -15,7 +15,7 @@ import geometry.PolygonShape;
  * Represents the configuration of the game.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-08-09
  */
 @XmlRootElement(name = "GameConfiguration")
 public class GameConfiguration {
@@ -28,6 +28,8 @@ public class GameConfiguration {
 	
 	/**
 	 * Default constructor for GameConfiguration.
+	 * 
+	 * Sets parameters to their default values.
 	 */
 	public GameConfiguration() {
 		

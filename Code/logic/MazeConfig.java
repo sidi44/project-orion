@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Represents the configurations used to build a maze.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-08-09
  */
 @XmlRootElement(name = "MazeConfiguration")
 public class MazeConfig {
@@ -20,6 +20,8 @@ public class MazeConfig {
 	
 	/**
 	 * Default constructor for MazeConfig.
+	 * 
+	 * Sets parameters to their default values.
 	 */
 	public MazeConfig() {
 		this.maxLength = 10;

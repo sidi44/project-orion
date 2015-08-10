@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * The configuration for the agents.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-08-09
  */
 @XmlRootElement(name = "AgentConfiguration")
 public class AgentConfig {
@@ -21,6 +21,8 @@ public class AgentConfig {
 	
 	/**
 	 * Default constructor for AgentConfig.
+	 * 
+	 * Sets parameters to their default values.
 	 */
 	public AgentConfig() {
 		this.numPred = 1;

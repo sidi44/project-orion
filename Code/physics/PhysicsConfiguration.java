@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Processor.
  * 
  * @author Simon Dicken
- * @version 2015-07-19
+ * @version 2015-08-09
  */
 @XmlRootElement(name = "PhysicsConfiguration")
 public class PhysicsConfiguration {
@@ -25,7 +25,7 @@ public class PhysicsConfiguration {
 	/**
 	 * Default constructor for PhysicsConfiguration. 
 	 * 
-	 * Sets all values to their default values.
+	 * Sets parameters to their default values.
 	 */
 	public PhysicsConfiguration() {
 		squareSize = 10.0f;
@@ -141,7 +141,9 @@ public class PhysicsConfiguration {
 	}
 	
 	/**
-	 * @param squareSize the squareSize to set
+	 * Set the squareSize.
+	 * 
+	 * @param squareSize - The size of each maze square.
 	 */
 	@XmlElement (name = "SquareSize")
 	public void setSquareSize(float squareSize) {
@@ -149,7 +151,9 @@ public class PhysicsConfiguration {
 	}
 
 	/**
-	 * @param wallWidthRatio the wallWidthRatio to set
+	 * Set the wallWidthRatio.
+	 * 
+	 * @param wallWidthRatio - How much of the square is occupied by the walls.
 	 */
 	@XmlElement (name = "WallWidthRatio")
 	public void setWallWidthRatio(float wallWidthRatio) {
@@ -157,7 +161,10 @@ public class PhysicsConfiguration {
 	}
 
 	/**
-	 * @param pillRadiusRatio the pillRadiusRatio to set
+	 * Set the pillRadiusRatio.
+	 * 
+	 * @param pillRadiusRatio - How much of the space between the square's 
+	 * walls is occupied by the pill.
 	 */
 	@XmlElement (name = "PillRadiusRatio")
 	public void setPillRadiusRatio(float pillRadiusRatio) {
@@ -165,7 +172,10 @@ public class PhysicsConfiguration {
 	}
 
 	/**
-	 * @param powerUpRadiusRatio the powerUpRadiusRatio to set
+	 * Set the powerUpRadiusRatio.
+	 * 
+	 * @param powerUpRadiusRatio - How much of the space between the square's 
+	 * walls is occupied by the power up.
 	 */
 	@XmlElement (name = "PowerUpRadiusRatio")
 	public void setPowerUpRadiusRatio(float powerUpRadiusRatio) {
@@ -173,7 +183,9 @@ public class PhysicsConfiguration {
 	}
 	
 	/**
-	 * @param predatorSpeed the predatorSpeed to set
+	 * Set the predatorSpeed.
+	 * 
+	 * @param predatorSpeed - The speed of all predator agents.
 	 */
 	@XmlElement (name = "PredatorSpeed")
 	public void setPredatorSpeed(float predatorSpeed) {
@@ -181,7 +193,9 @@ public class PhysicsConfiguration {
 	}
 
 	/**
-	 * @param preySpeed the preySpeed to set
+	 * Set the preySpeed.
+	 * 
+	 * @param preySpeed - The speed of all prey agents.
 	 */
 	@XmlElement (name = "PreySpeed")
 	public void setPreySpeed(float preySpeed) {
