@@ -1,10 +1,7 @@
 package logic;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import geometry.PointXY;
 
@@ -12,7 +9,7 @@ import geometry.PointXY;
  * Represents a prey agent.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-08-09
  */
 public class Prey extends Agent {
 	
@@ -29,8 +26,9 @@ public class Prey extends Agent {
 	 * @param isPlayer (boolean)
 	 * @param stacking (boolean)
 	 */
-	public Prey(int id, PointXY pos, boolean isPlayer, boolean stacking) {
-		super(id, pos, isPlayer, stacking);
+	public Prey(int id, PointXY pos, boolean isPlayer, int maxPowerUp,
+			boolean stacking) {
+		super(id, pos, isPlayer, maxPowerUp, stacking);
 		
 		this.storedPowerUps = new ArrayList<PreyPowerUpContainer>();
 		this.activatedPowerUps = new ArrayList<PreyPowerUp>();
@@ -52,7 +50,6 @@ public class Prey extends Agent {
 	 * @param storedPowerUps (PreyPowerUp)
 	 */
 	public void addStoredPowerUp(PreyPowerUp preyPowerUp) {
-		
 		boolean found = false;
 		
 		for (PreyPowerUpContainer pContainer : storedPowerUps) {
@@ -63,7 +60,7 @@ public class Prey extends Agent {
 			}
 		}
 		
-		if (!found) {
+		if (!found && storedPowerUps.size() < getMaxPowerUp()) {
 			storedPowerUps.add(new PreyPowerUpContainer(preyPowerUp, 1));
 		}
 		
@@ -73,11 +70,12 @@ public class Prey extends Agent {
 	}
 	
 	/**
-	 * Removes a powerup from the prey's storeedPowers.
+	 * Removes a powerup from the prey's storedPowers.
 	 * 
 	 * @param storedPowerUps (PreyPowerUp)
 	 */
 	public void removeStoredPowerUp(PreyPowerUp preyPowerUp) {
+		int numStoredPowerUps = storedPowerUps.size();
 		
 		for (PreyPowerUpContainer pContainer : storedPowerUps) {
 			if (pContainer.getPowerUp().equals(preyPowerUp)) {
@@ -90,8 +88,8 @@ public class Prey extends Agent {
 			}
 		}
 		
-		if (storedPowerUps.size() == 0) {
-			selectedPowerUp = getSelectedPowerUpTop();
+		if (numStoredPowerUps != storedPowerUps.size()) {
+			selectedPowerUpLeft();
 		}
 		
 	}
@@ -112,6 +110,7 @@ public class Prey extends Agent {
 	 */
 	public void addActivatedPowerUp(PreyPowerUp preyPowerUp) {
 		activatedPowerUps.add(preyPowerUp);
+		preyPowerUp.activate();
 	}
 	
 	/**
@@ -127,7 +126,7 @@ public class Prey extends Agent {
 	public boolean activatePowerUp() {
 		boolean success = false;
 		
-		if (selectedPowerUp >= 0) {
+		if (isSelectedValid()) {
 			PreyPowerUp powerUp = storedPowerUps.get(selectedPowerUp).getPowerUp();
 			
 			success = (getStacking() && !isActivated(powerUp))
@@ -142,16 +141,24 @@ public class Prey extends Agent {
 		return success;
 	}
 	
+	@Override
+	public boolean activatePowerUp(int selected) {
+		setSelectedPowerUp(selected);
+		return activatePowerUp();
+	}
+	
 	/**
 	 * Updates activatedPowerUps of the prey (i.e. remove expired ones).
 	 */
 	public void updateActivatedPowerUps() {
 		
-		for (PreyPowerUp powerUp : activatedPowerUps) {
-			if (powerUp.getTimeRemaining() <= 1) {
-				activatedPowerUps.remove(powerUp);
-			} else {
-				powerUp.decrementTimeRemaining();
+		for (int i = 0; i < activatedPowerUps.size(); ++i) {
+			PreyPowerUp powerUp = activatedPowerUps.get(i);
+			powerUp.decrementTimeRemaining();
+			double timeRemaining = powerUp.getTimeRemaining();
+			if (timeRemaining <= 0) {
+				removeActivatedPowerUp(powerUp);
+				--i;
 			}
 		}
 	}
@@ -160,13 +167,15 @@ public class Prey extends Agent {
 	 * Sets selectedPowerUp to the right.
 	 */
 	public void selectedPowerUpRight() {
-		if (selectedPowerUp >= 0) {
-			int top = getSelectedPowerUpTop();
-			
+		int top = getSelectedPowerUpTop();
+		
+		if (top <= 0) {
+			selectedPowerUp = top;
+		} else {
 			if (selectedPowerUp >= top) {
 				selectedPowerUp = 0;
 			} else {
-				selectedPowerUp++;
+				++selectedPowerUp;
 			}
 		}
 	}
@@ -175,13 +184,15 @@ public class Prey extends Agent {
 	 * Sets selectedPowerUp to the left.
 	 */
 	public void selectedPowerUpLeft() {
-		if (selectedPowerUp >= 0) {
-			int top = getSelectedPowerUpTop();
-			
+		int top = getSelectedPowerUpTop();
+		
+		if (top <= 0) {
+			selectedPowerUp = top;
+		} else {
 			if (selectedPowerUp <= 0) {
 				selectedPowerUp = top;
 			} else {
-				selectedPowerUp--;
+				--selectedPowerUp;
 			}
 		}
 	}
@@ -245,11 +256,24 @@ public class Prey extends Agent {
 	public PowerUp getSelectedStoredPowerUp() {
 		PowerUp powerUp = null;
 		
-		if (selectedPowerUp != 0) {
+		if (isSelectedValid()) {
 			powerUp = storedPowerUps.get(selectedPowerUp).getPowerUp();
 		}
 		
 		return powerUp;
+	}
+	
+	/**
+	 * Checks whether the selectedPowerUp is valid.
+	 * 
+	 * @return isValid (boolean)
+	 */
+	public boolean isSelectedValid() {
+		boolean inRangeMax = selectedPowerUp <= getMaxPowerUp();
+		boolean inRange = selectedPowerUp >= 0 &&
+				selectedPowerUp <= getSelectedPowerUpTop();
+		
+		return inRangeMax && inRange;
 	}
 	
 }

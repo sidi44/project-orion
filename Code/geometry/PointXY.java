@@ -1,25 +1,25 @@
 package geometry;
 
 /**
- * Represents an (x, y) co-ordinate.
+ * Represents an (x, y) co-ordinate, where x and y are integers.
  * 
  * This class is immutable.
  * 
  * @author Martin Wong
- * @version 2015-05-19
+ * @version 2015-08-09
  */
 final public class PointXY {
 	
-	private final double x;
-	private final double y;
+	private final int x;
+	private final int y;
 	
 	/**
 	 * Creates an instance of PointXY, with co-ordinates (x, y).
 	 * 
-	 * @param x (double)
-	 * @param y (double)
+	 * @param x (int)
+	 * @param y (int)
 	 */
-	public PointXY(double x, double y) {
+	public PointXY(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -36,18 +36,18 @@ final public class PointXY {
 	/**
 	 * Returns the x co-ordinate.
 	 * 
-	 * @return x (double)
+	 * @return x (int)
 	 */
-	public double getX() {
+	public int getX() {
 		return this.x;
 	}
 	
 	/**
 	 * Returns the y co-ordinate.
 	 * 
-	 * @return y (double)
+	 * @return y (int)
 	 */
-	public double getY() {
+	public int getY() {
 		return this.y;
 	}
 	
@@ -58,8 +58,8 @@ final public class PointXY {
 	 * @return newPoint (PointXY)
 	 */
 	public PointXY addPoint(PointXY p) {
-		double newX = x + p.getX();
-		double newY = y + p.getY();
+		int newX = x + p.getX();
+		int newY = y + p.getY();
 		return new PointXY (newX, newY);
 	}
 	

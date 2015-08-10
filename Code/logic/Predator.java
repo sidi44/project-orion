@@ -1,10 +1,7 @@
 package logic;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import geometry.PointXY;
 
@@ -12,7 +9,7 @@ import geometry.PointXY;
  * Represents a predator agent.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-08-09
  */
 public class Predator extends Agent {
 	
@@ -29,8 +26,9 @@ public class Predator extends Agent {
 	 * @param isPlayer (boolean)
 	 * @param stacking (boolean)
 	 */
-	public Predator(int id, PointXY pos, boolean isPlayer, boolean stacking) {
-		super(id, pos, isPlayer, stacking);
+	public Predator(int id, PointXY pos, boolean isPlayer, int maxPowerUp,
+			boolean stacking) {
+		super(id, pos, isPlayer, maxPowerUp, stacking);
 		
 		this.storedPowerUps = new ArrayList<PredatorPowerUpContainer>();
 		this.activatedPowerUps = new ArrayList<PredatorPowerUp>();
@@ -52,7 +50,6 @@ public class Predator extends Agent {
 	 * @param storedPowerUps (PredatorPowerUp)
 	 */
 	public void addStoredPowerUp(PredatorPowerUp predatorPowerUp) {
-		
 		boolean found = false;
 		
 		for (PredatorPowerUpContainer pContainer : storedPowerUps) {
@@ -63,7 +60,7 @@ public class Predator extends Agent {
 			}
 		}
 		
-		if (!found) {
+		if (!found && storedPowerUps.size() < getMaxPowerUp()) {
 			storedPowerUps.add(new PredatorPowerUpContainer(predatorPowerUp, 1));
 		}
 		
@@ -73,11 +70,12 @@ public class Predator extends Agent {
 	}
 	
 	/**
-	 * Removes a powerup from the predator's storeedPowers.
+	 * Removes a powerup from the predator's storedPowers.
 	 * 
 	 * @param storedPowerUps (PredatorPowerUp)
 	 */
 	public void removeStoredPowerUp(PredatorPowerUp predatorPowerUp) {
+		int numStoredPowerUps = storedPowerUps.size();
 		
 		for (PredatorPowerUpContainer pContainer : storedPowerUps) {
 			if (pContainer.getPowerUp().equals(predatorPowerUp)) {
@@ -90,8 +88,8 @@ public class Predator extends Agent {
 			}
 		}
 		
-		if (storedPowerUps.size() == 0) {
-			selectedPowerUp = getSelectedPowerUpTop();
+		if (numStoredPowerUps != storedPowerUps.size()) {
+			selectedPowerUpLeft();
 		}
 		
 	}
@@ -128,7 +126,7 @@ public class Predator extends Agent {
 	public boolean activatePowerUp() {
 		boolean success = false;
 		
-		if (selectedPowerUp >= 0) {
+		if (isSelectedValid()) {
 			PredatorPowerUp powerUp = storedPowerUps.get(selectedPowerUp).getPowerUp();
 			
 			success = (getStacking() && !isActivated(powerUp))
@@ -141,6 +139,12 @@ public class Predator extends Agent {
 		}
 		
 		return success;
+	}
+	
+	@Override
+	public boolean activatePowerUp(int selected) {
+		setSelectedPowerUp(selected);
+		return activatePowerUp();
 	}
 	
 	/**
@@ -163,13 +167,15 @@ public class Predator extends Agent {
 	 * Sets selectedPowerUp to the right.
 	 */
 	public void selectedPowerUpRight() {
-		if (selectedPowerUp >= 0) {
-			int top = getSelectedPowerUpTop();
-			
+		int top = getSelectedPowerUpTop();
+		
+		if (top <= 0) {
+			selectedPowerUp = top;
+		} else {
 			if (selectedPowerUp >= top) {
 				selectedPowerUp = 0;
 			} else {
-				selectedPowerUp++;
+				++selectedPowerUp;
 			}
 		}
 	}
@@ -178,13 +184,15 @@ public class Predator extends Agent {
 	 * Sets selectedPowerUp to the left.
 	 */
 	public void selectedPowerUpLeft() {
-		if (selectedPowerUp >= 0) {
-			int top = getSelectedPowerUpTop();
-			
+		int top = getSelectedPowerUpTop();
+		
+		if (top <= 0) {
+			selectedPowerUp = top;
+		} else {
 			if (selectedPowerUp <= 0) {
 				selectedPowerUp = top;
 			} else {
-				selectedPowerUp--;
+				--selectedPowerUp;
 			}
 		}
 	}
@@ -248,11 +256,24 @@ public class Predator extends Agent {
 	public PowerUp getSelectedStoredPowerUp() {
 		PowerUp powerUp = null;
 		
-		if (selectedPowerUp != 0) {
+		if (isSelectedValid()) {
 			powerUp = storedPowerUps.get(selectedPowerUp).getPowerUp();
 		}
 		
 		return powerUp;
+	}
+	
+	/**
+	 * Checks whether the selectedPowerUp is valid.
+	 * 
+	 * @return isValid (boolean)
+	 */
+	public boolean isSelectedValid() {
+		boolean inRangeMax = selectedPowerUp <= getMaxPowerUp();
+		boolean inRange = selectedPowerUp >= 0 &&
+				selectedPowerUp <= getSelectedPowerUpTop();
+		
+		return inRangeMax && inRange;
 	}
 	
 }
