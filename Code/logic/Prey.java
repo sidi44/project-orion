@@ -1,9 +1,7 @@
 package logic;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import geometry.PointXY;
 
@@ -11,12 +9,13 @@ import geometry.PointXY;
  * Represents a prey agent.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-08-09
  */
 public class Prey extends Agent {
 	
-	private Map<PreyPowerUp, Integer> storedPowers;
-	private List<PreyPowerUp> activatedPowers;
+	private List<PreyPowerUpContainer> storedPowerUps;
+	private List<PreyPowerUp> activatedPowerUps;
+	private int selectedPowerUp;
 	
 	/**
 	 * Creates an instance of Prey, using id, position, isPlayer
@@ -27,115 +26,176 @@ public class Prey extends Agent {
 	 * @param isPlayer (boolean)
 	 * @param stacking (boolean)
 	 */
-	public Prey(int id, PointXY pos, boolean isPlayer, boolean stacking) {
-		super(id, pos, isPlayer, stacking);
+	public Prey(int id, PointXY pos, boolean isPlayer, int maxPowerUp,
+			boolean stacking) {
+		super(id, pos, isPlayer, maxPowerUp, stacking);
 		
-		this.storedPowers = new HashMap<PreyPowerUp, Integer>();
-		this.activatedPowers = new ArrayList<PreyPowerUp>();
+		this.storedPowerUps = new ArrayList<PreyPowerUpContainer>();
+		this.activatedPowerUps = new ArrayList<PreyPowerUp>();
+		this.selectedPowerUp = -1;
 	}
 	
 	/**
-	 * Gets the storedPowers of the prey.
+	 * Gets the storedPowerUps of the prey.
 	 * 
-	 * @return storedPowers (Map<PreyPowerUp, Integer>)
+	 * @return storedPowerUps (List<PreyPowerUpContainer>)
 	 */
-	public Map<PreyPowerUp, Integer> getStoredPowers() {
-		return storedPowers;
+	public List<PreyPowerUpContainer> getStoredPowerUps() {
+		return storedPowerUps;
 	}
 	
 	/**
-	 * Adds a powerup to the prey's storedPowers.
+	 * Adds a powerup to the prey's storedPowerUps.
 	 * 
-	 * @param storedPowers (PreyPowerUp)
+	 * @param storedPowerUps (PreyPowerUp)
 	 */
-	public void addStoredPower(PreyPowerUp preyPowerUp) {
+	public void addStoredPowerUp(PreyPowerUp preyPowerUp) {
+		boolean found = false;
 		
-		int amount = 0;
-		
-		if (storedPowers.containsKey(preyPowerUp)) {
-			amount = storedPowers.get(preyPowerUp);
-		}
-		
-		// Either adds or overwrites
-		storedPowers.put(preyPowerUp, amount + 1);
-	}
-	
-	/**
-	 * Removes a powerup from the prey's storeedPowers.
-	 * 
-	 * @param storedPowers (PreyPowerUp)
-	 */
-	public void removeStoredPower(PreyPowerUp preyPowerUp) {
-		if (storedPowers.containsKey(preyPowerUp)) {
-			int updatedAmount = storedPowers.get(preyPowerUp) - 1;
-			
-			if (updatedAmount <= 0) {
-				storedPowers.remove(preyPowerUp);
-			} else {
-				storedPowers.put(preyPowerUp, updatedAmount);
+		for (PreyPowerUpContainer pContainer : storedPowerUps) {
+			if (pContainer.getPowerUp().equals(preyPowerUp)) {
+				pContainer.setAmount(pContainer.getAmount() + 1);
+				found = true;
+				break;
 			}
 		}
-	}
-	
-	/**
-	 * Gets the activatedPowers of the prey.
-	 * 
-	 * @return activatedPowers (List<PreyPowerUp>)
-	 */
-	public List<PreyPowerUp> getActivatedPowers() {
-		return activatedPowers;
-	}
-	
-	/**
-	 * Adds a powerup to the prey's activatedPowers.
-	 * 
-	 * @param activatedPowers (PreyPowerUp)
-	 */
-	public void addActivatedPower(PreyPowerUp preyPowerUp) {
-		activatedPowers.add(preyPowerUp);
-	}
-	
-	/**
-	 * Removes a powerup from the prey's activatedPowers.
-	 * 
-	 * @param activatedPowers (PreyPowerUp)
-	 */
-	public void removeActivatedPower(PreyPowerUp preyPowerUp) {
-		activatedPowers.remove(preyPowerUp);
-	}
-	
-	/**
-	 * Activates the powerup, if conditions are correct.
-	 * 
-	 * @param preyPowerUp (PreyPowerUp)
-	 * @return success (boolean)
-	 */
-	public boolean activatePowerUp(PreyPowerUp preyPowerUp) {
 		
-		boolean success = (getStacking() && !isActivated(preyPowerUp))
-				|| !hasActivatedPower();
+		if (!found && storedPowerUps.size() < getMaxPowerUp()) {
+			storedPowerUps.add(new PreyPowerUpContainer(preyPowerUp, 1));
+		}
+		
+		if (storedPowerUps.size() == 1) {
+			selectedPowerUp = getSelectedPowerUpTop();
+		}
+	}
+	
+	/**
+	 * Removes a powerup from the prey's storedPowers.
+	 * 
+	 * @param storedPowerUps (PreyPowerUp)
+	 */
+	public void removeStoredPowerUp(PreyPowerUp preyPowerUp) {
+		int numStoredPowerUps = storedPowerUps.size();
+		
+		for (PreyPowerUpContainer pContainer : storedPowerUps) {
+			if (pContainer.getPowerUp().equals(preyPowerUp)) {
+				if (pContainer.getAmount() <= 1) {
+					storedPowerUps.remove(pContainer);
+				} else {
+					pContainer.setAmount(pContainer.getAmount() - 1);
+				}
+				break;
+			}
+		}
+		
+		if (numStoredPowerUps != storedPowerUps.size()) {
+			selectedPowerUpLeft();
+		}
+		
+	}
+	
+	/**
+	 * Gets the activatedPowerUps of the prey.
+	 * 
+	 * @return activatedPowerUps (List<PreyPowerUp>)
+	 */
+	public List<PreyPowerUp> getActivatedPowerUps() {
+		return activatedPowerUps;
+	}
+	
+	/**
+	 * Adds a powerup to the prey's activatedPowerUps.
+	 * 
+	 * @param activatedPowerUps (PreyPowerUp)
+	 */
+	public void addActivatedPowerUp(PreyPowerUp preyPowerUp) {
+		activatedPowerUps.add(preyPowerUp);
+		preyPowerUp.activate();
+	}
+	
+	/**
+	 * Removes a powerup from the prey's activatedPowerUps.
+	 * 
+	 * @param activatedPowerUps (PreyPowerUp)
+	 */
+	public void removeActivatedPowerUp(PreyPowerUp preyPowerUp) {
+		activatedPowerUps.remove(preyPowerUp);
+	}
+	
+	@Override
+	public boolean activatePowerUp() {
+		boolean success = false;
+		
+		if (isSelectedValid()) {
+			PreyPowerUp powerUp = storedPowerUps.get(selectedPowerUp).getPowerUp();
+			
+			success = (getStacking() && !isActivated(powerUp))
+					|| !hasActivatedPowerUp();
 
-		if (success) {
-			addActivatedPower(preyPowerUp);
-			removeStoredPower(preyPowerUp);
+			if (success) {
+				addActivatedPowerUp(powerUp);
+				removeStoredPowerUp(powerUp);
+			}
 		}
 		
 		return success;
 	}
 	
+	@Override
+	public boolean activatePowerUp(int selected) {
+		setSelectedPowerUp(selected);
+		return activatePowerUp();
+	}
+	
 	/**
-	 * Updates activatedPowers of the prey (i.e. remove expired ones).
+	 * Updates activatedPowerUps of the prey (i.e. remove expired ones).
 	 */
 	public void updateActivatedPowerUps() {
-		for (PreyPowerUp powerUp : activatedPowers) {
+		
+		for (int i = 0; i < activatedPowerUps.size(); ++i) {
+			PreyPowerUp powerUp = activatedPowerUps.get(i);
 			powerUp.decrementTimeRemaining();
 			double timeRemaining = powerUp.getTimeRemaining();
 			if (timeRemaining <= 0) {
-				removeActivatedPower(powerUp);
+				removeActivatedPowerUp(powerUp);
+				--i;
 			}
 		}
 	}
 	
+	/**
+	 * Sets selectedPowerUp to the right.
+	 */
+	public void selectedPowerUpRight() {
+		int top = getSelectedPowerUpTop();
+		
+		if (top <= 0) {
+			selectedPowerUp = top;
+		} else {
+			if (selectedPowerUp >= top) {
+				selectedPowerUp = 0;
+			} else {
+				++selectedPowerUp;
+			}
+		}
+	}
+	
+	/**
+	 * Sets selectedPowerUp to the left.
+	 */
+	public void selectedPowerUpLeft() {
+		int top = getSelectedPowerUpTop();
+		
+		if (top <= 0) {
+			selectedPowerUp = top;
+		} else {
+			if (selectedPowerUp <= 0) {
+				selectedPowerUp = top;
+			} else {
+				--selectedPowerUp;
+			}
+		}
+	}
 	
 	/**
 	 * Checks whether the same powerup type has already been activated.
@@ -145,37 +205,75 @@ public class Prey extends Agent {
 	 */
 	public boolean isActivated(PreyPowerUp preyPowerUp) {
 		boolean isActivated = false;
-		PreyPowerType pType = preyPowerUp.getPType();
+		PreyPowerUpType pType = preyPowerUp.getPType();
 		
-		for (PreyPowerUp powerUp : activatedPowers) {
+		for (PreyPowerUp powerUp : activatedPowerUps) {
 			if (powerUp.getPType() == pType) {
 				isActivated = true;
 				break;
 			}
 		}
-		
 		return isActivated;
 	}
 	
 	/**
 	 * Checks whether the prey has an activated power.
 	 * 
-	 * @return hasActivatedPower (boolean)
+	 * @return hasActivatedPowerUp (boolean)
 	 */
-	public boolean hasActivatedPower() {
-		return (activatedPowers.size() > 0 );
+	public boolean hasActivatedPowerUp() {
+		return (activatedPowerUps.size() > 0 );
+	}
+	
+	/**
+	 * Gets the selected index of storedPowerUps.
+	 * 
+	 * @return selectedPowerUp (int)
+	 */
+	public int getSelectedPowerUp() {
+		return selectedPowerUp;
+	}
+	
+	/**
+	 * Sets the selected index of storedPowerUps.
+	 * 
+	 * @param selectedPowerUp (int)
+	 */
+	public void setSelectedPowerUp(int selectedPowerUp) {
+		this.selectedPowerUp = selectedPowerUp;
+	}
+	
+	/**
+	 * Sets the selected index of storedPowerUps to the top.
+	 * 
+	 * @param selectedPowerUp (int)
+	 */
+	public int getSelectedPowerUpTop() {
+		return storedPowerUps.size() - 1;
 	}
 
 	@Override
-	public PowerUp getFirstStoredPowerUp() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void activatePowerUp(PowerUp powerUp) {
-		// TODO Auto-generated method stub
+	public PowerUp getSelectedStoredPowerUp() {
+		PowerUp powerUp = null;
 		
+		if (isSelectedValid()) {
+			powerUp = storedPowerUps.get(selectedPowerUp).getPowerUp();
+		}
+		
+		return powerUp;
+	}
+	
+	/**
+	 * Checks whether the selectedPowerUp is valid.
+	 * 
+	 * @return isValid (boolean)
+	 */
+	public boolean isSelectedValid() {
+		boolean inRangeMax = selectedPowerUp <= getMaxPowerUp();
+		boolean inRange = selectedPowerUp >= 0 &&
+				selectedPowerUp <= getSelectedPowerUpTop();
+		
+		return inRangeMax && inRange;
 	}
 	
 }

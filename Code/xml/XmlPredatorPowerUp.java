@@ -3,7 +3,7 @@ package xml;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import logic.PredatorPowerType;
+import logic.PredatorPowerUpType;
 
 /**
  * A class representing a predator power up which can be interpreted by a JAXB 
@@ -15,7 +15,7 @@ import logic.PredatorPowerType;
 @XmlRootElement (name = "PredatorPowerUp")
 public class XmlPredatorPowerUp {
 
-	private PredatorPowerType powerUpType;
+	private PredatorPowerUpType powerUpType;
 	private int timeLimit;
 	
 	/**
@@ -23,7 +23,7 @@ public class XmlPredatorPowerUp {
 	 * 
 	 * @return the type of this power up.
 	 */
-	public PredatorPowerType getPowerUpType() {
+	public PredatorPowerUpType getPowerUpType() {
 		return powerUpType;
 	}
 	
@@ -33,7 +33,7 @@ public class XmlPredatorPowerUp {
 	 * @param powerUpType - the type of this power up.
 	 */
 	@XmlElement (name = "PredatorPowerUpType")
-	public void setPowerUpType(PredatorPowerType powerUpType) {
+	public void setPowerUpType(PredatorPowerUpType powerUpType) {
 		this.powerUpType = powerUpType;
 	}
 	

@@ -70,7 +70,7 @@ public class GameLogic {
 		List<PointXY> allPoints = new ArrayList<PointXY>();
 		Set<PointXY> usedPoints = new HashSet<PointXY>();
 		AgentConfig aConfig = gc.getAConfig();
-		PowerConfig pConfig = gc.getPConfig();
+		PowerUpConfig pConfig = gc.getPConfig();
 		int nPredPlayer = aConfig.getNumPredPlayer();
 		int nPreyPlayer = aConfig.getNumPreyPlayer();
 		List<Predator> predators = new ArrayList<Predator>();
@@ -134,7 +134,7 @@ public class GameLogic {
 			usedPoints.add(point);
 			isPlayer = (nPredPlayer > 0);
 			
-			predators.add(new Predator(counter, point, isPlayer, true));
+			predators.add(new Predator(counter, point, isPlayer, aConfig.getMaxPredPowerUp(), true));
 			counter++;
 			nPredPlayer--;
 		}
@@ -155,7 +155,7 @@ public class GameLogic {
 			allPoints.remove(randomNum);
 			isPlayer = (nPreyPlayer > 0);
 			
-			prey.add(new Prey(counter, point, isPlayer, true));
+			prey.add(new Prey(counter, point, isPlayer, aConfig.getMaxPreyPowerUp(), true));
 			counter++;
 			nPreyPlayer--;
 		}
