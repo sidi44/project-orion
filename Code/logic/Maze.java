@@ -266,8 +266,8 @@ public class Maze {
 	 */
 	private boolean buildPathFromPoint(PointXY gPos, boolean allowSquares) {
 		int randomPos = 0;
-		int newX = 0;
-		int newY = 0;
+		double newX = 0;
+		double newY = 0;
 		boolean success = false;
 		boolean dEnd = filled.contains(gPos); // Determines whether is a deadend or empty node
 		PointXY filledPos = null;
@@ -343,8 +343,8 @@ public class Maze {
 	private void buildPathHelper(PointXY cPos) {
 		int pathLength = 0;
 		int randomPos = 0;
-		int newX = 0;
-		int newY = 0;
+		double newX = 0;
+		double newY = 0;
 		boolean extend = true;
 		List<int[]> nesw = null;
 		PointXY neighbourPos = null;
@@ -631,8 +631,8 @@ public class Maze {
 	 */
 	public int possibleNeighbours(PointXY p) {
 		int count = 0;
-		int newX = 0;
-		int newY = 0;
+		double newX = 0;
+		double newY = 0;
 		
 		if (withinDimensions(p)) {
 			List<int[]> nesw = new ArrayList<int[]>();
@@ -661,8 +661,8 @@ public class Maze {
 	 */
 	public int numberOfPaths(PointXY p) {
 		int count = 0;
-		int newX = 0;
-		int newY = 0;
+		double newX = 0;
+		double newY = 0;
 		
 		if (withinDimensions(p)) {
 			List<int[]> nesw = new ArrayList<int[]>();

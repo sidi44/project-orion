@@ -16,7 +16,6 @@ public abstract class Agent {
 	private Move nextMove;
 	private final int id;
 	private boolean isPlayer;
-	private int maxPowerUp;
 	private boolean stacking;
 	private boolean inTransition;
 	
@@ -29,14 +28,12 @@ public abstract class Agent {
 	 * @param stacking - whether stacking of activated powerups
 	 * 					 is allowed (boolean)
 	 */
-	public Agent(int id, PointXY position, boolean isPlayer, int maxPowerUp,
-			boolean stacking) {
+	public Agent(int id, PointXY position, boolean isPlayer, boolean stacking) {
 		this.id = id;
 		this.nextMove = new Move();
 		this.position = position;
 		this.isPlayer = isPlayer;
 		this.stacking = stacking;
-		this.maxPowerUp  = maxPowerUp;
 		this.inTransition = false;
 	}
 	
@@ -164,24 +161,6 @@ public abstract class Agent {
 	}
 	
 	/**
-	 * Gets the maximum number of power ups the agent can have.
-	 * 
-	 * @return maxPowerUp (int)
-	 */
-	public int getMaxPowerUp() {
-		return maxPowerUp;
-	}
-	
-	/**
-	 * Sets the maximum number of power ups the agent can have.
-	 * 
-	 * @param maxPowerUp (int)
-	 */
-	public void setMaxPowerUp(int maxPowerUp) {
-		this.maxPowerUp = maxPowerUp;
-	}
-	
-	/**
 	 * Updates activatedPowers of the agent (i.e. remove expired ones).
 	 */
 	public abstract void updateActivatedPowerUps();
@@ -191,24 +170,24 @@ public abstract class Agent {
 	 * 
 	 * @return hasActivatedPower (boolean)
 	 */
-	public abstract boolean hasActivatedPowerUp();
+	public abstract boolean hasActivatedPower();
 	
 	/**
 	 * Returns the list of power ups that the Agent currently has activated.
 	 * 
 	 * @return the list of power ups that the Agent currently has activated.
 	 */
-	public abstract List<? extends PowerUp> getActivatedPowerUps();
-	
+	public abstract List<? extends PowerUp> getActivatedPowers();
+
 	/***
-	 * Return the selected power up in the Agent's collection of stored power ups.
+	 * Return the first power up in the Agent's collection of stored power ups.
 	 * 
-	 * @return the selected power up in the Agent's collection of stored power ups.
+	 * @return the first power up in the Agent's collection of stored power ups.
 	 */
-	public abstract PowerUp getSelectedStoredPowerUp();
+	public abstract PowerUp getFirstStoredPowerUp();
 
 	/**
-	 * Activate the selected power up.
+	 * Activate the provided power up.
 	 * 
 	 * The power up will not be activated if:
 	 * 	- the power up is not currently stored by the agent.
@@ -216,19 +195,7 @@ public abstract class Agent {
 	 *  enabled.
 	 *  - the power up is already activated.
 	 * 
+	 * @param powerUp - the power up to activate.
 	 */
-	public abstract boolean activatePowerUp();
-
-	/**
-	 * Activate the selected power up.
-	 * 
-	 * The power up will not be activated if:
-	 * 	- the power up is not currently stored by the agent.
-	 *  - the Agent already has a power up activated and stacking is not 
-	 *  enabled.
-	 *  - the power up is already activated.
-	 * 
-	 */
-	public abstract boolean activatePowerUp(int selected);
-	
+	public abstract void activatePowerUp(PowerUp powerUp);
 }

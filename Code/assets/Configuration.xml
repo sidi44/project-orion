@@ -29,10 +29,8 @@
         <AgentConfiguration>
             <NumPredator>1</NumPredator>
             <NumPredatorPlayer>1</NumPredatorPlayer>
-            <MaxPredatorPowerUp>5</MaxPredatorPowerUp>
             <NumPrey>5</NumPrey>
             <NumPreyPlayer>0</NumPreyPlayer>
-            <MaxPreyPowerUp>5</MaxPreyPowerUp>
         </AgentConfiguration>
         <PowerUpConfiguration>
             <NumberPredatorPowerUps>1</NumberPredatorPowerUps>

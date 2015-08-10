@@ -12,15 +12,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "XmlPoint")
 public class XmlPoint {
 
-	private int x;
-	private int y;
+	private double x;
+	private double y;
 	
 	/**
 	 * Get the X coordinate.
 	 * 
 	 * @return the X coordinate.
 	 */
-	public int getX() {
+	public double getX() {
 		return x;
 	}
 	
@@ -30,7 +30,7 @@ public class XmlPoint {
 	 * @param x - the value to set the X coordinate to.
 	 */
 	@XmlElement (name = "X")
-	public void setX(int x) {
+	public void setX(double x) {
 		this.x = x;
 	}
 	
@@ -39,7 +39,7 @@ public class XmlPoint {
 	 * 
 	 * @return the Y coordinate.
 	 */
-	public int getY() {
+	public double getY() {
 		return y;
 	}
 	
@@ -49,7 +49,7 @@ public class XmlPoint {
 	 * @param y - the value to set the Y coordinate to.
 	 */
 	@XmlElement (name = "Y")
-	public void setY(int y) {
+	public void setY(double y) {
 		this.y = y;
 	}
 	

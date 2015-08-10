@@ -39,15 +39,10 @@
 
 <xs:complexType name="AgentConfigurationType">
 	<xs:sequence>
-		<xs:element name="NumPredator" type="xs:positiveInteger" />
-		<xs:element name="NumPredatorPlayer"
-			type="xs:nonNegativeInteger" />
-		<xs:element name="MaxPredatorPowerUp"
-			type="xs:positiveInteger">
-		</xs:element>
-		<xs:element name="NumPrey" type="xs:positiveInteger" />
-		<xs:element name="NumPreyPlayer" type="xs:nonNegativeInteger" />
-		<xs:element name="MaxPreyPowerUp" type="xs:positiveInteger"></xs:element>
+		<xs:element name="NumPredator" type="xs:positiveInteger"/>
+		<xs:element name="NumPredatorPlayer" type="xs:nonNegativeInteger"/>
+		<xs:element name="NumPrey" type="xs:positiveInteger"/>
+		<xs:element name="NumPreyPlayer" type="xs:nonNegativeInteger"/>
 	</xs:sequence>
 </xs:complexType>
 

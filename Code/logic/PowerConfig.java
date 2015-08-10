@@ -17,7 +17,7 @@ import xml.PreyPowerUpAdapter;
  * @version 2015-08-09
  */
 @XmlRootElement(name = "PowerUpConfiguration")
-public class PowerUpConfig {
+public class PowerConfig {
 	
 	private int numPredPow;
 	private List<PredatorPowerUp> predatorPowerUps;
@@ -29,7 +29,7 @@ public class PowerUpConfig {
 	 * 
 	 * Sets parameters to their default values.
 	 */
-	 PowerUpConfig() {
+	public PowerConfig() {
 		this.numPredPow = 0;
 		this.numPreyPow = 0;
 		this.predatorPowerUps = new ArrayList<PredatorPowerUp>();
@@ -44,7 +44,7 @@ public class PowerUpConfig {
 	 * @param predatorPowerUps (List<PredatorPowerUp>)
 	 * @param preyPowerUps (List<PreyPowerUp>)
 	 */
-	public PowerUpConfig(int numPredPow, List<PredatorPowerUp> predatorPowerUps,
+	public PowerConfig(int numPredPow, List<PredatorPowerUp> predatorPowerUps,
 			int numPreyPow, List<PreyPowerUp> preyPowerUps) {
 		
 		this.numPredPow = numPredPow;

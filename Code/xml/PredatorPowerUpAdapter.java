@@ -46,8 +46,8 @@ public class PredatorPowerUpAdapter
 		
 		for (XmlPredatorPowerUp xmlPowerUp : xmlPowerUps) {
 			PredatorPowerUp powerUp = 
-					new PredatorPowerUp(xmlPowerUp.getTimeLimit(), 
-							xmlPowerUp.getPowerUpType());
+					new PredatorPowerUp(xmlPowerUp.getPowerUpType(), 
+							xmlPowerUp.getTimeLimit());
 			powerUps.add(powerUp);
 		}
 		

@@ -514,11 +514,14 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	private void processPowerUps(Agent agent, Move move, Body body) {
 
 		if (move.getUsePowerUp()) {
-			agent.activatePowerUp();
+			PowerUp powerUp = agent.getFirstStoredPowerUp();
+			if (powerUp != null) {
+				agent.activatePowerUp(powerUp);
+			}
 		}
 
-		if (agent.hasActivatedPowerUp()) {
-			List<? extends PowerUp> powerUps = agent.getActivatedPowerUps();
+		if (agent.hasActivatedPower()) {
+			List<? extends PowerUp> powerUps = agent.getActivatedPowers();
 			for (PowerUp powerUp : powerUps) {
 				powerUpProc.processPowerUp(powerUp, body);
 			}

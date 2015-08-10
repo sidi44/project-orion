@@ -9,7 +9,7 @@ package logic;
  */
 public class PreyPowerUp extends PowerUp {
 	
-	private final PreyPowerUpType pType;
+	private final PreyPowerType pType;
 	
 	/**
 	 * Creates an instance of PreyPowerUp.
@@ -17,7 +17,7 @@ public class PreyPowerUp extends PowerUp {
 	 * @param pType (PowerType)
 	 * @param timeLimit (int)
 	 */
-	public PreyPowerUp(int timeLimit, PreyPowerUpType pType) {
+	public PreyPowerUp(PreyPowerType pType, int timeLimit) {
 		super(timeLimit);
 		this.pType = pType;
 	}
@@ -27,7 +27,7 @@ public class PreyPowerUp extends PowerUp {
 	 * 
 	 * @return pType (PowerType)
 	 */
-	public PreyPowerUpType getPType() {
+	public PreyPowerType getPType() {
 		return this.pType;
 	}
 	
