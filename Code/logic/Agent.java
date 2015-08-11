@@ -201,9 +201,11 @@ public abstract class Agent {
 	public abstract List<? extends PowerUp> getActivatedPowerUps();
 	
 	/***
-	 * Return the selected power up in the Agent's collection of stored power ups.
+	 * Return the selected power up in the Agent's collection of stored power 
+	 * ups.
 	 * 
-	 * @return the selected power up in the Agent's collection of stored power ups.
+	 * @return the selected power up in the Agent's collection of stored power 
+	 * ups.
 	 */
 	public abstract PowerUp getSelectedStoredPowerUp();
 
@@ -216,6 +218,7 @@ public abstract class Agent {
 	 *  enabled.
 	 *  - the power up is already activated.
 	 * 
+	 * @return true if the selected power up is activated, false otherwise.
 	 */
 	public abstract boolean activatePowerUp();
 
@@ -228,6 +231,7 @@ public abstract class Agent {
 	 *  enabled.
 	 *  - the power up is already activated.
 	 * 
+	 * @return true if the specified power up is activated, false otherwise.
 	 */
 	public abstract boolean activatePowerUp(int selected);
 	
