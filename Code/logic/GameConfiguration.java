@@ -15,7 +15,7 @@ import geometry.PolygonShape;
  * Represents the configuration of the game.
  * 
  * @author Martin Wong
- * @version 2015-08-09
+ * @version 2015-08-13
  */
 @XmlRootElement(name = "GameConfiguration")
 public class GameConfiguration {
@@ -25,6 +25,7 @@ public class GameConfiguration {
 	private MazeConfig mConfig;
 	private AgentConfig aConfig;
 	private PowerUpConfig pConfig;
+	private PowerUpTypeConfig pTConfig;
 	
 	/**
 	 * Default constructor for GameConfiguration.
@@ -48,6 +49,7 @@ public class GameConfiguration {
 		this.mConfig = new MazeConfig();
 		this.aConfig = new AgentConfig();
 		this.pConfig = new PowerUpConfig();
+		this.pTConfig = new PowerUpTypeConfig();
 	}
 	
 	/**
@@ -57,16 +59,19 @@ public class GameConfiguration {
 	 * @param hasPills (boolean)
 	 * @param mConfig (MazeConfig)
 	 * @param aConfig (AgentConfig)
-	 * @param pConfig (PowerConfig)
+	 * @param pConfig (PowerUpConfig)
+	 * @param pTConfig (PowerUpTypeConfig)
 	 */
 	public GameConfiguration(PolygonShape dimensions, boolean hasPills,
-			MazeConfig mConfig, AgentConfig aConfig, PowerUpConfig pConfig) {
+			MazeConfig mConfig, AgentConfig aConfig, PowerUpConfig pConfig,
+			PowerUpTypeConfig pTConfig) {
 		
 		this.dimensions = dimensions;
 		this.hasPills = hasPills;
 		this.mConfig = mConfig;
 		this.aConfig = aConfig;
 		this.pConfig = pConfig;
+		this.pTConfig = pTConfig;
 	}
 	
 	/**
@@ -148,7 +153,7 @@ public class GameConfiguration {
 	}
 	
 	/**
-	 * Gets the power configurations of the game.
+	 * Gets the powerup configurations of the game.
 	 * 
 	 * @return pConfig (PowerConfig)
 	 */
@@ -157,13 +162,30 @@ public class GameConfiguration {
 	}
 	
 	/**
-	 * Sets the power configurations of the game.
+	 * Sets the powerup configurations of the game.
 	 * 
-	 * @param pConfig (PowerConfig)
+	 * @param pConfig (PowerUpConfig)
 	 */
 	@XmlElement (name = "PowerUpConfiguration")
 	public void setPConfig(PowerUpConfig pConfig) {
 		this.pConfig = pConfig;
 	}
 	
+	/**
+	 * Gets the powerup type configurations of the game.
+	 * 
+	 * @return pTConfig (PowerUpTypeConfig)
+	 */
+	public PowerUpTypeConfig getPTConfig() {
+		return this.pTConfig;
+	}
+	
+	/**
+	 * Sets the powerup type configurations of the game.
+	 * 
+	 * @param pTConfig (PowerUpTypeConfig)
+	 */
+	public void setPConfig(PowerUpTypeConfig pTConfig) {
+		this.pTConfig = pTConfig;
+	}
 }

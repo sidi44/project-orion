@@ -94,6 +94,7 @@ public class GameLogic {
 		}
 		
 		// Populate predator powers (assigned to random positions)
+		PredatorPowerUp predatorPowerUp = null;
 		for (int i = 0; i < pConfig.getNumPredPow(); i++) {
 			if (pConfig.getPredatorPowerUps().size() > 0) {
 				randomNum = NumberUtils.randomInt(0, allPoints.size() - 1);
@@ -101,11 +102,28 @@ public class GameLogic {
 				allPoints.remove(randomNum);
 				
 				randomNum = NumberUtils.randomInt(0, pConfig.getPredatorPowerUps().size() - 1);
-				predatorPowers.put(point, pConfig.getPredatorPowerUps().get(randomNum));
+				predatorPowerUp = pConfig.getPredatorPowerUps().get(randomNum);
+				
+				switch (predatorPowerUp.getPType()){
+					case SpeedUpPredator:
+						predatorPowerUp = new PredatorPowerUpSpeedUp(predatorPowerUp, gc.getPTConfig().getPredatorUpFactor());
+						break;
+					case SlowDownPrey:
+						predatorPowerUp = new PredatorPowerUpSlowDown(predatorPowerUp, gc.getPTConfig().getPreyDownFactor());
+						break;
+					case Teleport:
+						predatorPowerUp = new PredatorPowerUpTeleport(predatorPowerUp, maze.getRandomPoint());
+						break;
+					default:
+						break;
+				}
+				
+				predatorPowers.put(point, predatorPowerUp);
 			}
 		}
 		
 		// Populate prey powers (assigned to random positions)
+		PreyPowerUp preyPowerUp = null;
 		for (int i = 0; i < pConfig.getNumPreyPow(); i++) {
 			if (pConfig.getPreyPowerUps().size() > 0) {
 				randomNum = NumberUtils.randomInt(0, allPoints.size() - 1);
@@ -113,7 +131,23 @@ public class GameLogic {
 				allPoints.remove(randomNum);
 				
 				randomNum = NumberUtils.randomInt(0, pConfig.getPreyPowerUps().size() - 1);
-				preyPowers.put(point, pConfig.getPreyPowerUps().get(randomNum));
+				preyPowerUp = pConfig.getPreyPowerUps().get(randomNum);
+				
+				switch (preyPowerUp.getPType()){
+					case SpeedUpPrey:
+						preyPowerUp = new PreyPowerUpSpeedUp(preyPowerUp, gc.getPTConfig().getPreyUpFactor());
+						break;
+					case SlowDownPredator:
+						preyPowerUp = new PreyPowerUpSlowDown(preyPowerUp, gc.getPTConfig().getPredatorDownFactor());
+						break;
+					case Teleport:
+						preyPowerUp = new PreyPowerUpTeleport(preyPowerUp, maze.getRandomPoint());
+						break;
+					default:
+						break;
+				}
+				
+				preyPowers.put(point, preyPowerUp);
 			}
 		}
 		

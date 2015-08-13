@@ -42,8 +42,6 @@ public class PowerUpProcessor {
 		switch (type) {
 			case Freeze:
 				break;
-			case Random:
-				break;
 			case Reverse:
 				break;
 			case SlowDownPrey:
