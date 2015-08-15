@@ -40,7 +40,7 @@ import logic.PreyPowerUp;
  * game.
  * 
  * @author Simon Dicken
- * @version 2015-08-09
+ * @version 2015-08-15
  */
 public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	
@@ -99,8 +99,6 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 		this.world = world;
 		
-		this.powerUpProc = new PowerUpProcessor(world);
-		
 		this.squareSize = config.getSquareSize();
 		this.wallWidth = (config.getWallWidthRatio() / 2) * squareSize;
 		this.pillRadius = 
@@ -115,6 +113,8 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 		PhysicsContact contact = new PhysicsContact();
 		this.world.setContactListener(contact);
+		
+		this.powerUpProc = new PowerUpProcessor(world, squareSize);
 	}
 	
 	/**
@@ -421,6 +421,12 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 			preStepProcess(b, predators, prey);
 		}
 		
+		// The power ups are processed after each of the agent's moves have 
+		// been applied in the pre-step processing.
+		for (Body b : bodies) {
+			processPowerUps(b, predators, prey);
+		}
+		
 		// Run the simulation for one timestep.
 		world.step(timestep, 8, 3);
 		
@@ -482,25 +488,72 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	private void processAgent(Body body, List<? extends Agent> agents, 
 			float speed) {
 		
+		Agent agent = findAgent(body, agents);
+		
+		if (agent != null) {
+			PhysicsDataAgent data = (PhysicsDataAgent) body.getUserData();
+			
+			Move move = agent.getNextMove();
+			Vector2 velocity = body.getLinearVelocity();
+			updateVelocity(velocity, move, speed);
+			body.setLinearVelocity(velocity);
+			
+			if (data.getCurrentMove() != Direction.None) {
+				data.setPreviousMove(data.getCurrentMove());
+			}
+			data.setCurrentMove(move.getDirection());
+		}
+	}
+	
+	/**
+	 * Find the Agent which in the provided list of Agents which is equivalent 
+	 * to the provided body. If there is no match, this method returns null.
+	 * 
+	 * @param body - the body for which to find the matching agent.
+	 * @param agents - the list of agents to search through.
+	 * @return the equivalent agent to the body in agents, or null if there is 
+	 * no match.
+	 */
+	private Agent findAgent(Body body, List<? extends Agent> agents) {
+		
 		PhysicsDataAgent data = (PhysicsDataAgent) body.getUserData();
 		int bodyID = data.getID();
 		
-		for(Agent agent : agents) {
+		for (Agent agent : agents) {
 			if (agent.getID() == bodyID) {
-				Move move = agent.getNextMove();
-				Vector2 velocity = body.getLinearVelocity();
-				updateVelocity(velocity, move, speed);
-				body.setLinearVelocity(velocity);
-				
-				processPowerUps(agent, move, body);
-				
-				if (data.getCurrentMove() != Direction.None) {
-					data.setPreviousMove(data.getCurrentMove());
-				}
-				data.setCurrentMove(move.getDirection());
+				return agent;
 			}
 		}
+		
+		return null;
 	}
+	
+	/**
+	 * Find the agent equivalent to the provided body if there is one. If there 
+	 * is then, based on the agent's move, either activate a power up, apply the
+	 * currently activated power up's action, or do nothing.
+	 * 
+	 * @param body - the body to process.
+	 * @param predators - the list of all Predator agents currently in the game.
+	 * @param prey - the list of all Prey agents currently in the game.
+	 */
+	private void processPowerUps(Body body, List<Predator> predators, 
+			List<Prey> prey) {
+		
+		PhysicsData data = (PhysicsData) body.getUserData();
+		Agent agent = null;
+		if (data.getType() == PhysicsBodyType.Predator) {
+			agent = findAgent(body, predators);
+		} else if (data.getType() == PhysicsBodyType.Prey) {
+			agent = findAgent(body, prey);
+		}
+		
+		if (agent != null) {
+			Move move = agent.getNextMove();
+			processAgentPowerUps(agent, move, body);
+		}
+	}
+	
 	
 	/**
 	 * Activates a power up if the provided Move indicates that one should be. 
@@ -511,7 +564,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	 * @param move - the current Move of the Agent.
 	 * @param body - the body associated with the agent.
 	 */
-	private void processPowerUps(Agent agent, Move move, Body body) {
+	private void processAgentPowerUps(Agent agent, Move move, Body body) {
 
 		if (move.getUsePowerUp()) {
 			agent.activatePowerUp();
@@ -681,10 +734,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	 * @return a physics world coordinate equivalent to the provided position.
 	 */
 	private Vector2 stateToWorld(PointXY pos) {
-		// Adding 0.5 offsets us to the centre of the square.
-		float centreX = (float) ((pos.getX() + 0.5) * squareSize); 
-		float centreY = (float) ((pos.getY() + 0.5) * squareSize);
-		return new Vector2(centreX, centreY);
+		return stateToWorld(pos, squareSize);
 	}
 	
 	/**
@@ -692,13 +742,10 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	 * 
 	 * @param pos - the physics world position to convert.
 	 * @return a back-end logic maze position that is equivalent to the provided
-	 * physics world coordiante.
+	 * physics world coordinate.
 	 */
 	private PointXY worldToState(Vector2 pos) {
-		// Do the inverse of the stateToWorld calculation.
-		int centreX = (int) Math.round((pos.x / squareSize) - 0.5);
-		int centreY = (int) Math.round((pos.y / squareSize) - 0.5);
-		return new PointXY(centreX, centreY);
+		return worldToState(pos, squareSize);
 	}
 	
 	/**
@@ -733,5 +780,36 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		}
 		
 	}
-			    
+	
+	/**
+	 * For the given square size, convert the provided position in the back-end 
+	 * logic coordinate system to the equivalent point in the Box2D world 
+	 * coordinate system.
+	 * 
+	 * @param pos - the back-end logic position to convert.
+	 * @param squareSize - the size of a maze square in the Box2D world.
+	 * @return the equivalent position in the Box2D world coordinate system.
+	 */
+	public static Vector2 stateToWorld(PointXY pos, float squareSize) {
+		// Adding 0.5 offsets us to the centre of the square.
+		float centreX = (float) ((pos.getX() + 0.5) * squareSize); 
+		float centreY = (float) ((pos.getY() + 0.5) * squareSize);
+		return new Vector2(centreX, centreY);
+	}
+	
+	/**
+	 * For the given square size, convert the provided position in the Box2D 
+	 * coordinate system to the equivalent point in the back-end logic 
+	 * coordinate system.
+	 * 
+	 * @param pos - the Box2D world position to convert.
+	 * @param squareSize - the size of a maze square in the Box2D world.
+	 * @return the equivalent position in the back-end logic coordinate system.
+	 */
+	public static PointXY worldToState(Vector2 pos, float squareSize) {
+		// Do the inverse of the stateToWorld calculation.
+		int centreX = (int) Math.round((pos.x / squareSize) - 0.5);
+		int centreY = (int) Math.round((pos.y / squareSize) - 0.5);
+		return new PointXY(centreX, centreY);
+	}
 }
