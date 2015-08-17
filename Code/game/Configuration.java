@@ -7,6 +7,17 @@ import logic.GameConfiguration;
 import physics.PhysicsConfiguration;
 import render.RendererConfiguration;
 
+/**
+ * Configuration class for predator prey game. This class contains the 
+ * parameters used by the game. The parameters are divided into three groups:
+ * Game, Physics and Renderer.
+ * 
+ * The configuration group of classes are intended to be read in by a JAXB XML
+ * parser.
+ * 
+ * @author Simon Dicken
+ * @version 2015-08-09
+ */
 @XmlRootElement(name = "Configuration")
 public class Configuration {
 
@@ -15,14 +26,29 @@ public class Configuration {
 	private RendererConfiguration rendererConfig;
 
 	/**
-	 * @return the gameConfig
+	 * Default constructor. 
+	 * 
+	 * Parameters are set to their default values.
+	 */
+	public Configuration() {
+		gameConfig = new GameConfiguration();
+		physicsConfig = new PhysicsConfiguration();
+		rendererConfig = new RendererConfiguration();
+	}
+	
+	/**
+	 * Get the Game configuration.
+	 * 
+	 * @return the Game configuration.
 	 */
 	public GameConfiguration getGameConfig() {
 		return gameConfig;
 	}
 
 	/**
-	 * @param gameConfig the gameConfig to set
+	 * Set the Game configuration.
+	 * 
+	 * @param gameConfig - the Game configuration to set.
 	 */
 	@XmlElement (name = "GameConfiguration")
 	public void setGameConfig(GameConfiguration gameConfig) {
@@ -30,14 +56,18 @@ public class Configuration {
 	}
 	
 	/**
-	 * @return the physicsConfig
+	 * Get the Physics configuration.
+	 * 
+	 * @return the Physics configuration.
 	 */
 	public PhysicsConfiguration getPhysicsConfig() {
 		return physicsConfig;
 	}
 
 	/**
-	 * @param physicsConfig the physicsConfig to set
+	 * Set the Physics configuration.
+	 * 
+	 * @param physicsConfig - the Physics configuration to set.
 	 */
 	@XmlElement (name = "PhysicsConfiguration")
 	public void setPhysicsConfig(PhysicsConfiguration physicsConfig) {
@@ -45,14 +75,18 @@ public class Configuration {
 	}
 	
 	/**
-	 * @return the rendererConfig
+	 * Get the Renderer configuration.
+	 * 
+	 * @return the Renderer configuration.
 	 */
 	public RendererConfiguration getRendererConfig() {
 		return rendererConfig;
 	}
 
 	/**
-	 * @param rendererConfig the rendererConfig to set
+	 * Set the Renderer configuration.
+	 * 
+	 * @param rendererConfig - the Renderer configuration to set.
 	 */
 	@XmlElement (name = "RendererConfiguration")
 	public void setRendererConfig(RendererConfiguration rendererConfig) {

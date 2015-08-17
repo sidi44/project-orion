@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+<xs:complexType name="XmlPointType">
+	<xs:sequence>
+		<xs:element name="X" type="xs:integer"/>
+		<xs:element name="Y" type="xs:integer"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="PolygonShapeType">
+	<xs:sequence>
+		<xs:element name="XmlPoint" type="XmlPointType" minOccurs="3" maxOccurs="unbounded"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:simpleType name="UnitIntervalType">
+	<xs:restriction base="xs:decimal">
+		<xs:minInclusive value="0"/>
+    	<xs:maxInclusive value="1"/>
+	</xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="UnitIntervalNonZeroType">
+	<xs:restriction base="xs:decimal">
+		<xs:minExclusive value="0"/>
+    	<xs:maxInclusive value="1"/>
+	</xs:restriction>
+</xs:simpleType>
+
+<xs:complexType name="MazeConfigurationType">
+	<xs:sequence>
+		<xs:element name="MaxLength" type="xs:positiveInteger"/>
+		<xs:element name="LoopLimit" type="xs:positiveInteger"/>
+		<xs:element name="DeadEndMinProp" type="UnitIntervalType"/>
+		<xs:element name="RanPathMaxProp" type="UnitIntervalType"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="AgentConfigurationType">
+	<xs:sequence>
+		<xs:element name="NumPredator" type="xs:positiveInteger"/>
+		<xs:element name="NumPredatorPlayer" type="xs:nonNegativeInteger"/>
+		<xs:element name="MaxPredatorPowerUp" type="xs:nonNegativeInteger"/>
+		<xs:element name="NumPrey" type="xs:positiveInteger"/>
+		<xs:element name="NumPreyPlayer" type="xs:nonNegativeInteger"/>
+		<xs:element name="MaxPreyPowerUp" type="xs:nonNegativeInteger"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:simpleType name="PredatorPowerUpEnum">
+	<xs:restriction base="xs:string">
+		<xs:enumeration value="SpeedUpPredator"/>
+        <xs:enumeration value="Reverse"/>
+        <xs:enumeration value="Teleport"/>
+		<xs:enumeration value="SlowDownPrey"/>
+        <xs:enumeration value="Freeze"/>
+        <xs:enumeration value="Random"/>
+	</xs:restriction>
+</xs:simpleType>
+
+<xs:complexType name="PredatorPowerUpXmlType">
+	<xs:sequence>
+		<xs:element name="PredatorPowerUpType" type="PredatorPowerUpEnum"/>
+		<xs:element name="TimeLimit" type="xs:positiveInteger"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="PredatorPowerUpsType">
+	<xs:sequence>
+		<xs:element name="PredatorPowerUp" type="PredatorPowerUpXmlType" maxOccurs="unbounded"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:simpleType name="PreyPowerUpEnum">
+	<xs:restriction base="xs:string">
+		<xs:enumeration value="SpeedUpPrey"/>
+        <xs:enumeration value="Reverse"/>
+        <xs:enumeration value="Teleport"/>
+		<xs:enumeration value="SlowDownPredator"/>
+        <xs:enumeration value="Freeze"/>
+        <xs:enumeration value="Random"/>
+	</xs:restriction>
+</xs:simpleType>
+
+<xs:complexType name="PreyPowerUpXmlType">
+	<xs:sequence>
+		<xs:element name="PreyPowerUpType" type="PreyPowerUpEnum"/>
+		<xs:element name="TimeLimit" type="xs:positiveInteger"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="PreyPowerUpsType">
+	<xs:sequence>
+		<xs:element name="PreyPowerUp" type="PreyPowerUpXmlType" maxOccurs="unbounded"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="PowerUpConfigurationType">
+	<xs:sequence>
+		<xs:element name="NumberPredatorPowerUps" type="xs:nonNegativeInteger"/>
+		<xs:element name="NumberPreyPowerUps" type="xs:nonNegativeInteger"/>
+		<xs:element name="PredatorPowerUps" type="PredatorPowerUpsType"/>
+		<xs:element name="PreyPowerUps" type="PreyPowerUpsType" minOccurs="0"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="GameConfigurationType">
+	<xs:sequence>
+		<xs:element name="PolygonShape" type="PolygonShapeType"/>
+		<xs:element name="HasPills" type="xs:boolean"/>
+		<xs:element name="MazeConfiguration" type="MazeConfigurationType"/>
+		<xs:element name="AgentConfiguration" type="AgentConfigurationType"/>
+		<xs:element name="PowerUpConfiguration" type="PowerUpConfigurationType"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="PhysicsConfigurationType">
+	<xs:sequence>
+		<xs:element name="SquareSize" type="xs:positiveInteger"/>
+		<xs:element name="WallWidthRatio">
+			<xs:simpleType>
+				<xs:restriction base="xs:decimal">
+					<xs:minExclusive value="0"/>
+					<xs:maxInclusive value="0.4"/>	
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+		<xs:element name="PillRadiusRatio" type="UnitIntervalNonZeroType"/>
+		<xs:element name="PowerUpRadiusRatio" type="UnitIntervalNonZeroType"/>
+		<xs:element name="PredatorSpeed" type="xs:positiveInteger"/>
+		<xs:element name="PreySpeed" type="xs:positiveInteger"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="AnimationDefinitionType">
+	<xs:sequence>
+		<xs:element name="AnimationName" type="xs:string"/>
+		<xs:element name="StartFrame" type="xs:positiveInteger"/>
+		<xs:element name="EndFrame" type="xs:positiveInteger"/>
+		<xs:element name="FrameDuration">
+			<xs:simpleType>
+				<xs:restriction base="xs:decimal">
+					<xs:minExclusive value="0"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="AnimationGroupDefinitionType">
+	<xs:sequence>
+		<xs:element name="AnimationGroupName" type="xs:string"/>
+		<xs:element name="Rows" type="xs:positiveInteger"/>
+		<xs:element name="Columns" type="xs:positiveInteger"/>
+		<xs:element name="Filename" type="xs:string"/>
+		<xs:element name="AnimationDefinition" type="AnimationDefinitionType" maxOccurs="unbounded"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="RendererConfigurationType">
+	<xs:sequence>
+		<xs:element name="AllowRotations" type="xs:boolean"/>
+		<xs:element name="WallTextureFilename" type="xs:string"/>
+		<xs:element name="WallTextureScale" type="UnitIntervalType"/>
+		<xs:element name="BackgroundFilename" type="xs:string"/>
+		<xs:element name="AnimationGroupDefinition" type="AnimationGroupDefinitionType" maxOccurs="unbounded"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="ConfigurationType">
+	<xs:sequence>
+		<xs:element name="GameConfiguration" type="GameConfigurationType"/>
+		<xs:element name="PhysicsConfiguration" type="PhysicsConfigurationType"/>
+		<xs:element name="RendererConfiguration" type="RendererConfigurationType"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:element name="Configuration" type="ConfigurationType"/>
+
+</xs:schema>

@@ -3,39 +3,53 @@ package xml;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ * A class representing a point which can be interpreted by a JAXB Xml parser.
+ * 
+ * @author Simon Dicken
+ * @version 2015-08-09
+ */
 @XmlRootElement(name = "XmlPoint")
 public class XmlPoint {
 
-	private double x;
-	private double y;
+	private int x;
+	private int y;
 	
 	/**
-	 * @return the x
+	 * Get the X coordinate.
+	 * 
+	 * @return the X coordinate.
 	 */
-	public double getX() {
+	public int getX() {
 		return x;
 	}
 	
 	/**
-	 * @param x the x to set
+	 * Set the X coordinate.
+	 * 
+	 * @param x - the value to set the X coordinate to.
 	 */
 	@XmlElement (name = "X")
-	public void setX(double x) {
+	public void setX(int x) {
 		this.x = x;
 	}
 	
 	/**
-	 * @return the y
+	 * Get the Y coordinate.
+	 * 
+	 * @return the Y coordinate.
 	 */
-	public double getY() {
+	public int getY() {
 		return y;
 	}
 	
 	/**
-	 * @param y the y to set
+	 * Set the Y coordinate.
+	 * 
+	 * @param y - the value to set the Y coordinate to.
 	 */
 	@XmlElement (name = "Y")
-	public void setY(double y) {
+	public void setY(int y) {
 		this.y = y;
 	}
 	

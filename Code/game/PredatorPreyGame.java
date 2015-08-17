@@ -18,6 +18,20 @@ import render.Renderer;
 import render.RendererConfiguration;
 import render.SettingsScreen;
 import xml.ConfigurationXMLParser;
+import logic.Agent;
+import logic.AgentConfig;
+import logic.GameConfiguration;
+import logic.GameLogic;
+import logic.GameOver;
+import logic.GameState;
+import logic.MazeConfig;
+import logic.Move;
+import logic.PowerUpConfig;
+import logic.Predator;
+import logic.PredatorPowerUpType;
+import logic.PredatorPowerUp;
+import logic.Prey;
+import logic.PreyPowerUp;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -46,9 +60,11 @@ public class PredatorPreyGame extends Game	 {
 	
 	@Override
 	public void create() {
-		
+
 		String filename = "Configuration.xml";
-		ConfigurationXMLParser xmlParser = new ConfigurationXMLParser(filename);
+		String schemaFilename = "Configuration.xsd";
+		ConfigurationXMLParser xmlParser = 
+				new ConfigurationXMLParser(filename, schemaFilename);
 		xmlParser.parseXML();
 		GameConfiguration gameConfig = xmlParser.getGameConfig();
 		PhysicsConfiguration physicsConfig = xmlParser.getPhysicsConfig();

@@ -164,7 +164,7 @@ public class PolygonShape extends java.awt.Polygon {
 		
 		while (!pathIt.isDone()) {
 			pathIt.currentSegment(dArray); // Gets part of polygon
-			currentPoint = new PointXY(dArray[0], dArray[1]);
+			currentPoint = new PointXY((int)dArray[0], (int)dArray[1]);
 			
 			// Do not include successive repeated points
 			if (!currentPoint.equals(previousPoint)) {

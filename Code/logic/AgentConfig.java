@@ -7,24 +7,30 @@ import javax.xml.bind.annotation.XmlRootElement;
  * The configuration for the agents.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-08-09
  */
 @XmlRootElement(name = "AgentConfiguration")
 public class AgentConfig {
 	
 	private int numPred;
 	private int numPredPlayer;
+	private int maxPredPowerUp;
 	private int numPrey;
 	private int numPreyPlayer;
+	private int maxPreyPowerUp;
 	
 	/**
 	 * Default constructor for AgentConfig.
+	 * 
+	 * Sets parameters to their default values.
 	 */
 	public AgentConfig() {
 		this.numPred = 1;
 		this.numPredPlayer = 1;
+		this.maxPredPowerUp = 5;
 		this.numPrey = 5;
-		this.numPredPlayer = 0;
+		this.numPreyPlayer = 0;
+		this.maxPreyPowerUp = 5;
 	}
 	
 	/**
@@ -35,13 +41,15 @@ public class AgentConfig {
 	 * @param numPrey (int)
 	 * @param numPreyPlayer (int)
 	 */
-	public AgentConfig(int numPred, int numPredPlayer, int numPrey,
-			int numPreyPlayer) {
+	public AgentConfig(int numPred, int numPredPlayer, int maxPredPowerUp,
+			int numPrey, int numPreyPlayer, int maxPreyPowerUp) {
 		
 		this.numPred = numPred;
 		this.numPredPlayer = numPredPlayer;
+		this.maxPredPowerUp = maxPredPowerUp;
 		this.numPrey = numPrey;
 		this.numPreyPlayer = numPreyPlayer;
+		this.maxPreyPowerUp = maxPreyPowerUp;
 		
 		try {
 			if ((this.numPred < this.numPredPlayer)
@@ -95,6 +103,25 @@ public class AgentConfig {
 	}
 	
 	/**
+	 * Gets the maximum number of powerups a predator can have.
+	 * 
+	 * @return maxPredPowerUp (int)
+	 */
+	public int getMaxPredPowerUp() {
+		return this.maxPredPowerUp;
+	}
+	
+	/**
+	 * Sets the maximum number of powerups a predator can have.
+	 * 
+	 * @param maxPredPowerUp (int)
+	 */
+	@XmlElement (name = "MaxPredatorPowerUp")
+	public void setMaxPredPowerUp(int maxPredPowerUp) {
+		this.maxPredPowerUp = maxPredPowerUp;
+	}
+	
+	/**
 	 * Gets the total number of prey.
 	 * 
 	 * @return numPrey (int)
@@ -131,5 +158,25 @@ public class AgentConfig {
 	public void setNumPreyPlayer(int numPreyPlayer) {
 		this.numPreyPlayer = numPreyPlayer;
 	}
+	
+	/**
+	 * Gets the maximum number of powerups a prey can have.
+	 * 
+	 * @return maxPreyPowerUp (int)
+	 */
+	public int getMaxPreyPowerUp() {
+		return this.maxPreyPowerUp;
+	}
+	
+	/**
+	 * Sets the maximum number of powerups a prey can have.
+	 * 
+	 * @param maxPreyPowerUp (int)
+	 */
+	@XmlElement (name = "MaxPreyPowerUp")
+	public void setMaxPreyPowerUp(int maxPreyPowerUp) {
+		this.maxPreyPowerUp = maxPreyPowerUp;
+	}
+	
 	
 }

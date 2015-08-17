@@ -9,9 +9,10 @@ import javax.xml.bind.annotation.XmlType;
  * @author Martin Wong
  * @version 2015-06-11
  */
+
 @XmlType(name = "PreyPowerUpEnum")
 @XmlEnum
-public enum PreyPowerType {
+public enum PreyPowerUpType {
 	
 	SpeedUpPrey,
 	Reverse,
@@ -24,7 +25,7 @@ public enum PreyPowerType {
         return name();
     }
 
-    public static PreyPowerType fromValue(String v) {
+    public static PreyPowerUpType fromValue(String v) {
         return valueOf(v);
     }
 }

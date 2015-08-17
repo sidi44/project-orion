@@ -4,19 +4,20 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * Represents different types of powerups for preys.
+ * Represents different types of powerups for predators.
  * 
  * @author Martin Wong
  * @version 2015-06-11
  */
-@XmlType(name = "PreyPowerUpEnum")
+
+@XmlType(name = "PredatorPowerUpEnum")
 @XmlEnum
-public enum PreyPowerType {
+public enum PredatorPowerUpType {
 	
-	SpeedUpPrey,
+	SpeedUpPredator,
 	Reverse,
 	Teleport,
-	SlowDownPredator,
+	SlowDownPrey,
 	Freeze,
 	Random;
 	
@@ -24,7 +25,7 @@ public enum PreyPowerType {
         return name();
     }
 
-    public static PreyPowerType fromValue(String v) {
+    public static PredatorPowerUpType fromValue(String v) {
         return valueOf(v);
     }
 }

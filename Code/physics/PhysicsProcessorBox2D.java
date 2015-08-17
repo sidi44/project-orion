@@ -40,7 +40,7 @@ import logic.PreyPowerUp;
  * game.
  * 
  * @author Simon Dicken
- * @version 2015-07-19
+ * @version 2015-08-09
  */
 public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	
@@ -327,7 +327,11 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		float radius = (squareSize - wallWidth*2) / 2 * 0.95f;
 		circle.setRadius(radius);
 		
+//		PolygonShape square = new PolygonShape();
+//		square.setAsBox(radius, radius);
+		
 		fixtureDef.shape = circle;
+//		fixtureDef.shape = square;
 		
 		fixtureDef.filter.categoryBits = categoryBits;
 		fixtureDef.filter.maskBits = maskBits;
@@ -490,7 +494,9 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 				
 				processPowerUps(agent, move, body);
 				
-				data.setPreviousMove(data.getCurrentMove());
+				if (data.getCurrentMove() != Direction.None) {
+					data.setPreviousMove(data.getCurrentMove());
+				}
 				data.setCurrentMove(move.getDirection());
 			}
 		}
@@ -508,14 +514,11 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	private void processPowerUps(Agent agent, Move move, Body body) {
 
 		if (move.getUsePowerUp()) {
-			PowerUp powerUp = agent.getFirstStoredPowerUp();
-			if (powerUp != null) {
-				agent.activatePowerUp(powerUp);
-			}
+			agent.activatePowerUp();
 		}
 
-		if (agent.hasActivatedPower()) {
-			List<? extends PowerUp> powerUps = agent.getActivatedPowers();
+		if (agent.hasActivatedPowerUp()) {
+			List<? extends PowerUp> powerUps = agent.getActivatedPowerUps();
 			for (PowerUp powerUp : powerUps) {
 				powerUpProc.processPowerUp(powerUp, body);
 			}
