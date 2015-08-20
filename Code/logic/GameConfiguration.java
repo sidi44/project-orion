@@ -15,7 +15,7 @@ import geometry.PolygonShape;
  * Represents the configuration of the game.
  * 
  * @author Martin Wong
- * @version 2015-08-13
+ * @version 2015-08-18
  */
 @XmlRootElement(name = "GameConfiguration")
 public class GameConfiguration {
@@ -25,7 +25,6 @@ public class GameConfiguration {
 	private MazeConfig mConfig;
 	private AgentConfig aConfig;
 	private PowerUpConfig pConfig;
-	private PowerUpTypeConfig pTConfig;
 	
 	/**
 	 * Default constructor for GameConfiguration.
@@ -49,7 +48,6 @@ public class GameConfiguration {
 		this.mConfig = new MazeConfig();
 		this.aConfig = new AgentConfig();
 		this.pConfig = new PowerUpConfig();
-		this.pTConfig = new PowerUpTypeConfig();
 	}
 	
 	/**
@@ -60,18 +58,15 @@ public class GameConfiguration {
 	 * @param mConfig (MazeConfig)
 	 * @param aConfig (AgentConfig)
 	 * @param pConfig (PowerUpConfig)
-	 * @param pTConfig (PowerUpTypeConfig)
 	 */
 	public GameConfiguration(PolygonShape dimensions, boolean hasPills,
-			MazeConfig mConfig, AgentConfig aConfig, PowerUpConfig pConfig,
-			PowerUpTypeConfig pTConfig) {
+			MazeConfig mConfig, AgentConfig aConfig, PowerUpConfig pConfig) {
 		
 		this.dimensions = dimensions;
 		this.hasPills = hasPills;
 		this.mConfig = mConfig;
 		this.aConfig = aConfig;
 		this.pConfig = pConfig;
-		this.pTConfig = pTConfig;
 	}
 	
 	/**
@@ -171,21 +166,4 @@ public class GameConfiguration {
 		this.pConfig = pConfig;
 	}
 	
-	/**
-	 * Gets the powerup type configurations of the game.
-	 * 
-	 * @return pTConfig (PowerUpTypeConfig)
-	 */
-	public PowerUpTypeConfig getPTConfig() {
-		return this.pTConfig;
-	}
-	
-	/**
-	 * Sets the powerup type configurations of the game.
-	 * 
-	 * @param pTConfig (PowerUpTypeConfig)
-	 */
-	public void setPConfig(PowerUpTypeConfig pTConfig) {
-		this.pTConfig = pTConfig;
-	}
 }

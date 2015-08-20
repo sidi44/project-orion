@@ -1,5 +1,9 @@
 package physics;
 
+import geometry.PointXY;
+
+import com.badlogic.gdx.math.Vector2;
+
 import logic.GameState;
 
 /**
@@ -24,5 +28,6 @@ public interface PhysicsProcessor {
 	 * @param timestep - the amount of time to simulate.
 	 */
 	void processGameState(GameState state, float timestep);
+	
 	
 }

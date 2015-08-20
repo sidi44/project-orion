@@ -5,42 +5,42 @@ package logic;
  * it slows down the prey.
  * 
  * @author Martin Wong
- * @version 2015-08-13
+ * @version 2015-08-18
  */
 public class PredatorPowerUpSlowDown extends PredatorPowerUp {
 	
-	private final double downFactor; // Factor to decrease speed by
+	private final double slowDownFactor; // Factor to decrease speed by
 
 	/**
 	 * Creates an instance of PredatorPowerUpSlowDown.
 	 * 
 	 * @param timeLimit (int)
 	 * @param pType (PowerType)
-	 * @param downFactor (double)
+	 * @param slowDownFactor (double)
 	 */
-	public PredatorPowerUpSlowDown(int timeLimit, PredatorPowerUpType pType, double downFactor) {
+	public PredatorPowerUpSlowDown(int timeLimit, PredatorPowerUpType pType, double slowDownFactor) {
 		super(timeLimit, pType);
-		this.downFactor = downFactor;
+		this.slowDownFactor = slowDownFactor;
 	}
 	
 	/**
 	 * Creates an instance of PredatorPowerUpSlowDown.
 	 * 
 	 * @param predatorPower (PredatorPowerUp)
-	 * @param downFactor (double)
+	 * @param slowDownFactor (double)
 	 */
-	public PredatorPowerUpSlowDown(PredatorPowerUp predatorPower, double downFactor) {
+	public PredatorPowerUpSlowDown(PredatorPowerUp predatorPower, double slowDownFactor) {
 		super(predatorPower.getTimeLimit(), predatorPower.getPType());
-		this.downFactor = downFactor;
+		this.slowDownFactor = slowDownFactor;
 	}
 	
 	/**
 	 * Gets the slow down factor.
 	 * 
-	 * @return downFactor (double)
+	 * @return slowDownFactor (double)
 	 */
 	public double getDownFactor() {
-		return downFactor;
+		return slowDownFactor;
 	}
 	
 }

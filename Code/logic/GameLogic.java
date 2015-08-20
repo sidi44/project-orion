@@ -71,6 +71,7 @@ public class GameLogic {
 		Set<PointXY> usedPoints = new HashSet<PointXY>();
 		AgentConfig aConfig = gc.getAConfig();
 		PowerUpConfig pConfig = gc.getPConfig();
+		PowerUpTypeConfig ptConfig = pConfig.getPowerUpTypeConfig();
 		int nPredPlayer = aConfig.getNumPredPlayer();
 		int nPreyPlayer = aConfig.getNumPreyPlayer();
 		List<Predator> predators = new ArrayList<Predator>();
@@ -106,10 +107,10 @@ public class GameLogic {
 				
 				switch (predatorPowerUp.getPType()){
 					case SpeedUpPredator:
-						predatorPowerUp = new PredatorPowerUpSpeedUp(predatorPowerUp, gc.getPTConfig().getPredatorUpFactor());
+						predatorPowerUp = new PredatorPowerUpSpeedUp(predatorPowerUp, ptConfig.getPredatorSpeedUpFactor());
 						break;
 					case SlowDownPrey:
-						predatorPowerUp = new PredatorPowerUpSlowDown(predatorPowerUp, gc.getPTConfig().getPreyDownFactor());
+						predatorPowerUp = new PredatorPowerUpSlowDown(predatorPowerUp, ptConfig.getPreySlowDownFactor());
 						break;
 					case Teleport:
 						predatorPowerUp = new PredatorPowerUpTeleport(predatorPowerUp, maze.getRandomPoint());
@@ -135,10 +136,10 @@ public class GameLogic {
 				
 				switch (preyPowerUp.getPType()){
 					case SpeedUpPrey:
-						preyPowerUp = new PreyPowerUpSpeedUp(preyPowerUp, gc.getPTConfig().getPreyUpFactor());
+						preyPowerUp = new PreyPowerUpSpeedUp(preyPowerUp, ptConfig.getPreySpeedUpFactor());
 						break;
 					case SlowDownPredator:
-						preyPowerUp = new PreyPowerUpSlowDown(preyPowerUp, gc.getPTConfig().getPredatorDownFactor());
+						preyPowerUp = new PreyPowerUpSlowDown(preyPowerUp, ptConfig.getPredatorSlowDownFactor());
 						break;
 					case Teleport:
 						preyPowerUp = new PreyPowerUpTeleport(preyPowerUp, maze.getRandomPoint());

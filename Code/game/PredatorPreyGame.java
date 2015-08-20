@@ -154,7 +154,10 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		GameState state = gameLogic.getGameState();
 		timestep = Gdx.graphics.getDeltaTime();
 		physProc.processGameState(state, timestep);
-
+		
+		
+		
+		
 		checkForGameOver();
 	}
 

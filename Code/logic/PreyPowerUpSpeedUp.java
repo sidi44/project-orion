@@ -5,42 +5,42 @@ package logic;
  * it speeds up the prey.
  * 
  * @author Martin Wong
- * @version 2015-08-13
+ * @version 2015-08-18
  */
 public class PreyPowerUpSpeedUp extends PreyPowerUp {
 	
-	private final double upFactor; // Factor to increase speed by
+	private final double speedUpFactor; // Factor to increase speed by
 
 	/**
 	 * Creates an instance of PreyPowerUpSpeedUp.
 	 * 
 	 * @param timeLimit (int)
 	 * @param pType (PowerType)
-	 * @param upFactor (double)
+	 * @param speedUpFactor (double)
 	 */
-	public PreyPowerUpSpeedUp(int timeLimit, PreyPowerUpType pType, double upFactor) {
+	public PreyPowerUpSpeedUp(int timeLimit, PreyPowerUpType pType, double speedUpFactor) {
 		super(timeLimit, pType);
-		this.upFactor = upFactor;
+		this.speedUpFactor = speedUpFactor;
 	}
 	
 	/**
 	 * Creates an instance of PreyPowerUpSpeedUp.
 	 * 
 	 * @param preyPower (PreyPowerUp)
-	 * @param upFactor (double)
+	 * @param speedUpFactor (double)
 	 */
-	public PreyPowerUpSpeedUp(PreyPowerUp preyPower, double upFactor) {
+	public PreyPowerUpSpeedUp(PreyPowerUp preyPower, double speedUpFactor) {
 		super(preyPower.getTimeLimit(), preyPower.getPType());
-		this.upFactor = upFactor;
+		this.speedUpFactor = speedUpFactor;
 	}
 	
 	/**
 	 * Gets the speed up factor.
 	 * 
-	 * @return upFactor (double)
+	 * @return speedUpFactor (double)
 	 */
 	public double getUpFactor() {
-		return upFactor;
+		return speedUpFactor;
 	}
 	
 }

@@ -7,7 +7,7 @@ import geometry.PointXY;
  * it teleports the predator to a random point.
  * 
  * @author Martin Wong
- * @version 2015-08-13
+ * @version 2015-08-18
  */
 public class PredatorPowerUpTeleport extends PredatorPowerUp {
 	

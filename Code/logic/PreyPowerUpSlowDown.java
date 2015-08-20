@@ -2,45 +2,45 @@ package logic;
 
 /**
  * This is a power up for preys:
- * it slows down the predator.
+ * it slows down the prey.
  * 
  * @author Martin Wong
- * @version 2015-08-13
+ * @version 2015-08-18
  */
 public class PreyPowerUpSlowDown extends PreyPowerUp {
 	
-	private final double downFactor; // Factor to decrease speed by
+	private final double slowDownFactor; // Factor to decrease speed by
 
 	/**
 	 * Creates an instance of PreyPowerUpSlowDown.
 	 * 
 	 * @param timeLimit (int)
 	 * @param pType (PowerType)
-	 * @param downFactor (double)
+	 * @param slowDownFactor (double)
 	 */
-	public PreyPowerUpSlowDown(int timeLimit, PreyPowerUpType pType, double downFactor) {
+	public PreyPowerUpSlowDown(int timeLimit, PreyPowerUpType pType, double slowDownFactor) {
 		super(timeLimit, pType);
-		this.downFactor = downFactor;
+		this.slowDownFactor = slowDownFactor;
 	}
 	
 	/**
 	 * Creates an instance of PreyPowerUpSlowDown.
 	 * 
 	 * @param preyPower (PreyPowerUp)
-	 * @param downFactor (double)
+	 * @param slowDownFactor (double)
 	 */
-	public PreyPowerUpSlowDown(PreyPowerUp preyPower, double downFactor) {
+	public PreyPowerUpSlowDown(PreyPowerUp preyPower, double slowDownFactor) {
 		super(preyPower.getTimeLimit(), preyPower.getPType());
-		this.downFactor = downFactor;
+		this.slowDownFactor = slowDownFactor;
 	}
 	
 	/**
 	 * Gets the slow down factor.
 	 * 
-	 * @return downFactor (double)
+	 * @return slowDownFactor (double)
 	 */
 	public double getDownFactor() {
-		return downFactor;
+		return slowDownFactor;
 	}
 	
 }
