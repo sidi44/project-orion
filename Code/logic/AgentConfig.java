@@ -29,7 +29,7 @@ public class AgentConfig {
 		this.numPredPlayer = 1;
 		this.maxPredPowerUp = 5;
 		this.numPrey = 5;
-		this.numPredPlayer = 0;
+		this.numPreyPlayer = 0;
 		this.maxPreyPowerUp = 5;
 	}
 	
