@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ai.AILogic;
+import ai.AILogicSimple;
+import ai.OrionAI;
 import utils.NumberUtils;
 
 /**
@@ -31,7 +34,10 @@ public class GameLogic {
 	 */
 	public GameLogic(GameConfiguration gc) {
 		this.gc = gc;
-		this.aiLogic = new AILogicSimple();
+		//this.aiLogic = new AILogicSimple();
+		this.aiLogic = new OrionAI(2.0940616529603426, -3.9199317053938483, 
+				7.498883580804142, 1.9773753518992212, 3.4192868131015337, 
+				-0.2190680436485417);
 		
 		createGs();
 	}
@@ -277,6 +283,10 @@ public class GameLogic {
 	 */
 	public void setPreyNextMove(int id, Move move) {
 		this.gs.getPrey().get(id).setNextMove(move);
+	}
+	
+	public void setAILogic(AILogic ai) {
+		this.aiLogic = ai;
 	}
 	
 }

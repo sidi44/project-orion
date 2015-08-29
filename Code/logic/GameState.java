@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ai.Path;
+import ai.PathFinder;
+
 /**
  * Represents the state of the game.
  * 

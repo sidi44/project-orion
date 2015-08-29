@@ -31,6 +31,7 @@ import logic.PredatorPowerUpType;
 import logic.PredatorPowerUp;
 import logic.Prey;
 import logic.PreyPowerUp;
+import ai.AILogic;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
@@ -39,9 +40,17 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.sun.glass.ui.Application;
 
 public class PredatorPreyGame extends ApplicationAdapter {
 
+	private enum State {
+		PRESTART,
+		PAUSED,
+		RUNNING,
+		STOPPED
+	}
+	
 	private World world;
 	private Camera camera;
 
@@ -53,12 +62,28 @@ public class PredatorPreyGame extends ApplicationAdapter {
 	private GameLogic gameLogic;
 
 	private Renderer renderer;
+	private boolean doRender;
+	
+	private int timeLimit;
 
-	private long startTime;
-	private long timeLimit;
-
-	private final static long nanoToSeconds = 1000000000;
-
+	private GameConfiguration gameConfig;
+	private PhysicsConfiguration physicsConfig;
+	
+	private int numGames;
+	private int numSimSteps;
+	private ResultLogger logger;
+	
+	private State state;
+	
+	public PredatorPreyGame(int numGames) {
+		this.numGames = numGames;
+	}
+	
+	public PredatorPreyGame() {
+		this.numGames = 1;
+		this.state = State.PRESTART;
+	}
+	
 	@Override
 	public void create() {
 
@@ -70,9 +95,10 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		GameConfiguration gameConfig = xmlParser.getGameConfig();
 		PhysicsConfiguration physicsConfig = xmlParser.getPhysicsConfig();
 		RendererConfiguration rendererConfig = xmlParser.getRendererConfig();
+		this.gameConfig = gameConfig;
+		this.physicsConfig = physicsConfig;
 		
-		startTime = System.nanoTime() / nanoToSeconds;
-		timeLimit = 200; // seconds.
+		timeLimit = 5000; // simulation.
 
 		// Create the world.
 		Vector2 gravity = new Vector2(0f, 0f);
@@ -105,7 +131,7 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
 				physicsConfig);
 
-		timestep = Gdx.graphics.getDeltaTime();
+		timestep = 0;
 
 		inputProcs = new HashMap<Integer, UserInputProcessor>();
 
@@ -121,14 +147,16 @@ public class PredatorPreyGame extends ApplicationAdapter {
 			// two scenarios :-)
 			Gdx.input.setInputProcessor(inputProc);
 		}
-
-//		UserInputProcessor inputProc = new UserInputProcessor();
-//		inputProcs.put(-1, inputProc);
-//		Gdx.input.setInputProcessor(inputProc);
-
-		camera = new OrthographicCamera(75, 75);
-		camera.position.x = 35;
-		camera.position.y = 35;
+		
+		if (players.size() == 0) {
+			UserInputProcessor inputProc = new UserInputProcessor();
+			inputProcs.put(-1, inputProc);
+			Gdx.input.setInputProcessor(inputProc);
+		}
+		
+		camera = new OrthographicCamera(95, 95);
+		camera.position.x = 45;
+		camera.position.y = 45;
 		camera.update();
 		renderer = new Renderer(false, false);
 		
@@ -136,26 +164,47 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		
 		renderer.loadTextures(rendererConfig);
 		
+		numSimSteps = 0;
+		logger = new ResultLogger();
+		
+		state = State.PAUSED;
+		doRender = true;
 		//shortestPath();
 	}
 
 	@Override
 	public void render() {
 		
-		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-		renderer.render(world, camera.combined);
-
-		processMoves();
-
-		inputProcs.get(1).processCameraInputs(camera);
-
-		GameState state = gameLogic.getGameState();
-		timestep = Gdx.graphics.getDeltaTime();
-		physProc.processGameState(state, timestep);
-
-		checkForGameOver();
+		switch (state) {
+			case PAUSED:
+				break;
+				
+			case RUNNING:
+				++numSimSteps;
+	
+				if (doRender) {
+					Gdx.gl.glClearColor(0, 0, 0, 1);
+					Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+					renderer.render(world, camera.combined);
+				}
+				
+				processMoves();
+	
+				inputProcs.get(-1).processCameraInputs(camera);
+	
+				GameState state = gameLogic.getGameState();
+				timestep = Gdx.graphics.getDeltaTime();
+				physProc.processGameState(state, timestep);
+	
+				checkForGameOver();
+				break;
+			
+			case STOPPED:
+				break;
+				
+			default:
+				break;		
+		}
 	}
 
 	private void processMoves() {
@@ -177,18 +226,23 @@ public class PredatorPreyGame extends ApplicationAdapter {
 	}
 
 	private void checkForGameOver() {
-		long elapsedTime = (System.nanoTime() / nanoToSeconds) - startTime;
-		long gameTime = timeLimit - elapsedTime;
-		GameOver gameOver = gameLogic.isGameOver((int) gameTime);
+		int gameTime = timeLimit - numSimSteps;
+		GameOver gameOver = gameLogic.isGameOver(gameTime);
 
 		switch (gameOver) {
 			case Pills:
 			case Time:
-				//System.out.println("Prey won.");
-				break;
-
 			case Prey:
-				//System.out.println("Predators won.");
+				logResult(gameOver);
+				--numGames;
+				if (numGames > 0) {
+					System.out.println(numGames + " games to go...");
+					resetGame();
+				} else {
+					// Stop the game
+					//Gdx.app.getApplicationListener().pause();
+					state = State.STOPPED;
+				}
 				break;
 
 			case No:
@@ -196,6 +250,62 @@ public class PredatorPreyGame extends ApplicationAdapter {
 				break;
 		}
 
+	}
+	
+	public void resetGame() {
+		numSimSteps = 0;
+		Vector2 gravity = new Vector2(0f, 0f);
+		boolean doSleep = true;
+		world = new World(gravity, doSleep);
+		
+		gameLogic = new GameLogic(gameConfig);
+		
+		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
+				physicsConfig);
+		
+		logger = new ResultLogger();
+		
+		state = State.RUNNING;
+	}
+	
+	public boolean isStopped() {
+		return (state == State.STOPPED);
+	}
+	
+	public void startGame() {
+		state = State.RUNNING;
+	}
+	
+	public boolean isLoading() {
+		return (state == State.PRESTART);
+	}
+	
+	public void setAI(AILogic ai) {
+		gameLogic.setAILogic(ai);
+	}
+	
+	@Override
+	public void pause() {
+		//state = State.PAUSED;
+	}
+
+	@Override
+	public void resume() {
+		//state = State.RUNNING;
+	}
+	
+	private void logResult(GameOver result) {
+		int numPillsRemaining = gameLogic.getGameState().getPills().size();
+		GameResult gr = new GameResult(result, numSimSteps, numPillsRemaining);
+		logger.addResult(gr);
+	}
+	
+	public ResultLogger getLogger() {
+		return logger;
+	}
+	
+	public void setDoRender(boolean doRender) {
+		this.doRender = doRender;
 	}
 
 	private void defineAnimations(GameConfiguration gameConfig, 
