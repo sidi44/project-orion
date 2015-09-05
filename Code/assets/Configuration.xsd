@@ -39,10 +39,10 @@
 
 <xs:complexType name="AgentConfigurationType">
 	<xs:sequence>
-		<xs:element name="NumPredator" type="xs:positiveInteger"/>
+		<xs:element name="NumPredator" type="xs:nonNegativeInteger"/>
 		<xs:element name="NumPredatorPlayer" type="xs:nonNegativeInteger"/>
 		<xs:element name="MaxPredatorPowerUp" type="xs:nonNegativeInteger"/>
-		<xs:element name="NumPrey" type="xs:positiveInteger"/>
+		<xs:element name="NumPrey" type="xs:nonNegativeInteger"/>
 		<xs:element name="NumPreyPlayer" type="xs:nonNegativeInteger"/>
 		<xs:element name="MaxPreyPowerUp" type="xs:nonNegativeInteger"/>
 	</xs:sequence>
@@ -55,7 +55,6 @@
         <xs:enumeration value="Teleport"/>
 		<xs:enumeration value="SlowDownPrey"/>
         <xs:enumeration value="Freeze"/>
-        <xs:enumeration value="Random"/>
 	</xs:restriction>
 </xs:simpleType>
 
@@ -79,7 +78,6 @@
         <xs:enumeration value="Teleport"/>
 		<xs:enumeration value="SlowDownPredator"/>
         <xs:enumeration value="Freeze"/>
-        <xs:enumeration value="Random"/>
 	</xs:restriction>
 </xs:simpleType>
 

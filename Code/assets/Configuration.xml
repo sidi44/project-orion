@@ -8,14 +8,14 @@
             </XmlPoint>
             <XmlPoint>
                 <X>0</X>
-                <Y>10</Y>
+                <Y>8</Y>
             </XmlPoint>
             <XmlPoint>
-                <X>10</X>
-                <Y>10</Y>
+                <X>8</X>
+                <Y>8</Y>
             </XmlPoint>
 			<XmlPoint>
-                <X>10</X>
+                <X>8</X>
                 <Y>0</Y>
             </XmlPoint>
         </PolygonShape>
@@ -30,17 +30,17 @@
             <NumPredator>1</NumPredator>
             <NumPredatorPlayer>1</NumPredatorPlayer>
             <MaxPredatorPowerUp>5</MaxPredatorPowerUp>
-            <NumPrey>5</NumPrey>
+            <NumPrey>8</NumPrey>
             <NumPreyPlayer>0</NumPreyPlayer>
             <MaxPreyPowerUp>5</MaxPreyPowerUp>
         </AgentConfiguration>
         <PowerUpConfiguration>
-            <NumberPredatorPowerUps>1</NumberPredatorPowerUps>
+            <NumberPredatorPowerUps>0</NumberPredatorPowerUps>
             <NumberPreyPowerUps>0</NumberPreyPowerUps>
             <PredatorPowerUps>
                 <PredatorPowerUp>
-                    <PredatorPowerUpType>SpeedUpPredator</PredatorPowerUpType>
-                    <TimeLimit>120</TimeLimit>
+                    <PredatorPowerUpType>SlowDownPrey</PredatorPowerUpType>
+                    <TimeLimit>500</TimeLimit>
                 </PredatorPowerUp>
             </PredatorPowerUps>
 			<PreyPowerUps>
@@ -52,12 +52,12 @@
         </PowerUpConfiguration>
     </GameConfiguration>
 	<PhysicsConfiguration>
-    	<SquareSize>5</SquareSize>
+    	<SquareSize>10</SquareSize>
 		<WallWidthRatio>0.1</WallWidthRatio>
 		<PillRadiusRatio>0.2</PillRadiusRatio>
 		<PowerUpRadiusRatio>0.5</PowerUpRadiusRatio>
 		<PredatorSpeed>30</PredatorSpeed>
-		<PreySpeed>20</PreySpeed>
+		<PreySpeed>25</PreySpeed>
 	</PhysicsConfiguration>
 	<RendererConfiguration>
 	    <AllowRotations>true</AllowRotations>
@@ -79,7 +79,7 @@
 	            <AnimationName>DOWN</AnimationName>
 	            <StartFrame>2</StartFrame>
 	            <EndFrame>7</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <FrameDuration>0.1667</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>UP-STOP</AnimationName>
@@ -91,7 +91,7 @@
 	            <AnimationName>UP</AnimationName>
 	            <StartFrame>13</StartFrame>
 	            <EndFrame>18</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <FrameDuration>0.1667</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>LEFT-STOP</AnimationName>
@@ -103,7 +103,7 @@
 	            <AnimationName>LEFT</AnimationName>
 	            <StartFrame>24</StartFrame>
 	            <EndFrame>29</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <FrameDuration>0.1667</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>RIGHT-STOP</AnimationName>
@@ -115,7 +115,7 @@
 	            <AnimationName>RIGHT</AnimationName>
 	            <StartFrame>35</StartFrame>
 	            <EndFrame>40</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <FrameDuration>0.1667</FrameDuration>
 	        </AnimationDefinition>
 	    </AnimationGroupDefinition>
 	   	<AnimationGroupDefinition>
@@ -133,7 +133,7 @@
 	            <AnimationName>DOWN</AnimationName>
 	            <StartFrame>2</StartFrame>
 	            <EndFrame>7</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <FrameDuration>0.1667</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>UP-STOP</AnimationName>
@@ -145,7 +145,7 @@
 	            <AnimationName>UP</AnimationName>
 	            <StartFrame>13</StartFrame>
 	            <EndFrame>18</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <FrameDuration>0.1667</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>LEFT-STOP</AnimationName>
@@ -157,7 +157,7 @@
 	            <AnimationName>LEFT</AnimationName>
 	            <StartFrame>24</StartFrame>
 	            <EndFrame>29</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <FrameDuration>0.1667</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>RIGHT-STOP</AnimationName>
@@ -169,7 +169,7 @@
 	            <AnimationName>RIGHT</AnimationName>
 	            <StartFrame>35</StartFrame>
 	            <EndFrame>40</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <FrameDuration>0.1667</FrameDuration>
 	        </AnimationDefinition>
 	    </AnimationGroupDefinition>
 	    <AnimationGroupDefinition>
@@ -181,7 +181,7 @@
 	            <AnimationName></AnimationName>
 	            <StartFrame>1</StartFrame>
 	            <EndFrame>24</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <FrameDuration>0.04167</FrameDuration>
 	        </AnimationDefinition>
 	   	</AnimationGroupDefinition>
 	   	<AnimationGroupDefinition>
