@@ -48,7 +48,8 @@ public class PredatorPreyGame extends ApplicationAdapter {
 	private PhysicsProcessor physProc;
 	private Map<Integer, UserInputProcessor> inputProcs;
 
-	private float timestep;
+	private final float dt = 1.0f / 60.0f;
+	private float accumulator;
 
 	private GameLogic gameLogic;
 
@@ -105,8 +106,6 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
 				physicsConfig);
 
-		timestep = Gdx.graphics.getDeltaTime();
-
 		inputProcs = new HashMap<Integer, UserInputProcessor>();
 
 		List<Agent> players = gameLogic.getAllPlayers();
@@ -121,22 +120,22 @@ public class PredatorPreyGame extends ApplicationAdapter {
 			// two scenarios :-)
 			Gdx.input.setInputProcessor(inputProc);
 		}
+		
+		accumulator = 0;
 
 //		UserInputProcessor inputProc = new UserInputProcessor();
 //		inputProcs.put(-1, inputProc);
 //		Gdx.input.setInputProcessor(inputProc);
 
-		camera = new OrthographicCamera(75, 75);
-		camera.position.x = 35;
-		camera.position.y = 35;
+		camera = new OrthographicCamera(60, 60);
+		camera.position.x = 27.5f;
+		camera.position.y = 27.5f;
 		camera.update();
 		renderer = new Renderer(false, false);
 		
 //		defineAnimations(config, physConfig);
 		
 		renderer.loadTextures(rendererConfig);
-		
-		//shortestPath();
 	}
 
 	@Override
@@ -152,11 +151,24 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		inputProcs.get(1).processCameraInputs(camera);
 
 		GameState state = gameLogic.getGameState();
-		timestep = Gdx.graphics.getDeltaTime();
-		physProc.processGameState(state, timestep);
+		physProc.preStep(state);
 		
+		// Grab the time difference. Limit the maximum amount of time we can 
+		// progress the physics simulation for a given render frame.
+		float delta = Gdx.graphics.getDeltaTime();
+		delta = (float) Math.min(delta, 0.25);
 		
+		// Add this frame's time to the accumulator.
+		accumulator += delta;
 		
+		// Step the simulation at the given fixed rate for as many times as 
+		// required. Any left over time is passed over to the next frame.
+		while (accumulator >= dt) {
+			physProc.stepSimulation(dt);
+			accumulator -= dt;
+		}
+		
+		physProc.postStep(state);
 		
 		checkForGameOver();
 	}
