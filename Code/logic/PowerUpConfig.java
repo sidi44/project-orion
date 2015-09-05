@@ -14,7 +14,7 @@ import xml.PreyPowerUpAdapter;
  * The configuration for the powerups.
  * 
  * @author Martin Wong
- * @version 2015-08-09
+ * @version 2015-08-18
  */
 @XmlRootElement(name = "PowerUpConfiguration")
 public class PowerUpConfig {
@@ -23,6 +23,7 @@ public class PowerUpConfig {
 	private List<PredatorPowerUp> predatorPowerUps;
 	private int numPreyPow;
 	private List<PreyPowerUp> preyPowerUps;
+	private PowerUpTypeConfig powerUpTypeConfig;
 	
 	/**
 	 * Default constructor for PowerConfig.
@@ -34,6 +35,7 @@ public class PowerUpConfig {
 		this.numPreyPow = 0;
 		this.predatorPowerUps = new ArrayList<PredatorPowerUp>();
 		this.preyPowerUps = new ArrayList<PreyPowerUp>();
+		this.powerUpTypeConfig = new PowerUpTypeConfig();
 	}
 	
 	/**
@@ -43,14 +45,17 @@ public class PowerUpConfig {
 	 * @param numPreyPow (int)
 	 * @param predatorPowerUps (List<PredatorPowerUp>)
 	 * @param preyPowerUps (List<PreyPowerUp>)
+	 * @param powerUpTypeConfig (PowerUpTypeConfig)
 	 */
-	public PowerUpConfig(int numPredPow, List<PredatorPowerUp> predatorPowerUps,
-			int numPreyPow, List<PreyPowerUp> preyPowerUps) {
+	public PowerUpConfig(int numPredPow,
+			List<PredatorPowerUp> predatorPowerUps, int numPreyPow,
+			List<PreyPowerUp> preyPowerUps, PowerUpTypeConfig powerUpTypeConfig) {
 		
 		this.numPredPow = numPredPow;
 		this.numPreyPow = numPreyPow;
 		this.predatorPowerUps = predatorPowerUps;
 		this.preyPowerUps = preyPowerUps;
+		this.powerUpTypeConfig = powerUpTypeConfig;
 	}
 	
 	/**
@@ -127,8 +132,26 @@ public class PowerUpConfig {
 	 */
 	@XmlElement (name = "PreyPowerUps")
 	@XmlJavaTypeAdapter (PreyPowerUpAdapter.class)
-	public void setPreyPowreUps(List<PreyPowerUp> preyPowerUps) {
+	public void setPreyPowerUps(List<PreyPowerUp> preyPowerUps) {
 		this.preyPowerUps = preyPowerUps;
+	}
+	
+	/**
+	 * Gets the powerup type configurations of the game.
+	 * 
+	 * @return powerUpTypeConfig (PowerUpTypeConfig)
+	 */
+	public PowerUpTypeConfig getPowerUpTypeConfig() {
+		return this.powerUpTypeConfig;
+	}
+	
+	/**
+	 * Sets the powerup type configurations of the game.
+	 * 
+	 * @param powerUpTypeConfig (PowerUpTypeConfig)
+	 */
+	public void setPowerUpTypeConfig(PowerUpTypeConfig powerUpTypeConfig) {
+		this.powerUpTypeConfig = powerUpTypeConfig;
 	}
 	
 }

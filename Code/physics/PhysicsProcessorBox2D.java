@@ -406,11 +406,8 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	}
 	
 	@Override
-	public void processGameState(GameState state, float timestep) {
-	
-		// For each physics body which is either a Predator or Prey, find the 
-		// equivalent Agent and extract the next move. Use the move to set the 
-		// body's velocity for the next step.
+	public void preStep(GameState state) {
+
 		List<Predator> predators = state.getPredators();
 		List<Prey> prey = state.getPrey();
 		
@@ -421,20 +418,27 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 			preStepProcess(b, predators, prey);
 		}
 		
-		// The power ups are processed after each of the agent's moves have 
-		// been applied in the pre-step processing.
-		for (Body b : bodies) {
-			processPowerUps(b, predators, prey);
-		}
+	}
+
+	@Override
+	public void postStep(GameState state) {
 		
-		// Run the simulation for one timestep.
-		world.step(timestep, 8, 3);
+		Array<Body> bodies = new Array<Body>();
+		world.getBodies(bodies);
 		
 		// Remove 'dead' bodies from the game and inform the GameState of the 
 		// changes.
 		for (Body b : bodies) {
 			postStepProcess(b, state);
-		}		
+		}
+		
+	}
+
+	@Override
+	public void stepSimulation(float timestep) {
+		
+		// Run the simulation for one timestep.
+		world.step(timestep, 8, 3);
 		
 	}
 	

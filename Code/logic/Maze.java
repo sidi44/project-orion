@@ -114,7 +114,7 @@ public class Maze {
 	 * Adds the initial pat to the maze from a random starting point.
 	 */
 	private void addInitialPath() {
-		PointXY startingPoint = getRandomStartingPoint();
+		PointXY startingPoint = getRandomPoint();
 		filled.add(startingPoint);
 		buildPathRandom(); // Build a path from the starting point
 		deadends.add(startingPoint); // At the starting point to deadends
@@ -239,16 +239,16 @@ public class Maze {
 	}
 	
 	/**
-	 * Gets a random starting point in maze to start the initial path.
+	 * Gets a random node in maze.
 	 * 
-	 * @return startingPoint (PointXY)
+	 * @return randomPoint (PointXY)
 	 */
-	private PointXY getRandomStartingPoint() {
+	public PointXY getRandomPoint() {
 		List<PointXY> keys = new ArrayList<PointXY>(nodes.keySet());
 		int random = NumberUtils.randomInt(0, keys.size() - 1);
-		PointXY startingPoint = keys.get(random);
+		PointXY randomPoint = keys.get(random);
 		
-		return startingPoint;
+		return randomPoint;
 	}
 	
 	/**

@@ -6,6 +6,7 @@ import logic.Direction;
 import physics.PhysicsBodyType;
 import physics.PhysicsData;
 import physics.PhysicsDataAgent;
+import physics.PhysicsDataPill;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -290,7 +291,11 @@ public class Renderer {
 												deltaTime);
 		} 
 		else if (data.getType() == PhysicsBodyType.Pill) {
-			frame = animator.getAnimationFrame("", 
+			
+			PhysicsDataPill pillData = (PhysicsDataPill) body.getUserData();
+			String bodyId = String.valueOf(pillData.getPosition());
+			
+			frame = animator.getAnimationFrame(bodyId, 
 												PhysicsBodyType.Pill.name(),
 												"", 
 												deltaTime);

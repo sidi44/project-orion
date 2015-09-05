@@ -14,8 +14,8 @@ public class PredatorPowerUp extends PowerUp {
 	/**
 	 * Creates an instance of PredatorPowerUp.
 	 * 
-	 * @param pType (PowerType)
 	 * @param timeLimit (int)
+	 * @param pType (PowerType)
 	 */
 	public PredatorPowerUp(int timeLimit, PredatorPowerUpType pType) {
 		super(timeLimit);

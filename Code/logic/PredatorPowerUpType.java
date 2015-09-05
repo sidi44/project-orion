@@ -14,12 +14,11 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum PredatorPowerUpType {
 	
-	SpeedUpPredator,
-	Reverse,
-	Teleport,
-	SlowDownPrey,
-	Freeze,
-	Random;
+	SpeedUpPredator, // Increases the speed of predator
+	Reverse, // Reverses direction of prey
+	Teleport, // Move to any random point in maze
+	SlowDownPrey, // Decreases the speed of the prey
+	Freeze; // Stop prey from moving
 	
     public String value() {
         return name();

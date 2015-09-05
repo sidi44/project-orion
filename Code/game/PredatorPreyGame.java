@@ -57,7 +57,8 @@ public class PredatorPreyGame extends ApplicationAdapter {
 	private PhysicsProcessor physProc;
 	private Map<Integer, UserInputProcessor> inputProcs;
 
-	private float timestep;
+	private final float dt = 1.0f / 60.0f;
+	private float accumulator;
 
 	private GameLogic gameLogic;
 
@@ -66,6 +67,8 @@ public class PredatorPreyGame extends ApplicationAdapter {
 	
 	private int timeLimit;
 
+	private int cameraID;
+	
 	private GameConfiguration gameConfig;
 	private PhysicsConfiguration physicsConfig;
 	
@@ -131,8 +134,6 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
 				physicsConfig);
 
-		timestep = 0;
-
 		inputProcs = new HashMap<Integer, UserInputProcessor>();
 
 		List<Agent> players = gameLogic.getAllPlayers();
@@ -146,17 +147,22 @@ public class PredatorPreyGame extends ApplicationAdapter {
 			// probably be an inputProcessor interface to allow handling the 
 			// two scenarios :-)
 			Gdx.input.setInputProcessor(inputProc);
+			cameraID = a.getID();
 		}
 		
+		accumulator = 0;
+
 		if (players.size() == 0) {
 			UserInputProcessor inputProc = new UserInputProcessor();
 			inputProcs.put(-1, inputProc);
 			Gdx.input.setInputProcessor(inputProc);
+			cameraID = -1;
 		}
 		
 		camera = new OrthographicCamera(95, 95);
 		camera.position.x = 45;
 		camera.position.y = 45;
+
 		camera.update();
 		renderer = new Renderer(false, false);
 		
@@ -169,7 +175,7 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		
 		state = State.PAUSED;
 		doRender = true;
-		//shortestPath();
+
 	}
 
 	@Override
@@ -190,11 +196,27 @@ public class PredatorPreyGame extends ApplicationAdapter {
 				
 				processMoves();
 	
-				inputProcs.get(-1).processCameraInputs(camera);
+				inputProcs.get(cameraID).processCameraInputs(camera);
 	
 				GameState state = gameLogic.getGameState();
-				timestep = Gdx.graphics.getDeltaTime();
-				physProc.processGameState(state, timestep);
+				physProc.preStep(state);
+
+				// Grab the time difference. Limit the maximum amount of time we can 
+				// progress the physics simulation for a given render frame.
+				float delta = Gdx.graphics.getDeltaTime();
+				delta = (float) Math.min(delta, 0.25);
+		
+				// Add this frame's time to the accumulator.
+				accumulator += delta;
+		
+				// Step the simulation at the given fixed rate for as many times as 
+				// required. Any left over time is passed over to the next frame.
+				while (accumulator >= dt) {
+					physProc.stepSimulation(dt);
+					accumulator -= dt;
+				}
+		
+				physProc.postStep(state);
 	
 				checkForGameOver();
 				break;

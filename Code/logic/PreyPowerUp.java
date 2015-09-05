@@ -14,8 +14,8 @@ public class PreyPowerUp extends PowerUp {
 	/**
 	 * Creates an instance of PreyPowerUp.
 	 * 
-	 * @param pType (PowerType)
 	 * @param timeLimit (int)
+	 * @param pType (PowerType)
 	 */
 	public PreyPowerUp(int timeLimit, PreyPowerUpType pType) {
 		super(timeLimit);

@@ -200,7 +200,7 @@ public abstract class Agent {
 	 */
 	public abstract List<? extends PowerUp> getActivatedPowerUps();
 	
-	/***
+	/**
 	 * Return the selected power up in the Agent's collection of stored power 
 	 * ups.
 	 * 
