@@ -41,20 +41,20 @@ public class OrionAIFunction implements Function<OrionAI>, LifecycleListener {
 			wait(2000);
 		}
 		
-		ppg.setDoRender(false);
+		ppg.setDoRender(true);
 	}
 	
 	@Override
 	public void evaluate(Individual<OrionAI> ind) {
 		
 		testFinished = false;
-		ppg.setAI(ind.getRepresentation());
 		ppg.startGame();
 		
 		List<ResultLogger> allResults = new ArrayList<ResultLogger>();
 		
 		for (int i = 0; i < numGames; ++i) {
 			
+			ppg.setAI(ind.getRepresentation());
 			System.out.println("Starting new game... ");
 			
 			while (!ppg.isStopped()) {
@@ -85,13 +85,14 @@ public class OrionAIFunction implements Function<OrionAI>, LifecycleListener {
 		for (ResultLogger logger : allResults) {
 			List<GameResult> gameResults = logger.getResults();
 			for (GameResult gr : gameResults) {
-				result += gr.getNumSimSteps() - 5 * gr.getNumPillsRemaining();
+				result += Math.pow(
+						(gr.getNumSquares() - gr.getNumPillsRemaining()), 2); //gr.getNumSimSteps() - 5 * gr.getNumPillsRemaining();
 				++count;
 			}
 		}
 		System.out.println("Number of results = " + count);
 		if (count > 0) {
-			return result * 1.0 /count;
+			return result * 1.0 / count;
 		} else {
 			return 0;
 		}

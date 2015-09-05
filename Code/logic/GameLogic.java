@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import ai.AILogic;
+import ai.AILogicRandom;
 import ai.AILogicSimple;
 import ai.OrionAI;
 import utils.NumberUtils;
@@ -34,11 +35,12 @@ public class GameLogic {
 	 */
 	public GameLogic(GameConfiguration gc) {
 		this.gc = gc;
+		//this.aiLogic = new AILogicRandom();
 		//this.aiLogic = new AILogicSimple();
-		this.aiLogic = new OrionAI(2.0940616529603426, -3.9199317053938483, 
-				7.498883580804142, 1.9773753518992212, 3.4192868131015337, 
-				-0.2190680436485417);
-		
+		this.aiLogic = new OrionAI(-6.648677643928376, -9.762598527682236, 
+				-6.989690911188684, -0.09381008981411121, 3.84021643204839, 
+				0.9608407438213487);
+
 		createGs();
 	}
 	

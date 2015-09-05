@@ -48,7 +48,7 @@ public class OrionAIGeneticAlgorithm extends GeneticAlgorithm<OrionAI> {
         try {
     		Population<Individual<OrionAI>> pop = getPop();
     		
-    		File file = new File("output2.txt");
+    		File file = new File("output4.txt");
             output = new BufferedWriter(new FileWriter(file, true));
             output.write("Epoch: " + epoch + nl);
             output.write("Best fitness: " + pop.getMax().getFitness() + nl);

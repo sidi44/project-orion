@@ -98,7 +98,7 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		this.gameConfig = gameConfig;
 		this.physicsConfig = physicsConfig;
 		
-		timeLimit = 5000; // simulation.
+		timeLimit = 1000; // simulation steps.
 
 		// Create the world.
 		Vector2 gravity = new Vector2(0f, 0f);
@@ -295,8 +295,11 @@ public class PredatorPreyGame extends ApplicationAdapter {
 	}
 	
 	private void logResult(GameOver result) {
-		int numPillsRemaining = gameLogic.getGameState().getPills().size();
-		GameResult gr = new GameResult(result, numSimSteps, numPillsRemaining);
+		GameState gs = gameLogic.getGameState();
+		int numPillsRemaining = gs.getPills().size();
+		int numSquares = gs.getMaze().getNodes().keySet().size();
+		GameResult gr = new GameResult(result, numSimSteps, numPillsRemaining,
+				numSquares);
 		logger.addResult(gr);
 	}
 	

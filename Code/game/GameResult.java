@@ -7,17 +7,21 @@ public class GameResult {
 	private GameOver result;
 	private int numSimSteps;
 	private int numPillsRemaining;
+	private int numSquares;
 	
 	public GameResult() {
 		this.result = GameOver.No;
 		this.numSimSteps = 0;
 		this.numPillsRemaining = 0;
+		this.numSquares = 0;
 	}
 	
-	public GameResult(GameOver result, int numSimSteps, int numPillsRemaining) {
+	public GameResult(GameOver result, int numSimSteps, int numPillsRemaining, 
+			int numSquares) {
 		this.result = result;
 		this.numSimSteps = numSimSteps;
 		this.numPillsRemaining = numPillsRemaining;
+		this.numSquares = numSquares;
 	}
 
 	/**
@@ -60,6 +64,20 @@ public class GameResult {
 	 */
 	public void setNumPillsRemaining(int numPillsRemaining) {
 		this.numPillsRemaining = numPillsRemaining;
+	}
+
+	/**
+	 * @return the numSquares
+	 */
+	public int getNumSquares() {
+		return numSquares;
+	}
+
+	/**
+	 * @param numSquares the numSquares to set
+	 */
+	public void setNumSquares(int numSquares) {
+		this.numSquares = numSquares;
 	}
 	
 }
