@@ -20,9 +20,11 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
@@ -62,6 +64,7 @@ public class GameScreen implements Screen {
 		setupStage();
 
 		camera = new OrthographicCamera(75, 75);
+		camera.setToOrtho(false, 75, 75); // TODO, investigate when this method call is needed.
 		camera.position.x = 35;
 		camera.position.y = 35;
 		camera.update();
@@ -72,21 +75,12 @@ public class GameScreen implements Screen {
 		// Game panel (UI) inputs
 		gameStage = new Stage();
 		game.addInputProcessor(gameStage);
-		
-		Texture buttonTexture = new Texture(Gdx.files.internal("button_previous.png"));
-		Sprite buttonSprite = new Sprite(buttonTexture);
-		SpriteDrawable buttonDrawable = new SpriteDrawable(buttonSprite);
-		ImageButton button = new ImageButton(buttonDrawable);
-		button.setPosition(200, 300);
-		button.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				game.switchToScreen("MAIN_MENU");
-				System.out.println("clicked - game");
-			}
-		});
 
-		gameStage.addActor(button);
+		Button menuButton = game.createButton("button_menu.png",
+											  "button_menu_highlight.png",
+											  "MAIN_MENU",
+											  400, 400);
+		gameStage.addActor(menuButton);
 	}
 	
 	@Override

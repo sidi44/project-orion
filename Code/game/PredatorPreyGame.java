@@ -17,29 +17,23 @@ import render.MainMenuScreen;
 import render.Renderer;
 import render.RendererConfiguration;
 import render.SettingsScreen;
+import render.SplashScreen;
 import xml.ConfigurationXMLParser;
-import logic.Agent;
-import logic.AgentConfig;
-import logic.GameConfiguration;
-import logic.GameLogic;
-import logic.GameOver;
-import logic.GameState;
-import logic.MazeConfig;
-import logic.Move;
-import logic.PowerUpConfig;
-import logic.Predator;
-import logic.PredatorPowerUpType;
-import logic.PredatorPowerUp;
-import logic.Prey;
-import logic.PreyPowerUp;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 
 public class PredatorPreyGame extends Game	 {
 
@@ -110,9 +104,10 @@ public class PredatorPreyGame extends Game	 {
 		
 		Gdx.input.setInputProcessor(inputMultiplexer);
 		loadScreens();
-		setScreen(getScreenByName("MAIN_MENU"));
+		setScreen(getScreenByName("SPLASH"));
 	}
 
+	
 	private void defineAnimations(GameConfiguration gameConfig, 
 			PhysicsConfiguration physicsConfig) {
 
@@ -323,6 +318,7 @@ public class PredatorPreyGame extends Game	 {
 	}
 	
 	private void loadScreens() {
+		screens.put("SPLASH", new SplashScreen(this));
 		screens.put("MAIN_MENU", new MainMenuScreen(this));
 		screens.put("SETTINGS", new SettingsScreen(this));
 		screens.put("GAME", new GameScreen(this));
@@ -367,4 +363,35 @@ public class PredatorPreyGame extends Game	 {
 	public void switchToScreen(String name) {
 		setScreen(getScreenByName(name));
 	}
+	
+	public Button createButton(final String buttonName,
+							   final String buttonHighlightName, 
+							   final String screenName,
+							   float posX, float posY) {
+		
+		SpriteDrawable buttonDrawable = getDrawableFromFile(buttonName);
+		SpriteDrawable buttonDrawableMouseOver = getDrawableFromFile(buttonHighlightName);
+
+		ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
+		buttonStyle.imageUp = buttonDrawable;
+		buttonStyle.imageOver = buttonDrawableMouseOver;
+
+		ImageButton button = new ImageButton(buttonStyle);
+
+		button.setPosition(posX, posY);
+		button.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				switchToScreen(screenName);
+			}
+		});
+
+		return button;
+	}
+	
+	private SpriteDrawable getDrawableFromFile(String filename) {
+		Texture texture = new Texture(Gdx.files.internal(filename));
+		return new SpriteDrawable(new Sprite(texture));
+	}
+	
 }

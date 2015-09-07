@@ -7,29 +7,20 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.utils.TimeUtils;
 
-public class SettingsScreen implements Screen {
+public class SplashScreen implements Screen {
 
 	private PredatorPreyGame game;
 	private SpriteBatch batch;
 	private Texture screenTexture;
-	private Stage stage;
+	private long startTime;
+	private final long displayTime = 2000000000l; // 2 seconds;
 	
-	public SettingsScreen(PredatorPreyGame game) {
+	public SplashScreen(PredatorPreyGame game) {
 		this.game = game;
-		
 		batch = new SpriteBatch();
-		screenTexture = new Texture(Gdx.files.internal("settings_screen.png"));
-		
-		Button menuButton = game.createButton("button_menu.png",
-											  "button_menu_highlight.png",
-											  "MAIN_MENU",
-											  500, 100);
-		stage = new Stage();
-		game.addInputProcessor(stage);
-		stage.addActor(menuButton);
+		screenTexture = new Texture(Gdx.files.internal("splash_screen.png"));
 	}
 	
 	@Override
@@ -41,8 +32,9 @@ public class SettingsScreen implements Screen {
 		batch.draw(screenTexture, 0, 0);
 		batch.end();
 		
-		stage.act(delta);
-		stage.draw();
+		if (TimeUtils.timeSinceNanos(startTime) > displayTime) {
+			game.switchToScreen("MAIN_MENU");
+		}
 	}
 
 	@Override
@@ -54,7 +46,7 @@ public class SettingsScreen implements Screen {
 	@Override
 	public void show() {
 		// TODO Auto-generated method stub
-		
+		startTime = TimeUtils.nanoTime();
 	}
 
 	@Override
