@@ -1,65 +1,58 @@
 package game;
 
-import input.UserInputProcessor;
+import geometry.PolygonShape;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import geometry.PointXY;
-import geometry.PolygonShape;
+import logic.GameConfiguration;
+import logic.GameLogic;
 import physics.PhysicsConfiguration;
 import physics.PhysicsProcessor;
 import physics.PhysicsProcessorBox2D;
 import render.AnimationDefinition;
 import render.AnimationGroupDefinition;
+import render.GameScreen;
+import render.MainMenuScreen;
 import render.Renderer;
 import render.RendererConfiguration;
+import render.SettingsScreen;
+import render.SplashScreen;
 import xml.ConfigurationXMLParser;
-import logic.Agent;
-import logic.AgentConfig;
-import logic.GameConfiguration;
-import logic.GameLogic;
-import logic.GameOver;
-import logic.GameState;
-import logic.MazeConfig;
-import logic.Move;
-import logic.PowerUpConfig;
-import logic.Predator;
-import logic.PredatorPowerUpType;
-import logic.PredatorPowerUp;
-import logic.Prey;
-import logic.PreyPowerUp;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 
-public class PredatorPreyGame extends ApplicationAdapter {
+public class PredatorPreyGame extends Game	 {
 
 	private World world;
-	private Camera camera;
-
-	private PhysicsProcessor physProc;
-	private Map<Integer, UserInputProcessor> inputProcs;
-
-	private final float dt = 1.0f / 60.0f;
-	private float accumulator;
 
 	private GameLogic gameLogic;
-
 	private Renderer renderer;
+	private PhysicsProcessor physProc;
+	private InputMultiplexer inputMultiplexer;
 
-	private long startTime;
-	private long timeLimit;
+	// Screens
+	private final Map<String, Screen> screens;
 
-	private final static long nanoToSeconds = 1000000000;
-
+	// Final initialisers
+	{
+		screens = new HashMap<String, Screen>();
+		inputMultiplexer = new InputMultiplexer();
+	}
+	
 	@Override
 	public void create() {
 
@@ -72,9 +65,6 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		PhysicsConfiguration physicsConfig = xmlParser.getPhysicsConfig();
 		RendererConfiguration rendererConfig = xmlParser.getRendererConfig();
 		
-		startTime = System.nanoTime() / nanoToSeconds;
-		timeLimit = 200; // seconds.
-
 		// Create the world.
 		Vector2 gravity = new Vector2(0f, 0f);
 		boolean doSleep = true;
@@ -106,111 +96,15 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
 				physicsConfig);
 
-		inputProcs = new HashMap<Integer, UserInputProcessor>();
-
-		List<Agent> players = gameLogic.getAllPlayers();
-		for (Agent a : players) {
-			UserInputProcessor inputProc = new UserInputProcessor();
-			inputProcs.put(a.getID(), inputProc);
-			
-			// This currently only works for a single player game, but is set
-			// up to work for multiplayer (i.e. each player would have their 
-			// own input processor which wouldn't be given to libgdx. The should
-			// probably be an inputProcessor interface to allow handling the 
-			// two scenarios :-)
-			Gdx.input.setInputProcessor(inputProc);
-		}
-		
-		accumulator = 0;
-
-//		UserInputProcessor inputProc = new UserInputProcessor();
-//		inputProcs.put(-1, inputProc);
-//		Gdx.input.setInputProcessor(inputProc);
-
-		camera = new OrthographicCamera(60, 60);
-		camera.position.x = 27.5f;
-		camera.position.y = 27.5f;
-		camera.update();
 		renderer = new Renderer(false, false);
 		
 //		defineAnimations(config, physConfig);
 		
 		renderer.loadTextures(rendererConfig);
-	}
-
-	@Override
-	public void render() {
 		
-		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-		renderer.render(world, camera.combined);
-
-		processMoves();
-
-		inputProcs.get(1).processCameraInputs(camera);
-
-		GameState state = gameLogic.getGameState();
-		physProc.preStep(state);
-		
-		// Grab the time difference. Limit the maximum amount of time we can 
-		// progress the physics simulation for a given render frame.
-		float delta = Gdx.graphics.getDeltaTime();
-		delta = (float) Math.min(delta, 0.25);
-		
-		// Add this frame's time to the accumulator.
-		accumulator += delta;
-		
-		// Step the simulation at the given fixed rate for as many times as 
-		// required. Any left over time is passed over to the next frame.
-		while (accumulator >= dt) {
-			physProc.stepSimulation(dt);
-			accumulator -= dt;
-		}
-		
-		physProc.postStep(state);
-		
-		checkForGameOver();
-	}
-
-	private void processMoves() {
-
-		// Do the player moves.
-		List<Agent> players = gameLogic.getAllPlayers();
-		for (Agent a : players) {
-			int id = a.getID();
-			UserInputProcessor inputProc = inputProcs.get(id);
-			Move m = inputProc.getNextMove();
-			if (a instanceof Predator) {
-				gameLogic.setPredNextMove(id, m);
-			} else if (a instanceof Prey) {
-				gameLogic.setPreyNextMove(id, m);
-			}
-		}
-
-		gameLogic.setNonPlayerMoves();
-	}
-
-	private void checkForGameOver() {
-		long elapsedTime = (System.nanoTime() / nanoToSeconds) - startTime;
-		long gameTime = timeLimit - elapsedTime;
-		GameOver gameOver = gameLogic.isGameOver((int) gameTime);
-
-		switch (gameOver) {
-			case Pills:
-			case Time:
-				//System.out.println("Prey won.");
-				break;
-
-			case Prey:
-				//System.out.println("Predators won.");
-				break;
-
-			case No:
-			default:
-				break;
-		}
-
+		Gdx.input.setInputProcessor(inputMultiplexer);
+		loadScreens();
+		setScreen(getScreenByName("SPLASH"));
 	}
 
 	private void defineAnimations(GameConfiguration gameConfig, 
@@ -421,4 +315,82 @@ public class PredatorPreyGame extends ApplicationAdapter {
 		renderer.loadTextures(rendererConfig);
 
 	}
+	
+	private void loadScreens() {
+		screens.put("SPLASH", new SplashScreen(this));
+		screens.put("MAIN_MENU", new MainMenuScreen(this));
+		screens.put("SETTINGS", new SettingsScreen(this));
+		screens.put("GAME", new GameScreen(this));
+	}
+	
+	public Renderer getRenderer() {
+		return renderer;
+	}
+	
+	public GameLogic getGameLogic() {
+		return gameLogic;
+	}
+	
+	public World getWorld() {
+		return world;
+	}
+	
+	/**
+	 * Adds an input processer to the input multiplexer if it hasn't been 
+	 * already added. Throws an exception 
+	 * @param inputProc - the input processor.
+	 */
+	public void addInputProcessor(InputProcessor inputProc) {
+		
+		if (inputProc == null) {
+			throw new IllegalArgumentException("Input processor can't be null");
+		}
+		
+		if (!inputMultiplexer.getProcessors().contains(inputProc, true)) {
+			inputMultiplexer.addProcessor(inputProc);
+		}
+	}
+	
+	public PhysicsProcessor getPhysicsProcessor() {
+		return physProc;
+	}
+	
+	public Screen getScreenByName(String screenName) {
+		return screens.get(screenName);
+	}
+	
+	public void switchToScreen(String name) {
+		setScreen(getScreenByName(name));
+	}
+	
+	public Button createButton(final String buttonName,
+							   final String buttonHighlightName, 
+							   final String screenName,
+							   float posX, float posY) {
+		
+		SpriteDrawable buttonDrawable = getDrawableFromFile(buttonName);
+		SpriteDrawable buttonDrawableMouseOver = getDrawableFromFile(buttonHighlightName);
+
+		ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
+		buttonStyle.imageUp = buttonDrawable;
+		buttonStyle.imageOver = buttonDrawableMouseOver;
+
+		ImageButton button = new ImageButton(buttonStyle);
+
+		button.setPosition(posX, posY);
+		button.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				switchToScreen(screenName);
+			}
+		});
+
+		return button;
+	}
+	
+	private SpriteDrawable getDrawableFromFile(String filename) {
+		Texture texture = new Texture(Gdx.files.internal(filename));
+		return new SpriteDrawable(new Sprite(texture));
+	}
+	
 }

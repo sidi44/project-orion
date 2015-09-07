@@ -104,7 +104,6 @@ public class Animator {
 		Map<String, Animation> group = animationGroups.get(animationGruopId);
 		
 		if (group == null || (animation = group.get(animationId)) == null) {
-			
 			throw new IllegalStateException("Animation \"" + animationGruopId +
 								   		 animationId + "\" hasn't been loaded");
 		} 
