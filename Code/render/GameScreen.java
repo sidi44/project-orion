@@ -1,6 +1,8 @@
 package render;
 
 import game.PredatorPreyGame;
+import geometry.PointXY;
+import geometry.PolygonShape;
 import input.UserInputProcessor;
 
 import java.util.List;
@@ -18,6 +20,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -41,6 +44,8 @@ public class GameScreen implements Screen {
 	private long startTime;
 	private long timeLimit;
 	
+	private float widthToHeight;
+	
 	public GameScreen(PredatorPreyGame game) {
 		this.game = game;
 		this.world = game.getWorld();
@@ -57,12 +62,11 @@ public class GameScreen implements Screen {
 		
 		// TODO this should be reworked and moved into a separate class.
 		setupStage();
-
-		camera = new OrthographicCamera(75, 75);
-		camera.setToOrtho(false, 75, 75); // TODO, investigate when this method call is needed.
-		camera.position.x = 35;
-		camera.position.y = 35;
+		
+		camera = new OrthographicCamera(); // TODO, investigate when this method call is needed.
 		camera.update();
+		setInitialViewport(1.5f);
+//		trackPlayer(1.4f, false);
 		
 		accumulator = 0;
 	}
@@ -110,14 +114,197 @@ public class GameScreen implements Screen {
 		
 		physProc.postStep(state);
 		
+//		setViewportJump(5);
+		setViewport(8, 0.5f);
+		trackPlayer(1.4f, false);
+		
 		checkForGameOver();
 	}
-
+	
+	private void setInitialViewport(float factor) {
+		Vector2[] mazeBoundaries = getWorldMazeBoundaries();
+		Vector2 mazeLL = mazeBoundaries[0];
+		Vector2 mazeUR = mazeBoundaries[1];
+		
+		float mazeWidth = (mazeUR.x - mazeLL.x) * factor;
+		float mazeHeight = (mazeUR.y - mazeLL.y) * factor;
+	
+		widthToHeight = (float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth();
+		
+		if (widthToHeight <= 0) {
+			camera.viewportWidth = mazeWidth;
+			camera.viewportHeight = mazeWidth * widthToHeight;
+		} else { // mazeHeight > mazeWidth
+			camera.viewportHeight = mazeHeight;
+			camera.viewportWidth = mazeHeight / widthToHeight;
+		}
+		
+		camera.position.x = (mazeUR.x + mazeLL.x) / 2;
+		camera.position.y = (mazeUR.y + mazeLL.y) / 2;
+	}
+	
+//	private void setViewportJump(float maxSquaresX) {
+//		widthToHeight = (float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth();
+//		
+//		camera.viewportWidth = maxSquaresX * physProc.getSquareSize();
+//		camera.viewportHeight = camera.viewportWidth * widthToHeight;
+//		
+//		Vector2[] mazeBoundaries = getWorldMazeBoundaries();
+//		Vector2 mazeLL = mazeBoundaries[0];
+//		Vector2 mazeUR = mazeBoundaries[1];
+//		
+//		float mazeWidth = (mazeUR.x - mazeLL.x);
+//		float mazeHeight = (mazeUR.y - mazeLL.y);
+//		
+//		float widthDiff = camera.viewportWidth - mazeWidth;
+//		float heightDiff = camera.viewportHeight - mazeHeight;
+//		
+//		float scale = 0f;
+//		
+//		if (widthDiff > 0 && heightDiff > 0) {
+//			if (widthDiff <= heightDiff) {
+//				scale = mazeWidth / camera.viewportWidth;
+//				camera.viewportWidth = camera.viewportWidth * scale;
+//				camera.viewportHeight = (camera.viewportHeight * scale) * widthToHeight;
+//			} else { // heightDiff < widthDiff
+//				scale = mazeHeight / camera.viewportHeight;
+//				camera.viewportHeight = camera.viewportHeight * scale;
+//				camera.viewportWidth = (camera.viewportWidth * scale) / widthToHeight;
+//			}
+//		}
+//		
+//		camera.update();
+//	}
+	
+	private void setViewport(float maxSquaresX, float factor) {
+		widthToHeight = (float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth();
+		
+		float targetWidth = maxSquaresX * physProc.getSquareSize();
+		float targetHeight = targetWidth * widthToHeight;
+		float newHeight = 0f;
+		float newWidth = 0f;
+		
+		Vector2[] mazeBoundaries = getWorldMazeBoundaries();
+		Vector2 mazeLL = mazeBoundaries[0];
+		Vector2 mazeUR = mazeBoundaries[1];
+		
+		float mazeWidth = (mazeUR.x - mazeLL.x);
+		float mazeHeight = (mazeUR.y - mazeLL.y);
+		
+		float widthDiff = targetWidth - mazeWidth;
+		float heightDiff = targetHeight - mazeHeight;
+		
+		float scale = 0f;
+		float delta = Gdx.graphics.getDeltaTime();
+		
+		newWidth = camera.viewportWidth + (targetWidth - camera.viewportWidth) * delta * factor;
+		scale = camera.viewportWidth / newWidth;
+		newHeight = (newWidth * scale) * widthToHeight;
+		
+		if (widthDiff > 0 && heightDiff > 0) {
+			if (widthDiff <= heightDiff) {
+				newWidth = camera.viewportWidth + (mazeWidth - camera.viewportWidth) * delta * factor;
+				scale = camera.viewportWidth / newWidth;
+				newHeight = (newWidth * scale) * widthToHeight;
+			} else { // heightDiff < widthDiff
+				newHeight = camera.viewportHeight + (mazeHeight - camera.viewportHeight) * delta * factor;
+				scale = camera.viewportHeight / newHeight;
+				newWidth = (newHeight * scale) / widthToHeight;
+			}
+		}
+		
+		camera.viewportWidth = newWidth;
+		camera.viewportHeight = newHeight;
+		
+		camera.update();
+	}
+	
+//	private Vector2[] getViewportBoundaries() {
+//		float viewportWidthHalf = (camera.viewportWidth / 2);
+//		float viewportHeightHalf = (camera.viewportHeight / 2);
+//		
+//		Vector2 viewportLL = new Vector2(camera.position.x - viewportWidthHalf, camera.position.y - viewportHeightHalf);
+//		Vector2 viewportUR = new Vector2(camera.position.x - viewportWidthHalf, camera.position.y - viewportHeightHalf);
+//		
+//		Vector2[] viewportBoundaries = new Vector2[] {viewportLL, viewportUR};
+//		
+//		return viewportBoundaries;
+//	}
+	
+	
+	private Vector2[] getWorldMazeBoundaries() {
+		PolygonShape pShape = gameLogic.getGameState().getMaze().getDimensions();
+		Vector2 mazeLL = physProc.stateToWorld(new PointXY(pShape.getMinX() - 1, pShape.getMinY() - 1));
+		Vector2 mazeUR = physProc.stateToWorld(new PointXY(pShape.getMaxX() + 1, pShape.getMaxY() + 1));
+		
+		Vector2[] mazeBoundaries = new Vector2[] {mazeLL, mazeUR};
+		
+		return mazeBoundaries;
+	}
+	
+	private void trackPlayer(float factor, boolean jump) {
+		
+		Vector2[] mazeBoundaries = getWorldMazeBoundaries();
+		Vector2 mazeLL = mazeBoundaries[0];
+		Vector2 mazeUR = mazeBoundaries[1];
+		
+		float mazeWidth = (mazeUR.x - mazeLL.x);
+		float mazeHeight = (mazeUR.y - mazeLL.y);
+		
+		float widthDiff = camera.viewportWidth - mazeWidth;
+		float heightDiff = camera.viewportHeight - mazeHeight;
+		
+		float delta = Gdx.graphics.getDeltaTime(); // Or 0.1;
+		float viewportWidthHalf = (camera.viewportWidth / 2);
+		float viewportHeightHalf = (camera.viewportHeight / 2);
+		
+		Predator firstPredator = gameLogic.getGameState().getPredators().get(0);
+		Vector2 playerVector = physProc.stateToWorld(firstPredator.getPosition());
+		double newX = 0;
+		double newY = 0;
+		
+		if (widthDiff >= 0) {
+			newX = (mazeUR.x + mazeLL.x) / 2;
+		} else {
+			if (jump) {
+				newX = playerVector.x;
+			} else {
+				newX = camera.position.x + (playerVector.x - camera.position.x) * delta * factor;
+			}
+			
+			if (newX - viewportWidthHalf < mazeLL.x) newX = mazeLL.x + viewportWidthHalf;
+			if (newX + viewportWidthHalf > mazeUR.x) newX = mazeUR.x - viewportWidthHalf;
+		}
+		
+		if (heightDiff >= 0) {
+			newY = (mazeUR.y + mazeLL.y) / 2;
+		} else {
+			if (jump) {
+				newY = playerVector.y;
+			} else {
+				newY = camera.position.y + (playerVector.y - camera.position.y) * delta * factor;
+			}
+			
+			if (newY - viewportHeightHalf < mazeLL.y) {
+				newY = mazeLL.y + viewportHeightHalf;
+			} else if (newY + viewportHeightHalf > mazeUR.y){
+				newY = mazeUR.y - viewportHeightHalf;
+			}
+		}
+		
+		camera.position.x = (float) newX;
+		camera.position.y = (float) newY;
+		
+		camera.update();
+	}
+	
+	
 	@Override
 	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		
+//		setViewportJump(5);
+//		trackPlayer(1.4f, true);
 	}
+
 
 	@Override
 	public void show() {

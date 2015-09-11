@@ -684,27 +684,16 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		return inTransition;
 	}
 	
-	/**
-	 * Convert a maze position from the back-end logic into a world coordinate.
-	 * 
-	 * @param pos - the back-end logic maze position.
-	 * @return a physics world coordinate equivalent to the provided position.
-	 */
-	private Vector2 stateToWorld(PointXY pos) {
+	@Override
+	public Vector2 stateToWorld(PointXY pos) {
 		// Adding 0.5 offsets us to the centre of the square.
 		float centreX = (float) ((pos.getX() + 0.5) * squareSize); 
 		float centreY = (float) ((pos.getY() + 0.5) * squareSize);
 		return new Vector2(centreX, centreY);
 	}
 	
-	/**
-	 * Convert a physics world position into a back-end logic maze coordinate.
-	 * 
-	 * @param pos - the physics world position to convert.
-	 * @return a back-end logic maze position that is equivalent to the provided
-	 * physics world coordiante.
-	 */
-	private PointXY worldToState(Vector2 pos) {
+	@Override
+	public PointXY worldToState(Vector2 pos) {
 		// Do the inverse of the stateToWorld calculation.
 		int centreX = (int) Math.round((pos.x / squareSize) - 0.5);
 		int centreY = (int) Math.round((pos.y / squareSize) - 0.5);
@@ -742,6 +731,11 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 				throw new IllegalArgumentException("Unknown direction enum.");
 		}
 		
+	}
+	
+	@Override
+	public float getSquareSize() {
+		return squareSize;
 	}
 			    
 }
