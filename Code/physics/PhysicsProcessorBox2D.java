@@ -418,6 +418,11 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 			preStepProcess(b, predators, prey);
 		}
 		
+		// The power ups are processed after each of the agent's moves have 
+		// been applied in the pre-step processing.
+		for (Body b : bodies) {
+			processPowerUps(b, predators, prey);
+		}
 	}
 
 	@Override
