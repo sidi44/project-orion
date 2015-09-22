@@ -72,12 +72,14 @@ public class ConfigurationXMLParser {
 		
 		try {
 			JAXBContext context = JAXBContext.newInstance(Configuration.class);
+			
 			URL url = ClassLoader.getSystemResource(filename);
 			if (url == null) {
 				System.err.println("Couldn't find XML file.");
 				config = new Configuration();
 				return;
 			}
+			
 			File file = new File(url.getFile());
 			Unmarshaller unmarshaller = context.createUnmarshaller();
 			

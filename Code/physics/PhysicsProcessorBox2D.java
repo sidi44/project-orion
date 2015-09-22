@@ -114,7 +114,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		PhysicsContact contact = new PhysicsContact();
 		this.world.setContactListener(contact);
 		
-		this.powerUpProc = new PowerUpProcessor(world, squareSize);
+		this.powerUpProc = new PowerUpProcessor(world, this);
 	}
 	
 	/**
@@ -736,25 +736,20 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		return inTransition;
 	}
 	
-	/**
-	 * Convert a maze position from the back-end logic into a world coordinate.
-	 * 
-	 * @param pos - the back-end logic maze position.
-	 * @return a physics world coordinate equivalent to the provided position.
-	 */
-	private Vector2 stateToWorld(PointXY pos) {
-		return stateToWorld(pos, squareSize);
+	@Override
+	public Vector2 stateToWorld(PointXY pos) {
+		// Adding 0.5 offsets us to the centre of the square.
+		float centreX = (float) ((pos.getX() + 0.5) * squareSize); 
+		float centreY = (float) ((pos.getY() + 0.5) * squareSize);
+		return new Vector2(centreX, centreY);
 	}
 	
-	/**
-	 * Convert a physics world position into a back-end logic maze coordinate.
-	 * 
-	 * @param pos - the physics world position to convert.
-	 * @return a back-end logic maze position that is equivalent to the provided
-	 * physics world coordinate.
-	 */
-	private PointXY worldToState(Vector2 pos) {
-		return worldToState(pos, squareSize);
+	@Override
+	public PointXY worldToState(Vector2 pos) {
+		// Do the inverse of the stateToWorld calculation.
+		int centreX = (int) Math.round((pos.x / squareSize) - 0.5);
+		int centreY = (int) Math.round((pos.y / squareSize) - 0.5);
+		return new PointXY(centreX, centreY);
 	}
 	
 	/**
@@ -790,35 +785,4 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 	}
 	
-	/**
-	 * For the given square size, convert the provided position in the back-end 
-	 * logic coordinate system to the equivalent point in the Box2D world 
-	 * coordinate system.
-	 * 
-	 * @param pos - the back-end logic position to convert.
-	 * @param squareSize - the size of a maze square in the Box2D world.
-	 * @return the equivalent position in the Box2D world coordinate system.
-	 */
-	public static Vector2 stateToWorld(PointXY pos, float squareSize) {
-		// Adding 0.5 offsets us to the centre of the square.
-		float centreX = (float) ((pos.getX() + 0.5) * squareSize); 
-		float centreY = (float) ((pos.getY() + 0.5) * squareSize);
-		return new Vector2(centreX, centreY);
-	}
-	
-	/**
-	 * For the given square size, convert the provided position in the Box2D 
-	 * coordinate system to the equivalent point in the back-end logic 
-	 * coordinate system.
-	 * 
-	 * @param pos - the Box2D world position to convert.
-	 * @param squareSize - the size of a maze square in the Box2D world.
-	 * @return the equivalent position in the back-end logic coordinate system.
-	 */
-	public static PointXY worldToState(Vector2 pos, float squareSize) {
-		// Do the inverse of the stateToWorld calculation.
-		int centreX = (int) Math.round((pos.x / squareSize) - 0.5);
-		int centreY = (int) Math.round((pos.y / squareSize) - 0.5);
-		return new PointXY(centreX, centreY);
-	}
 }

@@ -1,5 +1,9 @@
 package physics;
 
+import geometry.PointXY;
+
+import com.badlogic.gdx.math.Vector2;
+
 import logic.GameState;
 
 /**
@@ -39,5 +43,22 @@ public interface PhysicsProcessor {
 	 * @param state - a snapshot of the current game data.
 	 */
 	void postStep(GameState state);
+	
+	/**
+	 * Convert a maze position from the back-end logic into a world coordinate.
+	 * 
+	 * @param pos - the back-end logic maze position.
+	 * @return a physics world coordinate equivalent to the provided position.
+	 */
+	Vector2 stateToWorld(PointXY pos);
+	
+	/**
+	 * Convert a physics world position into a back-end logic maze coordinate.
+	 * 
+	 * @param pos - the physics world position to convert.
+	 * @return a back-end logic maze position that is equivalent to the provided
+	 * physics world coordinate.
+	 */
+	PointXY worldToState(Vector2 pos);
 	
 }

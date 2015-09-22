@@ -22,7 +22,7 @@ import logic.PreyPowerUpType;
 public class PowerUpProcessor {
 
 	private World world;
-	private float squareSize;
+	private PhysicsProcessor physProc;
 	
 	private final float predatorSpeedUpFactor = 2f;
 	private final float preySlowDownFactor = 2f;
@@ -38,9 +38,9 @@ public class PowerUpProcessor {
 	 * @param squareSize - the length of the side of a maze square in the Box2D 
 	 * world.
 	 */
-	public PowerUpProcessor(World world, float squareSize) {
+	public PowerUpProcessor(World world, PhysicsProcessor physProc) {
 		this.world = world;
-		this.squareSize = squareSize;
+		this.physProc = physProc;
 	}
 	
 	/**
@@ -207,8 +207,7 @@ public class PowerUpProcessor {
 	 * to move the body to.
 	 */
 	private void teleportBody(Body body, PointXY teleportPoint) {
-		Vector2 newPos = 
-			PhysicsProcessorBox2D.stateToWorld(teleportPoint, squareSize);
+		Vector2 newPos = physProc.stateToWorld(teleportPoint);
 		body.setTransform(newPos, body.getAngle());
 	}
 	
