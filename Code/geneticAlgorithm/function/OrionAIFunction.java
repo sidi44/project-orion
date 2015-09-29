@@ -76,19 +76,20 @@ public class OrionAIFunction implements Function<OrionAI> {
 	private double processResults(List<ResultLogger> allResults) {
 		
 		int count = 0;
-		int result = 0;
+		int averageResult = 0;
 		for (ResultLogger logger : allResults) {
 			List<GameResult> gameResults = logger.getResults();
 			for (GameResult gr : gameResults) {
-				result += Math.pow(
+				double result = Math.pow(
 						(gr.getNumSquares() - gr.getNumPillsRemaining()), 2); //gr.getNumSimSteps() - 5 * gr.getNumPillsRemaining();
+				averageResult += result;
 				++count;
-				System.out.println("Result " + count + ": " + result / count);
+				System.out.println("Result " + count + ": " + result);
 			}
 		}
 		System.out.println("Number of results = " + count);
 		if (count > 0) {
-			return result * 1.0 / count;
+			return averageResult * 1.0 / count;
 		} else {
 			return 0;
 		}
