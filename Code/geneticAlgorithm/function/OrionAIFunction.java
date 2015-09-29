@@ -5,9 +5,6 @@ import java.util.List;
 
 import ai.OrionAI;
 
-import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.LifecycleListener;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
@@ -16,62 +13,60 @@ import game.PredatorPreyGame;
 import game.ResultLogger;
 import geneticAlgorithm.core.Individual;
 
-public class OrionAIFunction implements Function<OrionAI>, LifecycleListener {
+public class OrionAIFunction implements Function<OrionAI> {
 
-	private int numIterations;
 	private int numGames;
-	private boolean testFinished;
 	
+	@SuppressWarnings("unused")
 	private LwjglApplication lwjgl;
 	private PredatorPreyGame ppg;
 	
-	public OrionAIFunction(int numIterations, int numGames) {
-		this.numIterations = numIterations;
+	public OrionAIFunction(int numGames) {
 		this.numGames = numGames;
-		this.testFinished = false;
 		
 		ppg = new PredatorPreyGame();
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.forceExit = false;
 		
 		lwjgl = new LwjglApplication(ppg, config);
-		//lwjgl.addLifecycleListener(this);
 		
-		while (ppg.isLoading()) {
-			wait(2000);
+		String mainMenu = "MAIN_MENU";
+		while ((ppg.getScreen() != null) && (ppg.getScreenByName(mainMenu) != ppg.getScreen())) {
+			wait(1000);
 		}
-		
-		ppg.setDoRender(true);
+		wait(5000);
 	}
 	
 	@Override
 	public void evaluate(Individual<OrionAI> ind) {
 		
-		testFinished = false;
-		ppg.startGame();
+		ppg.resetLogger();
 		
 		List<ResultLogger> allResults = new ArrayList<ResultLogger>();
 		
 		for (int i = 0; i < numGames; ++i) {
 			
+			// We have to set the AI every new game as the game logic is reset, 
+			// so it'll be the default values if we don't set the AI here.
 			ppg.setAI(ind.getRepresentation());
-			System.out.println("Starting new game... ");
 			
-			while (!ppg.isStopped()) {
-				wait(2000);
+			ppg.startGame();
+
+			String gameScreen = "GAME";
+			while (ppg.getScreenByName(gameScreen) != ppg.getScreen()) {
+				wait(1000);
 			}
 			
-			testFinished = false;
+			System.out.println("Starting new game... ");
 			
-			ApplicationListener al = lwjgl.getApplicationListener();
-			PredatorPreyGame ppg2 = (PredatorPreyGame) al;
-			
-			ResultLogger logger = ppg2.getLogger();
-			allResults.add(logger);
-			
-			ppg2.resetGame();
-			al.resume();
+			String mainMenu = "MAIN_MENU";
+			while (ppg.getScreenByName(mainMenu) != ppg.getScreen()) {
+				wait(1000);
+			}
 		}
+		
+		ResultLogger logger = ppg.getLogger();
+		allResults.add(logger);
 		
 		double averageResult = processResults(allResults);
 		System.out.println("Average result: " + averageResult);
@@ -88,6 +83,7 @@ public class OrionAIFunction implements Function<OrionAI>, LifecycleListener {
 				result += Math.pow(
 						(gr.getNumSquares() - gr.getNumPillsRemaining()), 2); //gr.getNumSimSteps() - 5 * gr.getNumPillsRemaining();
 				++count;
+				System.out.println("Result " + count + ": " + result / count);
 			}
 		}
 		System.out.println("Number of results = " + count);
@@ -106,20 +102,6 @@ public class OrionAIFunction implements Function<OrionAI>, LifecycleListener {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	@Override
-	public void pause() {
-		// We do nothing
-	}
-
-	@Override
-	public void resume() {
-		// We do nothing
-	}
-
-	@Override
-	public void dispose() {
 	}
 
 }

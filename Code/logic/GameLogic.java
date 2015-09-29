@@ -326,4 +326,8 @@ public class GameLogic {
 		this.aiLogic = ai;
 	}
 	
+	public AILogic getAILogic() {
+		return aiLogic;
+	}
+	
 }

@@ -81,7 +81,7 @@ public class GAMainTest {
 			pop.insert(ind);
 		}
 
-		Function<OrionAI> func = new OrionAIFunction(-1, 3);
+		Function<OrionAI> func = new OrionAIFunction(3);
 
 		GeneticAlgorithm<OrionAI> ga = 
 				new OrionAIGeneticAlgorithm(pop, evoParams, genParams, func);

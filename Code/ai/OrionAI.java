@@ -353,4 +353,15 @@ public class OrionAI implements AILogic {
 		
 		return closestPreyPath;
 	}
+	
+	public String toString() {
+		String out = 
+				"Pill factor = " + pillFactor + System.lineSeparator() +
+				"Pill dist factor = " + pillDistFactor + System.lineSeparator() +
+				"Prey factor = " + preyFactor + System.lineSeparator() +
+				"Prey dist factor = " + preyDistFactor + System.lineSeparator() +
+				"Predator factor = " + predatorFactor + System.lineSeparator() +
+				"Predator dist factor = " + predatorDistFactor + System.lineSeparator();
+		return out;
+	}
 }

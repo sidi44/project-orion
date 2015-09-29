@@ -19,4 +19,8 @@ public class ResultLogger {
 		return results;
 	}
 	
+	public void reset() {
+		results.clear();
+	}
+	
 }
