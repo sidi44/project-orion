@@ -1,6 +1,9 @@
-package logic;
+package ai;
 
 import java.util.List;
+
+import logic.Agent;
+import logic.GameState;
 
 /**
  * AILogic interface.
@@ -18,7 +21,7 @@ public interface AILogic {
 	 * Calculates and sets the agent's next move based on the provided GameState
 	 * snapshot.
 	 * 
-	 * @param agent - the Agents whose moves should be calculated (and set).
+	 * @param agents - the Agents whose moves should be calculated (and set).
 	 * @param state - the current state of the game.
 	 */
 	void calcNextMove(List<Agent> agents, GameState state);

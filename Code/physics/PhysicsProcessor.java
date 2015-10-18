@@ -14,7 +14,7 @@ import logic.GameState;
  * GameState snapshot with the post-simulation data.
  * 
  * @author Simon Dicken
- * @version 2015-06-09
+ * @version 2015-10-18
  */
 public interface PhysicsProcessor {
 	
@@ -57,7 +57,7 @@ public interface PhysicsProcessor {
 	 * 
 	 * @param pos - the physics world position to convert.
 	 * @return a back-end logic maze position that is equivalent to the provided
-	 * physics world coordiante.
+	 * physics world coordinate.
 	 */
 	PointXY worldToState(Vector2 pos);
 	
@@ -67,5 +67,13 @@ public interface PhysicsProcessor {
 	 * @return squareSize - the size of a maze square
 	 */
 	float getSquareSize();
+	
+	/**
+	 * Return the default speed of the given physics body type.
+	 * 
+	 * @param type - the physics body type for which to return the speed.
+	 * @return the speed of the provided physics body type.
+	 */
+	float getBodySpeed(PhysicsBodyType type);
 	
 }

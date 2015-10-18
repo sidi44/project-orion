@@ -1,13 +1,13 @@
-package logic;
+package logic.powerup;
 
 /**
- * Represents the type of powerup and acts as base class for
- * more complex prey powerups.
+ * Represents the type of powerup and acts as base class for more complex prey 
+ * powerups.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-10-18
  */
-public class PreyPowerUp extends PowerUp {
+public abstract class PreyPowerUp extends PowerUp {
 	
 	private final PreyPowerUpType pType;
 	
@@ -36,6 +36,11 @@ public class PreyPowerUp extends PowerUp {
 		return getPType().ordinal();
 	}
 
+	@Override
+	public String getName() {
+		return getPType().name();
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

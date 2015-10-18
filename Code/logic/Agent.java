@@ -2,6 +2,7 @@ package logic;
 
 import java.util.List;
 
+import logic.powerup.PowerUp;
 import geometry.PointXY;
 
 /**

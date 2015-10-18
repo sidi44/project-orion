@@ -1,4 +1,4 @@
-package logic;
+package logic.powerup;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlType;
@@ -7,15 +7,14 @@ import javax.xml.bind.annotation.XmlType;
  * Represents different types of powerups for predators.
  * 
  * @author Martin Wong
- * @version 2015-06-11
+ * @version 2015-10-18
  */
-
 @XmlType(name = "PredatorPowerUpEnum")
 @XmlEnum
 public enum PredatorPowerUpType {
 	
 	SpeedUpPredator, // Increases the speed of predator
-	Reverse, // Reverses direction of prey
+	Magnet, // Pulls the prey towards the predator
 	Teleport, // Move to any random point in maze
 	SlowDownPrey, // Decreases the speed of the prey
 	Freeze; // Stop prey from moving

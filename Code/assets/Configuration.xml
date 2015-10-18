@@ -8,14 +8,14 @@
             </XmlPoint>
             <XmlPoint>
                 <X>0</X>
-                <Y>10</Y>
+                <Y>8</Y>
             </XmlPoint>
             <XmlPoint>
-                <X>10</X>
-                <Y>10</Y>
+                <X>8</X>
+                <Y>8</Y>
             </XmlPoint>
 			<XmlPoint>
-                <X>10</X>
+                <X>8</X>
                 <Y>0</Y>
             </XmlPoint>
         </PolygonShape>
@@ -30,34 +30,72 @@
             <NumPredator>1</NumPredator>
             <NumPredatorPlayer>1</NumPredatorPlayer>
             <MaxPredatorPowerUp>5</MaxPredatorPowerUp>
-            <NumPrey>5</NumPrey>
+            <NumPrey>4</NumPrey>
             <NumPreyPlayer>0</NumPreyPlayer>
             <MaxPreyPowerUp>5</MaxPreyPowerUp>
         </AgentConfiguration>
         <PowerUpConfiguration>
-            <NumberPredatorPowerUps>1</NumberPredatorPowerUps>
+            <NumberPredatorPowerUps>3</NumberPredatorPowerUps>
             <NumberPreyPowerUps>0</NumberPreyPowerUps>
             <PredatorPowerUps>
                 <PredatorPowerUp>
                     <PredatorPowerUpType>SpeedUpPredator</PredatorPowerUpType>
-                    <TimeLimit>120</TimeLimit>
+                    <TimeLimit>150</TimeLimit>
+                    <SpeedUpFactor>2</SpeedUpFactor>
+                </PredatorPowerUp>
+                <PredatorPowerUp>
+                    <PredatorPowerUpType>SlowDownPrey</PredatorPowerUpType>
+                    <TimeLimit>150</TimeLimit>
+                    <SlowDownFactor>2</SlowDownFactor>
+                </PredatorPowerUp>
+                <PredatorPowerUp>
+                    <PredatorPowerUpType>Freeze</PredatorPowerUpType>
+                    <TimeLimit>150</TimeLimit>
+                </PredatorPowerUp>
+                <PredatorPowerUp>
+                    <PredatorPowerUpType>Magnet</PredatorPowerUpType>
+                    <TimeLimit>150</TimeLimit>
+                    <MagnetForce>2000</MagnetForce>
+                    <MagnetRange>3</MagnetRange>
+                </PredatorPowerUp>
+                <PredatorPowerUp>
+                    <PredatorPowerUpType>Teleport</PredatorPowerUpType>
                 </PredatorPowerUp>
             </PredatorPowerUps>
 			<PreyPowerUps>
                 <PreyPowerUp>
                     <PreyPowerUpType>SpeedUpPrey</PreyPowerUpType>
-                    <TimeLimit>120</TimeLimit>
+                    <TimeLimit>150</TimeLimit>
+                    <SpeedUpFactor>2</SpeedUpFactor>
+                </PreyPowerUp>
+                <PreyPowerUp>
+                    <PreyPowerUpType>SlowDownPredator</PreyPowerUpType>
+                    <TimeLimit>150</TimeLimit>
+                    <SlowDownFactor>2</SlowDownFactor>
+                </PreyPowerUp>
+                <PreyPowerUp>
+                    <PreyPowerUpType>Freeze</PreyPowerUpType>
+                    <TimeLimit>150</TimeLimit>
+                </PreyPowerUp>
+                <PreyPowerUp>
+                    <PreyPowerUpType>Magnet</PreyPowerUpType>
+                    <TimeLimit>150</TimeLimit>
+                    <MagnetForce>-2000</MagnetForce>
+                    <MagnetRange>3</MagnetRange>
+                </PreyPowerUp>
+                <PreyPowerUp>
+                    <PreyPowerUpType>Teleport</PreyPowerUpType>
                 </PreyPowerUp>
             </PreyPowerUps>
         </PowerUpConfiguration>
     </GameConfiguration>
 	<PhysicsConfiguration>
-    	<SquareSize>5</SquareSize>
+    	<SquareSize>10</SquareSize>
 		<WallWidthRatio>0.1</WallWidthRatio>
 		<PillRadiusRatio>0.2</PillRadiusRatio>
 		<PowerUpRadiusRatio>0.5</PowerUpRadiusRatio>
-		<PredatorSpeed>30</PredatorSpeed>
-		<PreySpeed>20</PreySpeed>
+		<PredatorSpeed>40</PredatorSpeed>
+		<PreySpeed>32</PreySpeed>
 	</PhysicsConfiguration>
 	<RendererConfiguration>
 	    <AllowRotations>true</AllowRotations>
@@ -188,9 +226,33 @@
 	        <AnimationGroupName>PowerUpPredator</AnimationGroupName>
 	        <Rows>4</Rows>
 	        <Columns>3</Columns>
-	        <Filename>icons-pow-up.png</Filename>
+	        <Filename>power_ups.png</Filename>
 	        <AnimationDefinition>
-	            <AnimationName></AnimationName>
+	            <AnimationName>SlowDownPrey</AnimationName>
+	            <StartFrame>7</StartFrame>
+	            <EndFrame>7</EndFrame>
+	            <FrameDuration>1</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>Teleport</AnimationName>
+	            <StartFrame>8</StartFrame>
+	            <EndFrame>8</EndFrame>
+	            <FrameDuration>1</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>Magnet</AnimationName>
+	            <StartFrame>10</StartFrame>
+	            <EndFrame>10</EndFrame>
+	            <FrameDuration>1</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>Freeze</AnimationName>
+	            <StartFrame>11</StartFrame>
+	            <EndFrame>11</EndFrame>
+	            <FrameDuration>1</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>SpeedUpPredator</AnimationName>
 	            <StartFrame>12</StartFrame>
 	            <EndFrame>12</EndFrame>
 	            <FrameDuration>1</FrameDuration>

@@ -7,6 +7,7 @@ import physics.PhysicsBodyType;
 import physics.PhysicsData;
 import physics.PhysicsDataAgent;
 import physics.PhysicsDataPill;
+import physics.PhysicsDataPowerUp;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -330,9 +331,14 @@ public class Renderer {
 			return;
 		} 
 		else if (data.getType() == PhysicsBodyType.PowerUpPredator) {
-			frame = animator.getAnimationFrame("", 
+			
+			PhysicsDataPowerUp powerUpData = 
+					(PhysicsDataPowerUp) body.getUserData();
+			String bodyId = String.valueOf(powerUpData.getPosition());
+			
+			frame = animator.getAnimationFrame(bodyId, 
 					PhysicsBodyType.PowerUpPredator.name(),
-					"", 
+					powerUpData.getPowerUpName(), 
 					deltaTime);
 		}
 		else if (data.getType() == PhysicsBodyType.PowerUpPrey) {

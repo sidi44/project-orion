@@ -15,7 +15,7 @@ import utils.NumberUtils;
  * Generates a maze which is composed of numerous MazeNodes.
  * 
  * @author Martin Wong
- * @version 2015-06-01
+ * @version 2015-10-18
  */
 public class Maze {
 	
@@ -816,12 +816,24 @@ public class Maze {
 	}
 	
 	/**
+	 * Returns true if the maze contains a node at the provided position, false
+	 * otherwise.
+	 * 
+	 * @param pos - the position to check
+	 * @return true if the maze contains a node at the provided position, false 
+	 * otherwise.
+	 */
+	public boolean containsNodeAtPosition(PointXY pos) {
+		return nodes.containsKey(pos);
+	}
+	
+	/**
 	 * Creates a string representation of the nodes within the maze,
 	 * where each node is represented by 4 bits, 0000.
 	 * 
 	 * The position of the bits correspond to NESW (North, East, South, West).
-	 * The value 1 represents a path in that direction, while 0 represents no path
-	 * in that direction.
+	 * The value 1 represents a path in that direction, while 0 represents no 
+	 * path in that direction.
 	 */
 	@Override
 	public String toString() {
