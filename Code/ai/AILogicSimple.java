@@ -10,6 +10,7 @@ import logic.Agent;
 import logic.Direction;
 import logic.GameState;
 import logic.Maze;
+import logic.Path;
 import logic.Predator;
 import logic.Prey;
 

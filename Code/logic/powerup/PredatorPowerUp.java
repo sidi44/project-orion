@@ -1,13 +1,13 @@
-package logic;
+package logic.powerup;
 
 /**
- * Represents the type of powerup and acts as base class for
- * more complex predator powerups.
+ * Represents the type of powerup and acts as base class for more complex 
+ * predator powerups.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-10-18
  */
-public class PredatorPowerUp extends PowerUp {
+public abstract class PredatorPowerUp extends PowerUp {
 	
 	private final PredatorPowerUpType pType;
 	
@@ -34,6 +34,11 @@ public class PredatorPowerUp extends PowerUp {
 	@Override
 	public int getPowerVal() {
 		return getPType().ordinal();
+	}
+	
+	@Override
+	public String getName() {
+		return getPType().name();
 	}
 
 	@Override

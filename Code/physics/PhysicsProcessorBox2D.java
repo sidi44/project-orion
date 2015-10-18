@@ -22,11 +22,11 @@ import logic.Maze;
 import logic.MazeNode;
 import logic.Move;
 import logic.Direction;
-import logic.PowerUp;
 import logic.Predator;
-import logic.PredatorPowerUp;
 import logic.Prey;
-import logic.PreyPowerUp;
+import logic.powerup.PowerUp;
+import logic.powerup.PredatorPowerUp;
+import logic.powerup.PreyPowerUp;
 
 /**
  * PhysicsProcessorBox2D class.
@@ -40,7 +40,7 @@ import logic.PreyPowerUp;
  * game.
  * 
  * @author Simon Dicken
- * @version 2015-08-15
+ * @version 2015-10-18
  */
 public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	
@@ -128,13 +128,13 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 		// Create each maze square physics body (walls) and pill physics body 
 		// from the corresponding maze node.
-		Maze m = state.getMaze();
-		Map<PointXY, MazeNode> nodes = m.getNodes();
+		Maze maze = state.getMaze();
+		Map<PointXY, MazeNode> nodes = maze.getNodes();
 		Set<PointXY> keys = nodes.keySet();
 		
 		for (PointXY pos : keys) {
 			MazeNode node = nodes.get(pos);
-			createNode(pos, node);
+			createNode(pos, node, maze);
 			if (state.hasPill(pos)) {
 				createPill(pos, node);
 			}
@@ -170,8 +170,11 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	 * 
 	 * @param pos - the position of the MazeNode in the maze.
 	 * @param node - the MazeNode from which to create the walls.
+	 * @param maze - the maze that is being built. This is used to check whether
+	 * the node is a perimeter node and therefore draw the boundary wall in the 
+	 * right position.
 	 */
-	private void createNode(PointXY pos, MazeNode node) {
+	private void createNode(PointXY pos, MazeNode node, Maze maze) {
 		
 		// Create the node body and add it to the world at the given location.
 		Body nodeBody;
@@ -191,35 +194,69 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		// Check the node positions to the four sides of the current node.
 		// If the node does not have a neighbouring node in that position, 
 		// add a wall fixture to the nodeBody.
+		// A wall is also added to the 'outside' if the node is a perimeter 
+		// node.
 		PointXY northPos = new PointXY(pos.getX(), pos.getY() + 1);
+		float northCentreX = 0;
+		float northCentreY = (squareSize/2 - wallWidth/2);
 		if (!node.isNeighbour(northPos)) {
-			Vector2 centre = new Vector2(0, (squareSize/2 - wallWidth/2));
-			float hx = squareSize/2;
+			Vector2 centre = new Vector2(northCentreX, northCentreY);
+			float hx = squareSize/2 + wallWidth;
+			float hy = wallWidth/2;
+			createWall(nodeBody, centre, hx, hy);
+		}
+		if (!maze.containsNodeAtPosition(northPos)) {
+			Vector2 centre = new Vector2(northCentreX, northCentreY + wallWidth);
+			float hx = squareSize/2 + wallWidth;
 			float hy = wallWidth/2;
 			createWall(nodeBody, centre, hx, hy);
 		}
 		
 		PointXY eastPos = new PointXY(pos.getX() + 1, pos.getY());
+		float eastCentreX = (squareSize/2 - wallWidth/2);
+		float eastCentreY = 0;
 		if (!node.isNeighbour(eastPos)) {
-			Vector2 centre = new Vector2((squareSize/2 - wallWidth/2), 0);
+			Vector2 centre = new Vector2(eastCentreX, eastCentreY);
 			float hx = wallWidth/2;
-			float hy = squareSize/2;
+			float hy = squareSize/2 + wallWidth;
+			createWall(nodeBody, centre, hx, hy);
+		}
+		if (!maze.containsNodeAtPosition(eastPos)) {
+			Vector2 centre = new Vector2(eastCentreX + wallWidth, eastCentreY);
+			float hx = wallWidth/2;
+			float hy = squareSize/2 + wallWidth;
 			createWall(nodeBody, centre, hx, hy);
 		}
 		
 		PointXY southPos = new PointXY(pos.getX(), pos.getY() - 1);
+		float southCentreX = 0;
+		float southCentreY = (-squareSize/2 + wallWidth/2);
 		if (!node.isNeighbour(southPos)) {
-			Vector2 centre = new Vector2(0, (-squareSize/2 + wallWidth/2));
-			float hx = squareSize/2;
+			Vector2 centre = new Vector2(southCentreX, southCentreY);
+			float hx = squareSize/2 + wallWidth;
+			float hy = wallWidth/2;
+			createWall(nodeBody, centre, hx, hy);
+		}
+		if (!maze.containsNodeAtPosition(southPos)) {
+			Vector2 centre = new Vector2(southCentreX, southCentreY - wallWidth);
+			float hx = squareSize/2 + wallWidth;
 			float hy = wallWidth/2;
 			createWall(nodeBody, centre, hx, hy);
 		}
 		
 		PointXY westPos = new PointXY(pos.getX() - 1, pos.getY());
+		float westCentreX = (-squareSize/2 + wallWidth/2);
+		float westCentreY = 0;
 		if (!node.isNeighbour(westPos)) {
-			Vector2 centre = new Vector2((-squareSize/2 + wallWidth/2), 0);
+			Vector2 centre = new Vector2(westCentreX, westCentreY);
 			float hx = wallWidth/2;
-			float hy = squareSize/2;
+			float hy = squareSize/2 + wallWidth;
+			createWall(nodeBody, centre, hx, hy);
+		}
+		if (!maze.containsNodeAtPosition(westPos)) {
+			Vector2 centre = new Vector2(westCentreX - wallWidth, westCentreY);
+			float hx = wallWidth/2;
+			float hy = squareSize/2 + wallWidth;
 			createWall(nodeBody, centre, hx, hy);
 		}
 		
@@ -401,7 +438,9 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 		powerUpBody.createFixture(fixtureDef);
 
-		PhysicsData data = new PhysicsDataPowerUp(bodyType, pos);
+		String powerUpName = powerUp.getName();
+		
+		PhysicsData data = new PhysicsDataPowerUp(bodyType, pos, powerUpName);
 		powerUpBody.setUserData(data);
 	}
 	
@@ -421,7 +460,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		// The power ups are processed after each of the agent's moves have 
 		// been applied in the pre-step processing.
 		for (Body b : bodies) {
-			processPowerUps(b, predators, prey);
+			processPowerUps(b, state);
 		}
 	}
 
@@ -543,26 +582,23 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	 * currently activated power up's action, or do nothing.
 	 * 
 	 * @param body - the body to process.
-	 * @param predators - the list of all Predator agents currently in the game.
-	 * @param prey - the list of all Prey agents currently in the game.
+	 * @param state - the current game state.
 	 */
-	private void processPowerUps(Body body, List<Predator> predators, 
-			List<Prey> prey) {
+	private void processPowerUps(Body body, GameState state) {
 		
 		PhysicsData data = (PhysicsData) body.getUserData();
 		Agent agent = null;
 		if (data.getType() == PhysicsBodyType.Predator) {
-			agent = findAgent(body, predators);
+			agent = findAgent(body, state.getPredators());
 		} else if (data.getType() == PhysicsBodyType.Prey) {
-			agent = findAgent(body, prey);
+			agent = findAgent(body, state.getPrey());
 		}
 		
 		if (agent != null) {
 			Move move = agent.getNextMove();
-			processAgentPowerUps(agent, move, body);
+			processAgentPowerUps(agent, move, body, state);
 		}
 	}
-	
 	
 	/**
 	 * Activates a power up if the provided Move indicates that one should be. 
@@ -572,17 +608,21 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	 * @param agent - the Agent currently being processed.
 	 * @param move - the current Move of the Agent.
 	 * @param body - the body associated with the agent.
+	 * @param state - the current game state.
 	 */
-	private void processAgentPowerUps(Agent agent, Move move, Body body) {
+	private void processAgentPowerUps(Agent agent, Move move, Body body, 
+			GameState state) {
 
 		if (move.getUsePowerUp()) {
 			agent.activatePowerUp();
 		}
 
 		if (agent.hasActivatedPowerUp()) {
+			powerUpProc.setState(state);
 			List<? extends PowerUp> powerUps = agent.getActivatedPowerUps();
 			for (PowerUp powerUp : powerUps) {
-				powerUpProc.processPowerUp(powerUp, body);
+				powerUpProc.setBody(body);
+				powerUp.accept(powerUpProc);
 			}
 		}
 		agent.updateActivatedPowerUps();
@@ -653,13 +693,13 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 				PhysicsDataPowerUp preyPowerUpData = (PhysicsDataPowerUp) data;
 				PointXY preyPowerUpPos = preyPowerUpData.getPosition();
 				int preyID2 = preyPowerUpData.getAgentID();
-				state.PredatorPowerUpCollected(preyID2, preyPowerUpPos);
+				state.predatorPowerUpCollected(preyID2, preyPowerUpPos);
 
 			case PowerUpPredator:
 				PhysicsDataPowerUp predPowerUpData = (PhysicsDataPowerUp) data;
 				PointXY predPowerUpPos = predPowerUpData.getPosition();
 				int predatorID2 = predPowerUpData.getAgentID();
-				state.PredatorPowerUpCollected(predatorID2, predPowerUpPos);
+				state.predatorPowerUpCollected(predatorID2, predPowerUpPos);
 				
 			default:
 				break;
@@ -781,6 +821,29 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown direction enum.");
+		}
+		
+	}
+	
+	@Override
+	public float getSquareSize() {
+		return squareSize;
+	}
+
+	@Override
+	public float getBodySpeed(PhysicsBodyType type) {
+		
+		switch (type) {
+			case Predator:
+				return predatorSpeed;
+			case Prey:
+				return preySpeed;
+			case Pill:
+			case PowerUpPredator:
+			case PowerUpPrey:
+			case Walls:
+			default:
+				return 0;
 		}
 		
 	}

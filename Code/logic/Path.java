@@ -1,4 +1,4 @@
-package ai;
+package logic;
 
 import java.util.ArrayList;
 import java.util.HashSet;

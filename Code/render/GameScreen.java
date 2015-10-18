@@ -15,7 +15,6 @@ import logic.GameState;
 import logic.Move;
 import logic.Predator;
 import logic.Prey;
-import physics.PhysicsConfiguration;
 import physics.PhysicsProcessor;
 
 import com.badlogic.gdx.Gdx;
@@ -120,7 +119,7 @@ public class GameScreen implements Screen {
 			accumulator -= dt;
 			++numSimSteps;
 		}
-		
+
 		physProc.postStep(state);
 		
 //		setViewportJump(5);
@@ -188,8 +187,7 @@ public class GameScreen implements Screen {
 	private void setViewport(float maxSquaresX, float factor) {
 		widthToHeight = (float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth();
 		
-		PhysicsConfiguration physicsConfig = game.getPhysicsConfig();
-		float squareSize = physicsConfig.getSquareSize();
+		float squareSize = physProc.getSquareSize();
 		
 		float targetWidth = maxSquaresX * squareSize;
 		float targetHeight = targetWidth * widthToHeight;

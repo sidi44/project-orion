@@ -28,6 +28,12 @@
 	</xs:restriction>
 </xs:simpleType>
 
+<xs:simpleType name="PositiveDecimal">
+	<xs:restriction base="xs:decimal">
+		<xs:minInclusive value="0"/>
+	</xs:restriction>
+</xs:simpleType>
+
 <xs:complexType name="MazeConfigurationType">
 	<xs:sequence>
 		<xs:element name="MaxLength" type="xs:positiveInteger"/>
@@ -51,17 +57,21 @@
 <xs:simpleType name="PredatorPowerUpEnum">
 	<xs:restriction base="xs:string">
 		<xs:enumeration value="SpeedUpPredator"/>
-        <xs:enumeration value="Reverse"/>
-        <xs:enumeration value="Teleport"/>
+		<xs:enumeration value="Magnet"/>
+		<xs:enumeration value="Teleport"/>
 		<xs:enumeration value="SlowDownPrey"/>
-        <xs:enumeration value="Freeze"/>
+		<xs:enumeration value="Freeze"/>
 	</xs:restriction>
 </xs:simpleType>
 
 <xs:complexType name="PredatorPowerUpXmlType">
 	<xs:sequence>
 		<xs:element name="PredatorPowerUpType" type="PredatorPowerUpEnum"/>
-		<xs:element name="TimeLimit" type="xs:positiveInteger"/>
+		<xs:element name="TimeLimit" type="xs:positiveInteger" minOccurs="0"/>
+		<xs:element name="SpeedUpFactor" type="PositiveDecimal" minOccurs="0"/>
+		<xs:element name="SlowDownFactor" type="PositiveDecimal" minOccurs="0"/>
+		<xs:element name="MagnetForce" type="xs:integer" minOccurs="0"/>
+		<xs:element name="MagnetRange" type="xs:positiveInteger" minOccurs="0"/>
 	</xs:sequence>
 </xs:complexType>
 
@@ -74,17 +84,21 @@
 <xs:simpleType name="PreyPowerUpEnum">
 	<xs:restriction base="xs:string">
 		<xs:enumeration value="SpeedUpPrey"/>
-        <xs:enumeration value="Reverse"/>
-        <xs:enumeration value="Teleport"/>
+		<xs:enumeration value="Magnet"/>
+		<xs:enumeration value="Teleport"/>
 		<xs:enumeration value="SlowDownPredator"/>
-        <xs:enumeration value="Freeze"/>
+		<xs:enumeration value="Freeze"/>
 	</xs:restriction>
 </xs:simpleType>
 
 <xs:complexType name="PreyPowerUpXmlType">
 	<xs:sequence>
 		<xs:element name="PreyPowerUpType" type="PreyPowerUpEnum"/>
-		<xs:element name="TimeLimit" type="xs:positiveInteger"/>
+		<xs:element name="TimeLimit" type="xs:positiveInteger" minOccurs="0"/>
+		<xs:element name="SpeedUpFactor" type="PositiveDecimal" minOccurs="0"/>
+		<xs:element name="SlowDownFactor" type="PositiveDecimal" minOccurs="0"/>
+		<xs:element name="MagnetForce" type="xs:integer" minOccurs="0"/>
+		<xs:element name="MagnetRange" type="xs:positiveInteger" minOccurs="0"/>
 	</xs:sequence>
 </xs:complexType>
 

@@ -44,7 +44,7 @@ public class GAMainTest {
 				predatorDistBounds);
 		
 		GenerationalParams genParams = 
-				new GenerationalParams(25, 12, 6, 1.0, 0.7);
+				new GenerationalParams(20, 16, 8, 1.0, 0.7);
 		int maxIter = genParams.getMaxIteration();
 		RandomGenerator rand1 = new Randomisor();
 		RandomGenerator rand2 = new Randomisor();
@@ -58,30 +58,18 @@ public class GAMainTest {
 		Population<Individual<OrionAI>> pop = 
 				new PopulationTreeSet<Individual<OrionAI>>();
 		
-		RandomGenerator rand3 = new Randomisor();
-		for (int i = 0; i < genParams.getPopSize(); ++i) {
-
-			OrionAI ai = null;
-			
-			do {
-
-				double pillFactor = rand3.randomDouble(pillBounds);
-				double preyFactor = rand3.randomDouble(preyBounds);
-				double predatorFactor = rand3.randomDouble(predatorBounds);
-				double pillDistFactor = rand3.randomDouble(pillDistBounds);
-				double preyDistFactor = rand3.randomDouble(preyDistBounds);
-				double predatorDistFactor = rand3.randomDouble(predatorDistBounds);
-				
-				ai = new OrionAI(pillFactor, preyFactor, predatorFactor, 
-						pillDistFactor, preyDistFactor, predatorDistFactor);
-				
-			} while (!aiBounds.withinBounds(ai));
-			
-			Individual<OrionAI> ind = new Individual<OrionAI>(ai);
-			pop.insert(ind);
+		boolean useBaseAI = true;
+		OrionAI baseAI = new OrionAI(-6.648677643928376, -9.762598527682236, 
+				-6.989690911188684, -0.09381008981411121, 3.84021643204839, 
+				0.9608407438213487);
+		
+		if (useBaseAI) {
+			fillPopulationFromBase(pop, genParams, aiBounds, baseAI);
+		} else {
+			fillPopulationRandom(pop, genParams, aiBounds);
 		}
 
-		Function<OrionAI> func = new OrionAIFunction(3);
+		Function<OrionAI> func = new OrionAIFunction(4);
 
 		GeneticAlgorithm<OrionAI> ga = 
 				new OrionAIGeneticAlgorithm(pop, evoParams, genParams, func);
@@ -95,6 +83,66 @@ public class GAMainTest {
 		
 		System.out.println("Run time = " + (t1-t0) + "ms");
 		
+	}
+	
+	
+	private static void fillPopulationRandom(Population<Individual<OrionAI>> pop, 
+			GenerationalParams genParams, OrionAIBounds aiBounds) {
+		
+		RandomGenerator rand3 = new Randomisor();
+		
+		for (int i = 0; i < genParams.getPopSize(); ++i) {
+
+			OrionAI ai = null;
+			
+			do {
+
+				double pillFactor = rand3.randomDouble(aiBounds.getPillBounds());
+				double preyFactor = rand3.randomDouble(aiBounds.getPreyBounds());
+				double predatorFactor = rand3.randomDouble(aiBounds.getPredatorBounds());
+				double pillDistFactor = rand3.randomDouble(aiBounds.getPillDistBounds());
+				double preyDistFactor = rand3.randomDouble(aiBounds.getPreyBounds());
+				double predatorDistFactor = rand3.randomDouble(aiBounds.getPredatorDistBounds());
+				
+				ai = new OrionAI(pillFactor, preyFactor, predatorFactor, 
+						pillDistFactor, preyDistFactor, predatorDistFactor);
+				
+			} while (!aiBounds.withinBounds(ai));
+			
+			Individual<OrionAI> ind = new Individual<OrionAI>(ai);
+			pop.insert(ind);
+			System.out.println(ind.getRepresentation().toString());
+		}
+	}
+	
+	private static void fillPopulationFromBase(Population<Individual<OrionAI>> pop, 
+			GenerationalParams genParams, OrionAIBounds aiBounds, OrionAI base) {
+		
+		RandomGenerator rand3 = new Randomisor();
+		Bounds smallBounds = new Bounds(-0.1, 0.1);
+		
+		for (int i = 0; i < genParams.getPopSize(); ++i) {
+
+			OrionAI ai = null;
+			
+			do {
+
+				double pillFactor = base.getPillFactor() + rand3.randomDouble(smallBounds);
+				double preyFactor = base.getPreyFactor() + rand3.randomDouble(smallBounds);
+				double predatorFactor = base.getPredatorFactor() + rand3.randomDouble(smallBounds);
+				double pillDistFactor = base.getPillDistFactor() + rand3.randomDouble(smallBounds);
+				double preyDistFactor = base.getPreyDistFactor() + rand3.randomDouble(smallBounds);
+				double predatorDistFactor = base.getPredatorDistFactor() + rand3.randomDouble(smallBounds);
+				
+				ai = new OrionAI(pillFactor, preyFactor, predatorFactor, 
+						pillDistFactor, preyDistFactor, predatorDistFactor);
+				
+			} while (!aiBounds.withinBounds(ai));
+			
+			Individual<OrionAI> ind = new Individual<OrionAI>(ai);
+			pop.insert(ind);
+			System.out.println(ind.getRepresentation().toString());
+		}
 	}
 	
 }

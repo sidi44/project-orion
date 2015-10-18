@@ -12,6 +12,7 @@ import logic.GameState;
 import logic.Direction;
 import logic.Maze;
 import logic.MazeNode;
+import logic.Path;
 import logic.Predator;
 import logic.Prey;
 
@@ -267,6 +268,9 @@ public class OrionAI implements AILogic {
 			PointXY predatorPos = predator.getPosition();
 			Path path = state.getPath(pos, predatorPos);
 			List<PointXY> pathNodes = path.getPathNodes();
+			if (pathNodes.size() < 2) {
+				continue;
+			}
 			Direction dir = getDirection(pathNodes.get(0), pathNodes.get(1));
 			
 			double current = predatorsInDirection.get(dir);

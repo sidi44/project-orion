@@ -3,6 +3,10 @@ package logic;
 import java.util.ArrayList;
 import java.util.List;
 
+import logic.powerup.PowerUp;
+import logic.powerup.PreyPowerUp;
+import logic.powerup.PreyPowerUpContainer;
+import logic.powerup.PreyPowerUpType;
 import geometry.PointXY;
 
 /**

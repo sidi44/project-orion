@@ -174,28 +174,6 @@ public class PredatorPreyGame extends Game	 {
 		return new SpriteDrawable(new Sprite(texture));
 	}
 	
-	/**
-	 * @return the gameConfig
-	 */
-	public GameConfiguration getGameConfig() {
-		return gameConfig;
-	}
-
-	/**
-	 * @return the physicsConfig
-	 */
-	public PhysicsConfiguration getPhysicsConfig() {
-		return physicsConfig;
-	}
-
-	/**
-	 * @return the rendererConfig
-	 */
-	public RendererConfiguration getRendererConfig() {
-		return rendererConfig;
-	}
-	
-
 	public ResultLogger getLogger() {
 		return logger;
 	}

@@ -9,14 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ai.Path;
-import ai.PathFinder;
+import logic.powerup.PowerUp;
+import logic.powerup.PredatorPowerUp;
+import logic.powerup.PreyPowerUp;
 
 /**
  * Represents the state of the game.
  * 
  * @author Martin Wong, Simon Dicken
- * @version 2015-07-19
+ * @version 2015-10-18
  */
 public class GameState {
 	
@@ -368,7 +369,7 @@ public class GameState {
 	 * @param powerUpPos - the position in the maze of the power up that has 
 	 * been collected.
 	 */
-	public void PredatorPowerUpCollected(int agentID, PointXY powerUpPos) {
+	public void predatorPowerUpCollected(int agentID, PointXY powerUpPos) {
 		Predator p = getPredator(agentID);
 		PredatorPowerUp powerUp = predatorPowerUps.get(powerUpPos);
 
@@ -386,7 +387,7 @@ public class GameState {
 	 * @param powerUpPos - the position in the maze of the power up that has 
 	 * been collected.
 	 */
-	public void PreyPowerUpCollected(int agentID, PointXY powerUpPos) {
+	public void preyPowerUpCollected(int agentID, PointXY powerUpPos) {
 		Prey p = getPrey(agentID);
 		PreyPowerUp powerUp = preyPowerUps.get(powerUpPos);
 
@@ -396,4 +397,22 @@ public class GameState {
 		}
 	}
 	
+	/**
+	 * Return the agent (either predator or prey) with the given ID.
+	 * If no such agent exists, null is returned.
+	 * 
+	 * @param agentID - the ID of the agent to find.
+	 * @return the agent with the given id, or null if no such agent exists.
+	 */
+	public Agent getAgent(int agentID) {
+		
+		List<Agent> agents = getAgents();
+		for (Agent agent : agents) {
+			if (agent.getID() == agentID) {
+				return agent;
+			}
+		}
+		
+		return null;
+	}
 }

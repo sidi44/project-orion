@@ -3,6 +3,7 @@ package geneticAlgorithm.function;
 import java.util.ArrayList;
 import java.util.List;
 
+import logic.GameOver;
 import ai.OrionAI;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
@@ -80,8 +81,14 @@ public class OrionAIFunction implements Function<OrionAI> {
 		for (ResultLogger logger : allResults) {
 			List<GameResult> gameResults = logger.getResults();
 			for (GameResult gr : gameResults) {
-				double result = Math.pow(
-						(gr.getNumSquares() - gr.getNumPillsRemaining()), 2); //gr.getNumSimSteps() - 5 * gr.getNumPillsRemaining();
+				double resultPills = Math.pow(
+						(gr.getNumSquares() - gr.getNumPillsRemaining()), 2); 
+				double numSimSteps = gr.getNumSimSteps();
+				double resultWinBonus = 0;
+				if (gr.getGameResult() == GameOver.Pills && numSimSteps < 5000) {
+					resultWinBonus = 5000 - numSimSteps;
+				}
+				double result = resultPills + resultWinBonus;
 				averageResult += result;
 				++count;
 				System.out.println("Result " + count + ": " + result);
