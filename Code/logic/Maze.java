@@ -15,7 +15,7 @@ import utils.NumberUtils;
  * Generates a maze which is composed of numerous MazeNodes.
  * 
  * @author Martin Wong
- * @version 2015-06-01
+ * @version 2015-10-18
  */
 public class Maze {
 	
@@ -114,7 +114,7 @@ public class Maze {
 	 * Adds the initial pat to the maze from a random starting point.
 	 */
 	private void addInitialPath() {
-		PointXY startingPoint = getRandomStartingPoint();
+		PointXY startingPoint = getRandomPoint();
 		filled.add(startingPoint);
 		buildPathRandom(); // Build a path from the starting point
 		deadends.add(startingPoint); // At the starting point to deadends
@@ -239,16 +239,16 @@ public class Maze {
 	}
 	
 	/**
-	 * Gets a random starting point in maze to start the initial path.
+	 * Gets a random node in maze.
 	 * 
-	 * @return startingPoint (PointXY)
+	 * @return randomPoint (PointXY)
 	 */
-	private PointXY getRandomStartingPoint() {
+	public PointXY getRandomPoint() {
 		List<PointXY> keys = new ArrayList<PointXY>(nodes.keySet());
 		int random = NumberUtils.randomInt(0, keys.size() - 1);
-		PointXY startingPoint = keys.get(random);
+		PointXY randomPoint = keys.get(random);
 		
-		return startingPoint;
+		return randomPoint;
 	}
 	
 	/**
@@ -816,12 +816,24 @@ public class Maze {
 	}
 	
 	/**
+	 * Returns true if the maze contains a node at the provided position, false
+	 * otherwise.
+	 * 
+	 * @param pos - the position to check
+	 * @return true if the maze contains a node at the provided position, false 
+	 * otherwise.
+	 */
+	public boolean containsNodeAtPosition(PointXY pos) {
+		return nodes.containsKey(pos);
+	}
+	
+	/**
 	 * Creates a string representation of the nodes within the maze,
 	 * where each node is represented by 4 bits, 0000.
 	 * 
 	 * The position of the bits correspond to NESW (North, East, South, West).
-	 * The value 1 represents a path in that direction, while 0 represents no path
-	 * in that direction.
+	 * The value 1 represents a path in that direction, while 0 represents no 
+	 * path in that direction.
 	 */
 	@Override
 	public String toString() {

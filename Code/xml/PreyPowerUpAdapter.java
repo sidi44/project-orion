@@ -5,7 +5,13 @@ import java.util.List;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import logic.PreyPowerUp;
+import logic.powerup.PreyPowerUp;
+import logic.powerup.PreyPowerUpFreezePredator;
+import logic.powerup.PreyPowerUpMagnet;
+import logic.powerup.PreyPowerUpSlowDownPredator;
+import logic.powerup.PreyPowerUpSpeedUp;
+import logic.powerup.PreyPowerUpTeleport;
+import logic.powerup.PreyPowerUpType;
 
 /**
  * A JAXB adaptor used to convert an XML version of a collection of prey power
@@ -15,7 +21,7 @@ import logic.PreyPowerUp;
  * This is currently only intended to be used for unmarshalling.
  * 
  * @author Simon Dicken
- * @version 2015-08-09
+ * @version 2015-10-18
  */
 public class PreyPowerUpAdapter 
 				extends XmlAdapter<XmlPreyPowerUps, List<PreyPowerUp>> {
@@ -41,13 +47,52 @@ public class PreyPowerUpAdapter
 		List<PreyPowerUp> powerUps = new ArrayList<PreyPowerUp>();
 		
 		for (XmlPreyPowerUp xmlPowerUp : xmlPowerUps) {
-			PreyPowerUp powerUp = 
-					new PreyPowerUp(xmlPowerUp.getTimeLimit(),
-							xmlPowerUp.getPowerUpType());
+			PreyPowerUp powerUp = convertPowerUp(xmlPowerUp);
 			powerUps.add(powerUp);
 		}
 		
 		return powerUps;
 	}
 
+	/**
+	 * Converts an xmlPreyPowerUp into a PreyPowerUp of the correct type.
+	 * 
+	 * @param xmlPowerUp - the xml power up to convert
+	 * @return a prey power up created from the provided xml power up.
+	 */
+	private PreyPowerUp convertPowerUp(XmlPreyPowerUp xmlPowerUp) {
+		
+		int timeLimit = xmlPowerUp.getTimeLimit();
+		double speedUpFactor = xmlPowerUp.getSpeedUpFactor();
+		double slowDownFactor = xmlPowerUp.getSlowDownFactor();
+		int force = xmlPowerUp.getMagnetForce();
+		int range = xmlPowerUp.getMagnetRange();
+		
+		PreyPowerUp powerUp = null;
+		
+		PreyPowerUpType type = xmlPowerUp.getPowerUpType();
+		switch (type) {
+			case Freeze:
+				powerUp = new PreyPowerUpFreezePredator(timeLimit);
+				break;
+			case Magnet:
+				powerUp = new PreyPowerUpMagnet(timeLimit, force, range);
+				break;
+			case SlowDownPredator:
+				powerUp = 
+				new PreyPowerUpSlowDownPredator(timeLimit, slowDownFactor);
+				break;
+			case SpeedUpPrey:
+				powerUp = new PreyPowerUpSpeedUp(timeLimit, speedUpFactor);
+				break;
+			case Teleport:
+				powerUp = new PreyPowerUpTeleport();
+				break;
+			default:
+				break;
+		}
+		
+		return powerUp;
+	}
+	
 }

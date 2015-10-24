@@ -1,23 +1,23 @@
-package logic;
+package logic.powerup;
 
 /**
- * Represents the type of powerup and acts as base class for
- * more complex prey powerups.
+ * Represents the type of powerup and acts as base class for more complex 
+ * predator powerups.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-10-18
  */
-public class PreyPowerUp extends PowerUp {
+public abstract class PredatorPowerUp extends PowerUp {
 	
-	private final PreyPowerUpType pType;
+	private final PredatorPowerUpType pType;
 	
 	/**
-	 * Creates an instance of PreyPowerUp.
+	 * Creates an instance of PredatorPowerUp.
 	 * 
-	 * @param pType (PowerType)
 	 * @param timeLimit (int)
+	 * @param pType (PowerType)
 	 */
-	public PreyPowerUp(int timeLimit, PreyPowerUpType pType) {
+	public PredatorPowerUp(int timeLimit, PredatorPowerUpType pType) {
 		super(timeLimit);
 		this.pType = pType;
 	}
@@ -27,13 +27,18 @@ public class PreyPowerUp extends PowerUp {
 	 * 
 	 * @return pType (PowerType)
 	 */
-	public PreyPowerUpType getPType() {
+	public PredatorPowerUpType getPType() {
 		return this.pType;
 	}
 	
 	@Override
 	public int getPowerVal() {
 		return getPType().ordinal();
+	}
+	
+	@Override
+	public String getName() {
+		return getPType().name();
 	}
 
 	@Override
@@ -52,10 +57,10 @@ public class PreyPowerUp extends PowerUp {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (!(obj instanceof PreyPowerUp)) {
+		if (!(obj instanceof PredatorPowerUp)) {
 			return false;
 		}
-		PreyPowerUp other = (PreyPowerUp) obj;
+		PredatorPowerUp other = (PredatorPowerUp) obj;
 		if (pType != other.pType) {
 			return false;
 		}

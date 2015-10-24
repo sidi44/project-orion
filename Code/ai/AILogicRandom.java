@@ -1,7 +1,11 @@
-package logic;
+package ai;
 
 import java.util.List;
 import java.util.Random;
+
+import logic.Agent;
+import logic.Direction;
+import logic.GameState;
 
 /**
  * AILogicRandom class.

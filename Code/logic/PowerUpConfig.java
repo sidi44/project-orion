@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import logic.powerup.PredatorPowerUp;
+import logic.powerup.PreyPowerUp;
 import xml.PredatorPowerUpAdapter;
 import xml.PreyPowerUpAdapter;
 
@@ -14,7 +16,7 @@ import xml.PreyPowerUpAdapter;
  * The configuration for the powerups.
  * 
  * @author Martin Wong
- * @version 2015-08-09
+ * @version 2015-10-18
  */
 @XmlRootElement(name = "PowerUpConfiguration")
 public class PowerUpConfig {
@@ -29,7 +31,7 @@ public class PowerUpConfig {
 	 * 
 	 * Sets parameters to their default values.
 	 */
-	 PowerUpConfig() {
+	public PowerUpConfig() {
 		this.numPredPow = 0;
 		this.numPreyPow = 0;
 		this.predatorPowerUps = new ArrayList<PredatorPowerUp>();
@@ -43,8 +45,9 @@ public class PowerUpConfig {
 	 * @param numPreyPow (int)
 	 * @param predatorPowerUps (List<PredatorPowerUp>)
 	 * @param preyPowerUps (List<PreyPowerUp>)
+	 * @param powerUpTypeConfig (PowerUpTypeConfig)
 	 */
-	public PowerUpConfig(int numPredPow, List<PredatorPowerUp> predatorPowerUps,
+	public PowerUpConfig(int numPredPow, List<PredatorPowerUp> predatorPowerUps, 
 			int numPreyPow, List<PreyPowerUp> preyPowerUps) {
 		
 		this.numPredPow = numPredPow;
@@ -127,8 +130,8 @@ public class PowerUpConfig {
 	 */
 	@XmlElement (name = "PreyPowerUps")
 	@XmlJavaTypeAdapter (PreyPowerUpAdapter.class)
-	public void setPreyPowreUps(List<PreyPowerUp> preyPowerUps) {
+	public void setPreyPowerUps(List<PreyPowerUp> preyPowerUps) {
 		this.preyPowerUps = preyPowerUps;
 	}
-	
+		
 }

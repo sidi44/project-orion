@@ -9,6 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import logic.powerup.PredatorPowerUp;
+import logic.powerup.PredatorPowerUpTeleport;
+import logic.powerup.PreyPowerUp;
+import logic.powerup.PreyPowerUpSlowDownPredator;
+import logic.powerup.PreyPowerUpSpeedUp;
+import logic.powerup.PreyPowerUpTeleport;
+import ai.AILogic;
+import ai.AILogicRandom;
+import ai.AILogicSimple;
+import ai.OrionAI;
 import utils.NumberUtils;
 
 /**
@@ -16,7 +26,7 @@ import utils.NumberUtils;
  * different game components.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-10-18
  */
 public class GameLogic {
 	
@@ -31,8 +41,12 @@ public class GameLogic {
 	 */
 	public GameLogic(GameConfiguration gc) {
 		this.gc = gc;
+		//this.aiLogic = new AILogicRandom();
 		this.aiLogic = new AILogicSimple();
-		
+//		this.aiLogic = new OrionAI(-9.364799524753064, -9.109177244173164, 
+//				-6.344606437765757, -0.3417480479470899, 3.704418398331821, 
+//				0.6885758818912453);
+
 		createGs();
 	}
 	
@@ -93,7 +107,8 @@ public class GameLogic {
 			}
 		}
 		
-		// Populate predator powers (assigned to random positions)
+		// Populate predator power ups (assigned to random positions)
+		PredatorPowerUp predatorPowerUp = null;
 		for (int i = 0; i < pConfig.getNumPredPow(); i++) {
 			if (pConfig.getPredatorPowerUps().size() > 0) {
 				randomNum = NumberUtils.randomInt(0, allPoints.size() - 1);
@@ -101,11 +116,20 @@ public class GameLogic {
 				allPoints.remove(randomNum);
 				
 				randomNum = NumberUtils.randomInt(0, pConfig.getPredatorPowerUps().size() - 1);
-				predatorPowers.put(point, pConfig.getPredatorPowerUps().get(randomNum));
+				predatorPowerUp = pConfig.getPredatorPowerUps().get(randomNum);
+				
+				if (predatorPowerUp instanceof PredatorPowerUpTeleport) {
+					PredatorPowerUpTeleport teleport = 
+							(PredatorPowerUpTeleport) predatorPowerUp;
+					teleport.setNextPoint(maze.getRandomPoint());
+				}
+				
+				predatorPowers.put(point, predatorPowerUp);
 			}
 		}
 		
 		// Populate prey powers (assigned to random positions)
+		PreyPowerUp preyPowerUp = null;
 		for (int i = 0; i < pConfig.getNumPreyPow(); i++) {
 			if (pConfig.getPreyPowerUps().size() > 0) {
 				randomNum = NumberUtils.randomInt(0, allPoints.size() - 1);
@@ -113,7 +137,15 @@ public class GameLogic {
 				allPoints.remove(randomNum);
 				
 				randomNum = NumberUtils.randomInt(0, pConfig.getPreyPowerUps().size() - 1);
-				preyPowers.put(point, pConfig.getPreyPowerUps().get(randomNum));
+				preyPowerUp = pConfig.getPreyPowerUps().get(randomNum);
+				
+				if (preyPowerUp instanceof PreyPowerUpTeleport) {
+					PreyPowerUpTeleport teleport = 
+							(PreyPowerUpTeleport) preyPowerUp;
+					teleport.setNextPoint(maze.getRandomPoint());
+				}
+				
+				preyPowers.put(point, preyPowerUp);
 			}
 		}
 		
@@ -277,6 +309,14 @@ public class GameLogic {
 	 */
 	public void setPreyNextMove(int id, Move move) {
 		this.gs.getPrey().get(id).setNextMove(move);
+	}
+	
+	public void setAILogic(AILogic ai) {
+		this.aiLogic = ai;
+	}
+	
+	public AILogic getAILogic() {
+		return aiLogic;
 	}
 	
 }

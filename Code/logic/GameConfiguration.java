@@ -15,7 +15,7 @@ import geometry.PolygonShape;
  * Represents the configuration of the game.
  * 
  * @author Martin Wong
- * @version 2015-08-09
+ * @version 2015-08-18
  */
 @XmlRootElement(name = "GameConfiguration")
 public class GameConfiguration {
@@ -57,7 +57,7 @@ public class GameConfiguration {
 	 * @param hasPills (boolean)
 	 * @param mConfig (MazeConfig)
 	 * @param aConfig (AgentConfig)
-	 * @param pConfig (PowerConfig)
+	 * @param pConfig (PowerUpConfig)
 	 */
 	public GameConfiguration(PolygonShape dimensions, boolean hasPills,
 			MazeConfig mConfig, AgentConfig aConfig, PowerUpConfig pConfig) {
@@ -148,7 +148,7 @@ public class GameConfiguration {
 	}
 	
 	/**
-	 * Gets the power configurations of the game.
+	 * Gets the powerup configurations of the game.
 	 * 
 	 * @return pConfig (PowerConfig)
 	 */
@@ -157,9 +157,9 @@ public class GameConfiguration {
 	}
 	
 	/**
-	 * Sets the power configurations of the game.
+	 * Sets the powerup configurations of the game.
 	 * 
-	 * @param pConfig (PowerConfig)
+	 * @param pConfig (PowerUpConfig)
 	 */
 	@XmlElement (name = "PowerUpConfiguration")
 	public void setPConfig(PowerUpConfig pConfig) {

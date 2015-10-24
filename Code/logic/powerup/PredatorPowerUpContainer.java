@@ -1,4 +1,4 @@
-package logic;
+package logic.powerup;
 
 /**
  * This class holds a PredatorPowerUp.

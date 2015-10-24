@@ -1,16 +1,21 @@
-package logic;
+package logic.powerup;
 
 /**
- * Interface for power-ups for both prey and predators.
+ * Abstract class for power-ups for both prey and predators.
  * 
- * @author Martin Wong
- * @version 2015-07-19
+ * @author Martin Wong, Simon Dicken
+ * @version 2015-10-18
  */
 public abstract class PowerUp {
 	
 	private final int timeLimit;
 	private int timeRemaining;
 	
+	/**
+	 * Constructor for PowerUp.
+	 * 
+	 * @param timeLimit - the duration of the power up.
+	 */
 	public PowerUp(int timeLimit) {
 		this.timeLimit = timeLimit;
 	}
@@ -31,23 +36,52 @@ public abstract class PowerUp {
 		return timeLimit;
 	}
 	
+	/**
+	 * Obtain the amount of time remaining for this power up.
+	 * 
+	 * @return the amount of time remaining for this power up.
+	 */
 	public int getTimeRemaining() {
 		return timeRemaining;
 	}
 	
+	/**
+	 * Decrease the time remaining for this power up by 1.
+	 * If the current time remaining is already zero, the time remaining is not
+	 * decreased.
+	 */
 	public void decrementTimeRemaining() {
 		if (timeRemaining > 0) {
 			--timeRemaining;
 		}
 	}
 	
+	/**
+	 * Activate this power up.
+	 */
 	public void activate() {
 		timeRemaining = timeLimit;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
+	/**
+	 * Return the name of this power up. 
+	 * This should be the String representation of the enum type of the power 
+	 * up. 
+	 * 
+	 * @return the name of this power up.
 	 */
+	public abstract String getName();
+	
+	/**
+	 * Accept the power up visitor.
+	 * 
+	 * All concrete classes should implement this method and call visit() on the
+	 * provided visitor, passing this class as argument.
+	 * 
+	 * @param visitor - the visitor to accept.
+	 */
+	public abstract void accept(PowerUpVisitor visitor);
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -57,9 +91,6 @@ public abstract class PowerUp {
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
