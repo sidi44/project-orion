@@ -135,16 +135,17 @@
 
 <xs:complexType name="AnimationDefinitionType">
 	<xs:sequence>
-		<xs:element name="AnimationName" type="xs:string"/>
-		<xs:element name="StartFrame" type="xs:positiveInteger"/>
-		<xs:element name="EndFrame" type="xs:positiveInteger"/>
+		<xs:element name="AnimationName" type="xs:string" />
+            <xs:element name="PlayMode" type="xs:string"></xs:element>
+            <xs:element name="StartFrame" type="xs:positiveInteger" />
+		<xs:element name="EndFrame" type="xs:positiveInteger" />
 		<xs:element name="FrameDuration">
 			<xs:simpleType>
 				<xs:restriction base="xs:decimal">
-					<xs:minExclusive value="0"/>
+					<xs:minExclusive value="0" />
 				</xs:restriction>
 			</xs:simpleType>
-		</xs:element>
+		</xs:element>
 	</xs:sequence>
 </xs:complexType>
 

@@ -58,12 +58,16 @@ public class PredatorPreyGame extends Game	 {
 
 		String filename = "Configuration.xml";
 		String schemaFilename = "Configuration.xsd";
-		ConfigurationXMLParser xmlParser = 
-				new ConfigurationXMLParser(filename, schemaFilename);
-		xmlParser.parseXML();
-		GameConfiguration gameConfig = xmlParser.getGameConfig();
-		PhysicsConfiguration physicsConfig = xmlParser.getPhysicsConfig();
-		RendererConfiguration rendererConfig = xmlParser.getRendererConfig();
+//		ConfigurationXMLParser xmlParser = 
+//				new ConfigurationXMLParser(filename, schemaFilename);
+//		xmlParser.parseXML();
+//		GameConfiguration gameConfig = xmlParser.getGameConfig();
+//		PhysicsConfiguration physicsConfig = xmlParser.getPhysicsConfig();
+//		RendererConfiguration rendererConfig = xmlParser.getRendererConfig();
+		
+		GameConfiguration gameConfig = new GameConfiguration();
+		PhysicsConfiguration physicsConfig = new PhysicsConfiguration();
+		RendererConfiguration rendererConfig = new RendererConfiguration();
 		
 		// Create the world.
 		Vector2 gravity = new Vector2(0f, 0f);

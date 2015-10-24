@@ -63,113 +63,129 @@
 	    <AllowRotations>true</AllowRotations>
 	    <WallTextureFilename>wall.png</WallTextureFilename>
 	    <WallTextureScale>1.0</WallTextureScale>
-	    <BackgroundFilename>background_1.png</BackgroundFilename>
+	    <BackgroundFilename>background_tiles.png</BackgroundFilename>
 	    <AnimationGroupDefinition>
 	        <AnimationGroupName>Predator</AnimationGroupName>
-	        <Rows>4</Rows>
-	        <Columns>11</Columns>
-	        <Filename>Predator.png</Filename>
+	        <Rows>2</Rows>
+	        <Columns>15</Columns>
+	        <Filename>circle_eyes_animation_2.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName>DOWN-STOP</AnimationName>
+	            <PlayMode>LOOP</PlayMode>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>1</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.0633</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>DOWN</AnimationName>
-	            <StartFrame>2</StartFrame>
-	            <EndFrame>7</EndFrame>
-	            <FrameDuration>0.1667</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.0333</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>UP-STOP</AnimationName>
-	            <StartFrame>12</StartFrame>
-	            <EndFrame>12</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.0333</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>UP</AnimationName>
-	            <StartFrame>13</StartFrame>
-	            <EndFrame>18</EndFrame>
-	            <FrameDuration>0.1667</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.0333</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>LEFT-STOP</AnimationName>
-	            <StartFrame>23</StartFrame>
-	            <EndFrame>23</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.0333</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>LEFT</AnimationName>
-	            <StartFrame>24</StartFrame>
-	            <EndFrame>29</EndFrame>
-	            <FrameDuration>0.1667</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.0333</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>RIGHT-STOP</AnimationName>
-	            <StartFrame>34</StartFrame>
-	            <EndFrame>34</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.0333</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>RIGHT</AnimationName>
-	            <StartFrame>35</StartFrame>
-	            <EndFrame>40</EndFrame>
-	            <FrameDuration>0.1667</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.0333</FrameDuration>
 	        </AnimationDefinition>
 	    </AnimationGroupDefinition>
 	   	<AnimationGroupDefinition>
 	        <AnimationGroupName>Prey</AnimationGroupName>
-	        <Rows>4</Rows>
-	        <Columns>11</Columns>
-	        <Filename>prey.png</Filename>
+	        <Rows>2</Rows>
+	        <Columns>15</Columns>
+	        <Filename>bouncy_ball_animation.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName>DOWN-STOP</AnimationName>
+	            <PlayMode>LOOP</PlayMode>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>1</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.01333</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>DOWN</AnimationName>
-	            <StartFrame>2</StartFrame>
-	            <EndFrame>7</EndFrame>
-	            <FrameDuration>0.1667</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.03</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>UP-STOP</AnimationName>
-	            <StartFrame>12</StartFrame>
-	            <EndFrame>12</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.03</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>UP</AnimationName>
-	            <StartFrame>13</StartFrame>
-	            <EndFrame>18</EndFrame>
-	            <FrameDuration>0.1667</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.03</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>LEFT-STOP</AnimationName>
-	            <StartFrame>23</StartFrame>
-	            <EndFrame>23</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.03</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>LEFT</AnimationName>
-	            <StartFrame>24</StartFrame>
-	            <EndFrame>29</EndFrame>
-	            <FrameDuration>0.1667</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.03</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>RIGHT-STOP</AnimationName>
-	            <StartFrame>34</StartFrame>
-	            <EndFrame>34</EndFrame>
-	            <FrameDuration>1</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.03</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>RIGHT</AnimationName>
-	            <StartFrame>35</StartFrame>
-	            <EndFrame>40</EndFrame>
-	            <FrameDuration>0.1667</FrameDuration>
+	            <PlayMode>LOOP</PlayMode>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>30</EndFrame>
+	            <FrameDuration>0.03</FrameDuration>
 	        </AnimationDefinition>
 	    </AnimationGroupDefinition>
 	    <AnimationGroupDefinition>
@@ -179,6 +195,7 @@
 	        <Filename>coins.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName></AnimationName>
+	            <PlayMode>LOOP</PlayMode>
 	            <StartFrame>1</StartFrame>
 	            <EndFrame>24</EndFrame>
 	            <FrameDuration>0.04167</FrameDuration>
@@ -191,6 +208,7 @@
 	        <Filename>icons-pow-up.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName></AnimationName>
+	            <PlayMode>LOOP</PlayMode>
 	            <StartFrame>12</StartFrame>
 	            <EndFrame>12</EndFrame>
 	            <FrameDuration>1</FrameDuration>
@@ -203,6 +221,7 @@
 	        <Filename>icons-pow-up.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName></AnimationName>
+	            <PlayMode>LOOP</PlayMode>
 	            <StartFrame>9</StartFrame>
 	            <EndFrame>9</EndFrame>
 	            <FrameDuration>1</FrameDuration>
