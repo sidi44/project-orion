@@ -29,6 +29,8 @@ public class GameState {
 	private Map<PointXY, PreyPowerUp> preyPowerUps;
 	private PathFinder pathFinder;
 	
+	private Map<Agent, Set<PointXY>> partition;
+	
 	/**
 	 * Creates an instance of GameState.
 	 * 
@@ -50,7 +52,12 @@ public class GameState {
 		this.preyPowerUps = preyPowerUps;
 		
 		this.pathFinder = new PathFinder(maze);
-		//this.pathFinder.generateAllPaths();
+		long startTime = System.currentTimeMillis();
+		this.pathFinder.generateAllPaths();
+		long endTime = System.currentTimeMillis();
+		long time = (endTime - startTime) / 1000;
+		System.out.println("Time to generate all paths: " + time + "s");
+		
 	}
 	
 	/**
@@ -349,6 +356,10 @@ public class GameState {
 		return pathFinder.getPath(start, end);
 	}
 	
+	public Path getClosestPath(PointXY start, Set<PointXY> goals) {
+		return pathFinder.getPath(start, goals);
+	}
+	
 	/**
 	 * Get the shortest path to the Pill closest to the given start point in the
 	 * GameState's maze.
@@ -358,7 +369,7 @@ public class GameState {
 	 * GameState's maze.
 	 */
 	public Path getClosestPillPath(PointXY start) {
-		return pathFinder.shortestPath(start, pills);
+		return pathFinder.getPath(start, pills);
 	}
 	
 	/**
@@ -414,5 +425,13 @@ public class GameState {
 		}
 		
 		return null;
+	}
+	
+	public void setPartition(Map<Agent, Set<PointXY>> partition) {
+		this.partition = partition;
+	}
+	
+	public Map<Agent, Set<PointXY>> getPartition() {
+		return partition;
 	}
 }

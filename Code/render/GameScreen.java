@@ -254,6 +254,12 @@ public class GameScreen implements Screen {
 	
 	private void trackPlayer(float factor, boolean jump) {
 		
+		GameState state = gameLogic.getGameState();
+		List<Predator> predators = state.getPredators();
+		if (predators.size() == 0) {
+			return;
+		}
+		
 		Vector2[] mazeBoundaries = getWorldMazeBoundaries();
 		Vector2 mazeLL = mazeBoundaries[0];
 		Vector2 mazeUR = mazeBoundaries[1];
@@ -268,7 +274,7 @@ public class GameScreen implements Screen {
 		float viewportWidthHalf = (camera.viewportWidth / 2);
 		float viewportHeightHalf = (camera.viewportHeight / 2);
 		
-		Predator firstPredator = gameLogic.getGameState().getPredators().get(0);
+		Predator firstPredator = predators.get(0);
 		Vector2 playerVector = physProc.stateToWorld(firstPredator.getPosition());
 		double newX = 0;
 		double newY = 0;

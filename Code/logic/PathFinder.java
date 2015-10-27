@@ -1,6 +1,7 @@
 package logic;
 
 import geometry.PointXY;
+import geometry.PointXYPair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +36,9 @@ public class PathFinder {
 	
 	private Map<PointXY, Set<PointXY>> pathExists;
 	
-	private List<Path> allPaths;
+	private List<Path> paths;
+	
+	private Map<PointXYPair, Path> allPaths;
 	
 	/**
 	 * Constructor for PathFinder.
@@ -49,7 +52,9 @@ public class PathFinder {
 		
 		initialisePathExists();
 		
-		allPaths = new ArrayList<Path>();
+		paths = new ArrayList<Path>();
+		
+		allPaths = new HashMap<PointXYPair, Path>();
 	}
 	
 	/**
@@ -91,7 +96,7 @@ public class PathFinder {
 	 * @param end - the goal point for the shortest path.
 	 * @return the shortest path from the provided start and end points.
 	 */
-	public Path shortestPath(PointXY start, PointXY end) {
+	private Path shortestPath(PointXY start, PointXY end) {
 		reset();
 		
 		Path path = new Path();
@@ -114,7 +119,7 @@ public class PathFinder {
 	 * @return the shortest path from the provided start point to the closest
 	 * point in the set of goal points provided.
 	 */
-	public Path shortestPath(PointXY start, Set<PointXY> goals) {
+	private Path shortestPath(PointXY start, Set<PointXY> goals) {
 		reset();
 		
 		Path path = new Path();
@@ -191,35 +196,72 @@ public class PathFinder {
 			while (!allPathsExist(point)) {
 				Path p = findNewPath(point);
 				if (!p.empty()) {
-					addToPathExists(p);
-					allPaths.add(p);
+					//addToPathExists(p);
+					addToAllPaths(p);
+					//paths.add(p);
 				}
 			}
 		}
 		
-//		if (allPathsExist()) {
-//			System.out.println("All paths exist!");
-//		} else {
-//			System.out.println("Not all paths exist!");
-//		}
+		if (allPathsExist()) {
+			System.out.println("All paths exist!");
+		} else {
+			System.out.println("Not all paths exist!");
+		}
 		
 	}
 	
-	/**
-	 * Populates the pathExists field variable with information in the given 
-	 * Path. (i.e. every pair of points in the given Path is added to the 
-	 * pathExists map).
-	 * 
-	 * @param path
-	 */
-	private void addToPathExists(Path path) {
+//	/**
+//	 * Populates the pathExists field variable with information in the given 
+//	 * Path. (i.e. every pair of points in the given Path is added to the 
+//	 * pathExists map).
+//	 * 
+//	 * @param path
+//	 */
+//	private void addToPathExists(Path path) {
+//		
+//		List<PointXY> pathNodes = path.getPathNodes();
+//		
+//		for (int i = 0; i < pathNodes.size(); ++i) {
+//			Set<PointXY> pathToNodes = pathExists.get(pathNodes.get(i));
+//			for (int j = i + 1; j < pathNodes.size(); ++j) {
+//				pathToNodes.add(pathNodes.get(j));
+//			}
+//		}
+//		
+//	}
+	
+	private void addToAllPaths(Path path) {
 		
 		List<PointXY> pathNodes = path.getPathNodes();
-		
+
+		// Find the sub path between each pair of nodes and add it to allPaths
 		for (int i = 0; i < pathNodes.size(); ++i) {
 			Set<PointXY> pathToNodes = pathExists.get(pathNodes.get(i));
-			for (int j = i + 1; j < pathNodes.size(); ++j) {
-				pathToNodes.add(pathNodes.get(j));
+			for (int j = i; j < pathNodes.size(); ++j) {
+				
+				// Find the sub path
+				PointXY start = pathNodes.get(i);
+				PointXY end = pathNodes.get(j);
+				Path subPath = path.subPath(start, end);
+				
+				// Add the sub path to allPaths if there is not one already
+				PointXYPair pair = new PointXYPair(start, end);
+				if (!allPaths.containsKey(pair)) {
+					allPaths.put(pair, subPath);
+					pathToNodes.add(end);
+				}
+				
+				// Also store the reverse path
+				Set<PointXY> pathToNodesJ = pathExists.get(pathNodes.get(j));
+				Path reverseSubPath = new Path(subPath);
+				reverseSubPath.reversePath();
+				
+				PointXYPair reversePair = new PointXYPair(end, start);
+				if (!allPaths.containsKey(reversePair)) {
+					allPaths.put(reversePair, reverseSubPath);
+					pathToNodesJ.add(start);
+				}				
 			}
 		}
 		
@@ -231,7 +273,7 @@ public class PathFinder {
 	 * @return true if a path exists between every pair of points in the maze,
 	 * false otherwise.
 	 */
-	@SuppressWarnings("unused")
+//	@SuppressWarnings("unused")
 	private boolean allPathsExist() {
 		
 		Set<PointXY> points = pathExists.keySet();
@@ -255,7 +297,7 @@ public class PathFinder {
 		int numNodes = maze.getNodes().size();
 		
 		Set<PointXY> pathsToNode = pathExists.get(point);
-		if (pathsToNode.size() < numNodes) {
+		if (pathsToNode.size() != numNodes) {
 			return false;
 		}
 		
@@ -330,12 +372,14 @@ public class PathFinder {
 		Path path = new Path();
 		
 		if (!allPaths.isEmpty()) {
-			for (Path p : allPaths) {
-				if (p.contains(start) && p.contains(end)) {
-					path = p.subPath(start, end);
-					break;
-				}
-			}
+			PointXYPair pair = new PointXYPair(start, end);
+			path = allPaths.get(pair);
+//			for (Path p : paths) {
+//				if (p.contains(start) && p.contains(end)) {
+//					path = p.subPath(start, end);
+//					break;
+//				}
+//			}
 		} else {
 			path = shortestPath(start, end);
 		}
@@ -343,4 +387,30 @@ public class PathFinder {
 		return path;
 	}
 	
+	public Path getPath(PointXY start, Set<PointXY> goals) {
+		
+		Path path = new Path();
+		
+		if (!allPaths.isEmpty()) {
+			int shortestPath = Integer.MAX_VALUE;
+			
+			for (PointXY goal : goals) {
+				PointXYPair pair = new PointXYPair(start, goal);
+				Path p = allPaths.get(pair);
+				int length = p.getLength();
+				if (length < shortestPath) {
+					path = p;
+					shortestPath = length;
+				}
+			}
+			
+		} else {
+			shortestPath(start, goals);
+		}
+		
+		return path;
+	}
+	
 } 
+
+

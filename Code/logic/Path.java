@@ -32,6 +32,14 @@ public class Path {
 		points = new HashSet<PointXY>();
 	}
 	
+	public Path(Path p) {
+		path = new ArrayList<PointXY>();
+		points = new HashSet<PointXY>();
+		
+		path.addAll(p.path);
+		points.addAll(p.points);
+	}
+	
 	/**
 	 * Add the given point to the end of the Path.
 	 * 

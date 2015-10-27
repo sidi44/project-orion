@@ -67,6 +67,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	private final short CATEGORY_PILL = 0x0008;
 	private final short CATEGORY_POWERUP_PREDATOR = 0x0016;
 	private final short CATEGORY_POWERUP_PREY = 0x0032;
+	private final short CATEGORY_DEBUG = 0x0064;
 	
 	// Masks are used in collision filtering. Define which physics bodies 
 	// collide. E.g. Predators will collide with walls and prey, but not other 
@@ -79,6 +80,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	private final short MASK_POWERUP_PREDATOR = CATEGORY_WALL | 
 			CATEGORY_PREDATOR;
 	private final short MASK_POWERUP_PREY = CATEGORY_WALL | CATEGORY_PREY;
+	private final short MASK_DEBUG = CATEGORY_WALL;
 	
 	// This determines how much of a square from each of its borders is
 	// considered as a 'transition zone'. If the centre of an agent is in this
@@ -162,6 +164,9 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		for (PointXY pos : preyPowerUps.keySet()) {
 			createPreyPowerUp(preyPowerUps.get(pos), pos);
 		}
+		
+		// Create the debugging partitioned maze info
+		createPartition(keys);
 	}
 	
 	/**
@@ -462,6 +467,8 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		for (Body b : bodies) {
 			processPowerUps(b, state);
 		}
+		
+		processPartition(state);
 	}
 
 	@Override
@@ -848,4 +855,80 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 	}
 	
+	private void createPartition(Set<PointXY> mazeNodes) {
+		
+		for (PointXY pos : mazeNodes) {
+			// Create the node body and add it to the world at the given location.
+			Body debugBody;
+			
+			BodyDef bodyDef = new BodyDef();
+			bodyDef.type = BodyType.StaticBody;
+			
+			Vector2 worldPos = stateToWorld(pos);
+			bodyDef.position.set(worldPos);
+			
+			debugBody = world.createBody(bodyDef);
+			
+			// Add the user data which tells us this body is of type Walls.
+			PhysicsData data = new PhysicsDataDebug(PhysicsBodyType.Debug);
+			debugBody.setUserData(data);
+			
+			FixtureDef fixtureDef = new FixtureDef();
+			
+			PolygonShape rect = new PolygonShape();
+			float hx = squareSize * 0.1f;
+			float hy = hx;
+			rect.setAsBox(hx, hy, new Vector2(0, 0), 0);
+			
+			fixtureDef.shape = rect;
+			fixtureDef.filter.categoryBits = CATEGORY_DEBUG;
+			fixtureDef.filter.maskBits = MASK_DEBUG;
+			
+			debugBody.createFixture(fixtureDef);
+		}
+		
+	}
+	
+	private void processPartition(GameState state) {
+		
+		Map<Agent, Set<PointXY>> partition = state.getPartition();
+		
+		Set<Agent> agents = partition.keySet();
+		int numAgents = agents.size();
+		
+		for (Agent agent : agents) {
+			
+			Set<PointXY> agentPoints = partition.get(agent);
+			
+			for (PointXY pos : agentPoints) {
+				Body body = findPartitionBody(pos);
+				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
+				data.setAgentID(agent.getID());
+				data.setNumAgents(numAgents);
+			}
+			
+		}
+	}
+	
+	private Body findPartitionBody(PointXY pos) {
+		
+		Vector2 worldPos = stateToWorld(pos);
+		
+		Body body = null;
+		
+		Array<Body> bodies = new Array<Body>();
+		world.getBodies(bodies);
+		
+		for (Body b : bodies) {
+			PhysicsData data = (PhysicsData) b.getUserData();
+			if (data.getType() == PhysicsBodyType.Debug) {
+				Vector2 bodyPos = b.getPosition();
+				if (bodyPos.equals(worldPos)) {
+					return b;
+				}
+			}
+		}
+		
+		return body;
+	}
 }
