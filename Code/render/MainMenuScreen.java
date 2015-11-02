@@ -21,7 +21,7 @@ public class MainMenuScreen implements Screen {
 		this.game = game;
 		
 		stage = new Stage();
-		game.addInputProcessor(stage);
+		game.addInputProcessor("MAIN_MENU",stage);
 		
 		batch = new SpriteBatch();
 		screenTexture = new Texture(Gdx.files.internal("menu_screen.png"));
@@ -34,13 +34,15 @@ public class MainMenuScreen implements Screen {
 		// Game button
 		Button gameButton = game.createButton("button_game.png",
 										 "button_game_highlight.png",
+										 "MAIN_MENU",
 										 "GAME",
-										 500, 400);
+										 540, 430);
 		
 		Button settingsButton = game.createButton("button_settings.png",
 								  		 	 "button_settings_highlight.png",
-										 	 "SETTINGS",
-										 	 50, 400);
+								  		 	 "MAIN_MENU",
+								  		 	 "SETTINGS",
+										 	 0, 430);
 		
 		stage.addActor(gameButton);
 		stage.addActor(settingsButton);

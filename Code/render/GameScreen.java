@@ -18,6 +18,7 @@ import logic.Prey;
 import physics.PhysicsProcessor;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -37,6 +38,7 @@ public class GameScreen implements Screen {
 	private GameLogic gameLogic;
 	private final Renderer renderer;
 	private PhysicsProcessor physProc;
+	private final InputMultiplexer inputMultiplexer;
 	private final UserInputProcessor inputProc;
 	private Stage gameStage;
 
@@ -52,17 +54,19 @@ public class GameScreen implements Screen {
 	
 	public GameScreen(PredatorPreyGame game) {
 		this.game = game;
-		this.world = game.getWorld();
-		this.renderer = game.getRenderer();
-		this.gameLogic = game.getGameLogic();
-		this.physProc = game.getPhysicsProcessor();
+		world = game.getWorld();
+		renderer = game.getRenderer();
+		gameLogic = game.getGameLogic();
+		physProc = game.getPhysicsProcessor();
 		
 //		this.startTime = System.nanoTime() / nanoToSeconds;
 //		this.timeLimit = 200; // seconds.
 		
 		// Process gameplay inputs
-		this.inputProc = new UserInputProcessor();
-		game.addInputProcessor(inputProc);
+		inputMultiplexer = new InputMultiplexer();
+		inputProc = new UserInputProcessor();
+		inputMultiplexer.addProcessor(inputProc);
+		game.addInputProcessor("GAME", inputMultiplexer);
 		
 		// TODO this should be reworked and moved into a separate class.
 		setupStage();
@@ -82,12 +86,13 @@ public class GameScreen implements Screen {
 		
 		// Game panel (UI) inputs
 		gameStage = new Stage();
-		game.addInputProcessor(gameStage);
+		inputMultiplexer.addProcessor(gameStage);
 
 		Button menuButton = game.createButton("button_menu.png",
 											  "button_menu_highlight.png",
+											  "GAME",
 											  "MAIN_MENU",
-											  400, 400);
+											  540, 430);
 		gameStage.addActor(menuButton);
 	}
 	
@@ -125,7 +130,7 @@ public class GameScreen implements Screen {
 //		setViewportJump(5);
 		setViewport(12, 0.5f);
 		trackPlayer(1.4f, false);
-		
+//		camera.update();
 		checkForGameOver();
 	}
 	

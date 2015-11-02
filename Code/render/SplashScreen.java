@@ -15,7 +15,7 @@ public class SplashScreen implements Screen {
 	private SpriteBatch batch;
 	private Texture screenTexture;
 	private long startTime;
-	private final long displayTime = 2000000000l; // 2 seconds;
+	private final long displayTime = 1000000000l; // 1 second;
 	
 	public SplashScreen(PredatorPreyGame game) {
 		this.game = game;

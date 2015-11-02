@@ -8,14 +8,14 @@
             </XmlPoint>
             <XmlPoint>
                 <X>0</X>
-                <Y>8</Y>
+                <Y>10</Y>
             </XmlPoint>
             <XmlPoint>
-                <X>8</X>
-                <Y>8</Y>
+                <X>10</X>
+                <Y>10</Y>
             </XmlPoint>
 			<XmlPoint>
-                <X>8</X>
+                <X>10</X>
                 <Y>0</Y>
             </XmlPoint>
         </PolygonShape>
@@ -99,9 +99,9 @@
 	</PhysicsConfiguration>
 	<RendererConfiguration>
 	    <AllowRotations>true</AllowRotations>
-	    <WallTextureFilename>wall.png</WallTextureFilename>
+	    <WallTextureFilename>test_texture.png</WallTextureFilename>
 	    <WallTextureScale>1.0</WallTextureScale>
-	    <BackgroundFilename>background_1.png</BackgroundFilename>
+	    <BackgroundFilename>background_tiles_blue.png</BackgroundFilename>
 	    <AnimationGroupDefinition>
 	        <AnimationGroupName>Predator</AnimationGroupName>
 	        <Rows>1</Rows>

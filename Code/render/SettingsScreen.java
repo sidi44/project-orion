@@ -25,10 +25,11 @@ public class SettingsScreen implements Screen {
 		
 		Button menuButton = game.createButton("button_menu.png",
 											  "button_menu_highlight.png",
+											  "SETTINGS",
 											  "MAIN_MENU",
-											  500, 100);
+											  540, 430);
 		stage = new Stage();
-		game.addInputProcessor(stage);
+		game.addInputProcessor("SETTINGS", stage);
 		stage.addActor(menuButton);
 	}
 	
