@@ -355,7 +355,9 @@ public class Renderer {
 //			int numAgents = debugData.getNumAgents();
 			
 			Color colour = new Color();
-			if (agentID == 2) {
+			if (agentID == 1) {
+				colour = Color.CYAN;
+			} if (agentID == 2) {
 				colour = Color.RED;
 			} else if (agentID == 3) {
 				colour = Color.BLUE;

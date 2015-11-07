@@ -30,6 +30,7 @@ public class GameState {
 	private PathFinder pathFinder;
 	
 	private Map<Agent, Set<PointXY>> partition;
+	private Map<Agent, Set<PointXY>> saferPositions;
 	
 	/**
 	 * Creates an instance of GameState.
@@ -433,5 +434,13 @@ public class GameState {
 	
 	public Map<Agent, Set<PointXY>> getPartition() {
 		return partition;
+	}
+
+	public Map<Agent, Set<PointXY>> getSaferPositions() {
+		return saferPositions;
+	}
+
+	public void setSaferPositions(Map<Agent, Set<PointXY>> saferPositions) {
+		this.saferPositions = saferPositions;
 	}
 }

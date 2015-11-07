@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import utils.NumberUtils;
 import logic.Agent;
 import logic.Direction;
 import logic.GameState;
@@ -26,15 +27,23 @@ public class AILogicPartition implements AILogic {
 	private int runFromPredDist = 5;
 	private Map<Direction, Direction[]> runDirections;
 	
+	private Map<Agent, Set<PointXY>> saferPositions;
+	
 	public AILogicPartition() {
 		this.partition = new HashMap<Agent, Set<PointXY>>();
 		this.targets = new HashMap<Agent, PointXY>();
+		
+		this.saferPositions = new HashMap<Agent, Set<PointXY>>();
 		
 		initialiseRunDirections();
 	}
 	
 	public Map<Agent, Set<PointXY>> getPartition() {
 		return partition;
+	}
+	
+	public Map<Agent, Set<PointXY>> getSaferPositions() {
+		return saferPositions;
 	}
 	
 	private void initialiseRunDirections() {
@@ -79,6 +88,7 @@ public class AILogicPartition implements AILogic {
 		}
 		
 		state.setPartition(partition);
+		state.setSaferPositions(saferPositions);
 	}
 	
 	
@@ -154,11 +164,13 @@ public class AILogicPartition implements AILogic {
 		// Is the predator too close? If so, run away!
 		if (!closestPredatorPath.empty() &&  
 					closestPredatorPath.getLength() <= runFromPredDist) {
-					
-			Maze maze = state.getMaze();
-			setNextMoveAvoidPredator(agent, closestPredatorPath, maze);
+			
+			setNextMoveAvoidPredator(agent, state);
 			return;
 		}
+		
+		Set<PointXY> empty = new HashSet<PointXY>();
+		saferPositions.put(agent, empty);
 		
 		// If the predator isn't close, let's go to the nearest pill in this
 		// prey's partition.
@@ -241,26 +253,201 @@ public class AILogicPartition implements AILogic {
 		return closestPredPath;
 	}
 	
-	private void setNextMoveAvoidPredator(Agent agent, Path closestPredatorPath,
-			Maze maze) {
+	private void setNextMoveAvoidPredator(Agent agent, GameState state) {
 		
-		List<PointXY> path = closestPredatorPath.getPathNodes();
+		PointXY agentPos = agent.getPosition();
 		
-		// If the Predator is in our square or the path is empty, we are 
-		// essentially caught so just continue what we were doing for the last
-		// few moments.
-		if (path.size() <= 1) {
+		// Find the distance to all the predators within the run from predator
+		// distance.
+		Map<Predator, Integer> predatorDist = findClosePredators(agent, state);
+		if (predatorDist.size() == 0) {
+			// This method should only be called when at least one predator is
+			// close by - something's gone wrong.
 			return;
 		}
 		
-		// Use the first couple of points on the path to work out from which 
-		// direction the Predator is coming.
-		PointXY pos1 = path.get(0);
-		PointXY pos2 = path.get(1);
-		Direction runFromDir = getDirection(pos1, pos2);
+		PointXY target = targets.get(agent);
+		boolean reevaluatePath = true;
+		if (target != null) {
+			// Check whether the current target is still reasonable (i.e. if the
+			// predator has moved onto or close to the target path, we should 
+			// find a new path.)
+			Path targetPath = state.getPath(agentPos, target);
+			if (pathTooCloseToPredators(targetPath, predatorDist, state)) {
+				reevaluatePath = true;
+			}
+		} 
 		
-		Direction dir = getPreferredMoveDirection(pos1, runFromDir, maze);
-		agent.setNextMoveDirection(dir);
+		// The current target node is ok, so set the move using that.
+		if (!reevaluatePath) {
+			setMoveFromTarget(agent, state);
+			return;
+		}
+		
+		// Either the current target now involves going too close to a predator
+		// or no target exists yet. Either way, we should find a new target.
+		
+		// The list of positions in the maze which we can get too without 
+		// getting any closer to the nearby predators.
+		List<PointXY> saferPositions = findSaferPositions(agentPos, state, predatorDist);
+			
+		// Add the data to the member variable (currently only used for 
+		// debugging).
+		Set<PointXY> safe = new HashSet<PointXY>();
+		safe.addAll(saferPositions);
+		this.saferPositions.put(agent, safe);
+		
+		if (saferPositions.size() == 0) {
+			// We're in the safest possible position...for now!
+			agent.setNextMoveDirection(Direction.None);
+			return;
+		}
+		
+		// Find a new target
+		Set<Predator> closePredators = predatorDist.keySet();
+		findNewTarget(agent, state, saferPositions, closePredators);
+		
+		// Set the move using the target
+		setMoveFromTarget(agent, state);
+		
+		
+		
+//		List<PointXY> path = closestPredatorPath.getPathNodes();
+//		
+//		// If the Predator is in our square or the path is empty, we are 
+//		// essentially caught so just continue what we were doing for the last
+//		// few moments.
+//		if (path.size() <= 1) {
+//			return;
+//		}
+//		
+//		// Use the first couple of points on the path to work out from which 
+//		// direction the Predator is coming.
+//		PointXY pos1 = path.get(0);
+//		PointXY pos2 = path.get(1);
+//		Direction runFromDir = getDirection(pos1, pos2);
+//		
+//		Direction dir = getPreferredMoveDirection(pos1, runFromDir, maze);
+//		agent.setNextMoveDirection(dir);
+	}
+	
+	private Map<Predator, Integer> findClosePredators(Agent agent, GameState state) {
+		
+		PointXY agentPos = agent.getPosition();
+		
+		List<Predator> allPredators = state.getPredators();
+		Map<Predator, Integer> predatorDist = new HashMap<Predator, Integer>();
+		
+		for (Predator predator : allPredators) {
+			PointXY predatorPos = predator.getPosition();
+			Path path = state.getPath(agentPos, predatorPos);
+			Integer length = path.getLength();
+			if (length <= runFromPredDist) {
+				predatorDist.put(predator, length);
+			}
+		}
+		
+		return predatorDist;
+	}
+	
+	private void setMoveFromTarget(Agent agent, GameState state) {
+		
+		PointXY agentPos = agent.getPosition();
+		
+		PointXY target = targets.get(agent);
+		
+		Path targetPath = state.getPath(agentPos, target);
+		// Use the targetPath to get the direction in which to travel.
+		if (!setDirectionFromPath(agent, targetPath)) {
+			targets.remove(agent);
+		}
+	}
+	
+	private boolean pathTooCloseToPredators(Path path, 
+			Map<Predator, Integer> predatorDist, GameState state) {
+		
+		Set<Predator> closePredators = predatorDist.keySet();
+		List<PointXY> pathNodes = path.getPathNodes();
+		PointXY startPos = pathNodes.get(0);
+		
+		boolean tooClose = false;
+		for (Predator predator : closePredators) {
+			PointXY predatorPos = predator.getPosition();
+			for (PointXY pathNode : pathNodes) {
+				if (pathNode.equals(startPos)) {
+					continue;
+				}
+				int dist = state.getPath(pathNode, predatorPos).getLength();
+				int currentDist = predatorDist.get(predator);
+				if (dist <= currentDist) {
+					tooClose = true;
+					break;
+				}
+			}
+			if (tooClose) {
+				break;
+			}
+		}
+		
+		return tooClose;
+	}
+	
+	private List<PointXY> findSaferPositions(PointXY agentPos, GameState state, 
+			Map<Predator, Integer> predatorDist) {
+		
+		List<PointXY> saferPositions = new ArrayList<PointXY>();
+		
+		Maze maze = state.getMaze();
+		Set<PointXY> allPositions = maze.getNodes().keySet();
+		
+		for (PointXY pos : allPositions) {
+			Path path = state.getPath(agentPos, pos);
+			
+			boolean tooClose = pathTooCloseToPredators(path, predatorDist, state);
+			if (!tooClose) {
+				saferPositions.add(pos);
+			}
+		}
+		
+		return saferPositions;
+	}
+	
+	private void findNewTarget(Agent agent, GameState state, 
+			List<PointXY> saferPositions, Set<Predator> closePredators) {
+		
+		List<PointXY> pickFromPositions = new ArrayList<PointXY>();
+		
+		Set<PointXY> pills = state.getPills();
+		for (PointXY safePos : saferPositions) {
+			if (pills.contains(safePos)) {
+				pickFromPositions.add(safePos);
+			}
+		}
+		
+		if (pickFromPositions.size() == 0) {
+			pickFromPositions.addAll(saferPositions);
+		}
+		
+		int furthestDist = -1;
+		for (int i = 0; i < 1; ++i) {
+			// Pick a random point from the list of safer positions
+			int index = NumberUtils.randomInt(0, pickFromPositions.size() - 1);
+			PointXY newPos = pickFromPositions.get(index);
+			int closestPredatorDist = Integer.MAX_VALUE;
+			for (Predator predator : closePredators) {
+				PointXY predatorPos = predator.getPosition();
+				Path path = state.getPath(predatorPos, newPos);
+				int pathLength = path.getLength();
+				if (pathLength < closestPredatorDist) {
+					closestPredatorDist = pathLength;
+				}
+			}
+			if (closestPredatorDist > furthestDist) {
+				furthestDist = closestPredatorDist;
+				targets.put(agent, newPos);
+			}
+		}
+		
 	}
 	
 	private Direction getPreferredMoveDirection(PointXY pos, 

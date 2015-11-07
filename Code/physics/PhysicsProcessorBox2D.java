@@ -2,6 +2,7 @@ package physics;
 
 import geometry.PointXY;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -468,7 +469,8 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 			processPowerUps(b, state);
 		}
 		
-		processPartition(state);
+//		processPartition(state);
+		processSaferPositions(state);
 	}
 
 	@Override
@@ -930,5 +932,49 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		}
 		
 		return body;
+	}
+	
+	private void processSaferPositions(GameState state) {
+		
+		Map<Agent, Set<PointXY>> saferPositions = state.getSaferPositions();
+		if (saferPositions == null) {
+			return;
+		}
+		
+		Set<Agent> agents = saferPositions.keySet();
+		int numAgents = agents.size();
+		
+		Set<PointXY> positionsProcessed = new HashSet<PointXY>();
+		
+		for (Agent agent : agents) {
+			
+			Agent check = state.getAgent(agent.getID());
+			if (check == null) {
+				continue;
+			}
+			
+			Set<PointXY> agentPoints = saferPositions.get(agent);
+			
+			for (PointXY pos : agentPoints) {
+				Body body = findPartitionBody(pos);
+				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
+				data.setAgentID(agent.getID());
+				data.setNumAgents(numAgents);
+				positionsProcessed.add(pos);
+			}
+			
+		}
+		
+		Set<PointXY> allPositions = state.getMaze().getNodes().keySet();
+		
+		for (PointXY pos : allPositions) {
+			if (!positionsProcessed.contains(pos)) {
+				Body body = findPartitionBody(pos);
+				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
+				data.setAgentID(-1);
+				data.setNumAgents(numAgents);				
+			}
+		}
+		
 	}
 }
