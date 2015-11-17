@@ -8,14 +8,14 @@
             </XmlPoint>
             <XmlPoint>
                 <X>0</X>
-                <Y>8</Y>
+                <Y>9</Y>
             </XmlPoint>
             <XmlPoint>
-                <X>8</X>
-                <Y>8</Y>
+                <X>9</X>
+                <Y>9</Y>
             </XmlPoint>
 			<XmlPoint>
-                <X>8</X>
+                <X>9</X>
                 <Y>0</Y>
             </XmlPoint>
         </PolygonShape>
@@ -30,7 +30,7 @@
             <NumPredator>1</NumPredator>
             <NumPredatorPlayer>1</NumPredatorPlayer>
             <MaxPredatorPowerUp>5</MaxPredatorPowerUp>
-            <NumPrey>4</NumPrey>
+            <NumPrey>3</NumPrey>
             <NumPreyPlayer>0</NumPreyPlayer>
             <MaxPreyPowerUp>5</MaxPreyPowerUp>
         </AgentConfiguration>
@@ -90,7 +90,7 @@
         </PowerUpConfiguration>
     </GameConfiguration>
 	<PhysicsConfiguration>
-    	<SquareSize>10</SquareSize>
+    	<SquareSize>8</SquareSize>
 		<WallWidthRatio>0.1</WallWidthRatio>
 		<PillRadiusRatio>0.2</PillRadiusRatio>
 		<PowerUpRadiusRatio>0.5</PowerUpRadiusRatio>
