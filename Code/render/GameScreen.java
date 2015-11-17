@@ -39,9 +39,6 @@ public class GameScreen implements Screen {
 	private PhysicsProcessor physProc;
 	private final UserInputProcessor inputProc;
 	private Stage gameStage;
-
-	private final float dt = 1.0f / 60.0f;
-	private float accumulator;
 	
 	// Gameplay fields
 //	private final static long nanoToSeconds = 1000000000;
@@ -72,8 +69,6 @@ public class GameScreen implements Screen {
 		setInitialViewport(1.5f);
 //		trackPlayer(1.4f, false);
 		
-		accumulator = 0;
-		
 		numSimSteps = 0;
 		maxSimSteps = 5000;
 	}
@@ -103,24 +98,8 @@ public class GameScreen implements Screen {
 		inputProc.processCameraInputs(camera);
 
 		GameState state = gameLogic.getGameState();
-		physProc.preStep(state);
 		
-		// Grab the time difference. Limit the maximum amount of time we can 
-		// progress the physics simulation for a given render frame.
-		delta = (float) Math.min(delta, 0.25);
-		
-		// Add this frame's time to the accumulator.
-		accumulator += delta;
-		
-		// Step the simulation at the given fixed rate for as many times as 
-		// required. Any left over time is passed over to the next frame.
-		while (accumulator >= dt) {
-			physProc.stepSimulation(dt);
-			accumulator -= dt;
-			++numSimSteps;
-		}
-
-		physProc.postStep(state);
+		numSimSteps += physProc.stepSimulation(delta, state);
 		
 //		setViewportJump(5);
 		setViewport(12, 0.5f);
@@ -394,6 +373,7 @@ public class GameScreen implements Screen {
 	
 	public void resetGame() {
 		numSimSteps = 0;
+		inputProc.reset();
 		game.resetGame();
 	}
 	

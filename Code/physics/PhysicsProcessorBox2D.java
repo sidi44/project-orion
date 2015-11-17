@@ -2,7 +2,6 @@ package physics;
 
 import geometry.PointXY;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -88,6 +87,10 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	// zone it is flagged as 'inTransition' (i.e. moving between maze squares).
 	private float transZone = 0.4f;
 	
+	// Physics simulation step variables
+	private final float dt = 1.0f / 60.0f;
+	private float accumulator;
+	
 	/**
 	 * Constructor for PhysicsProcessorBox2D.
 	 * 
@@ -118,6 +121,8 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		this.world.setContactListener(contact);
 		
 		this.powerUpProc = new PowerUpProcessor(world, this);
+		
+		this.accumulator = 0;
 	}
 	
 	/**
@@ -450,8 +455,14 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		powerUpBody.setUserData(data);
 	}
 	
-	@Override
-	public void preStep(GameState state) {
+	/**
+	 * Carry out any work that needs to be done immediately BEFORE the 
+	 * simulation is stepped. This includes extracting the game state data and
+	 * applying it to the world (e.g. each Agent's next move).
+	 * 
+	 * @param state - a snapshot of the current game data.
+	 */
+	private void preStep(GameState state) {
 
 		List<Predator> predators = state.getPredators();
 		List<Prey> prey = state.getPrey();
@@ -460,7 +471,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		world.getBodies(bodies);
 		
 		for (Body b : bodies) {
-			preStepProcess(b, predators, prey);
+			preStepProcess(b, predators, prey, state.getMaze());
 		}
 		
 		// The power ups are processed after each of the agent's moves have 
@@ -469,12 +480,18 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 			processPowerUps(b, state);
 		}
 		
-//		processPartition(state);
-		processSaferPositions(state);
+		processPartition(state);
+//		processSaferPositions(state);
 	}
 
-	@Override
-	public void postStep(GameState state) {
+	/**
+	 * Carry out any work that needs to be done immediately AFTER the simulation 
+	 * is stepped. This involves updating the game state with the 
+	 * post-simulation data (e.g. new positions of each Agent).
+	 * 
+	 * @param state - a snapshot of the current game data.
+	 */
+	private void postStep(GameState state) {
 		
 		Array<Body> bodies = new Array<Body>();
 		world.getBodies(bodies);
@@ -488,11 +505,31 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	}
 
 	@Override
-	public void stepSimulation(float timestep) {
+	public int stepSimulation(float timestep, GameState state) {
 		
-		// Run the simulation for one timestep.
-		world.step(timestep, 8, 3);
+		// Grab the time difference. Limit the maximum amount of time we can 
+		// progress the physics simulation for a given render frame.
+		float delta = (float) Math.min(timestep, 0.25);
 		
+		// Add this frame's time to the accumulator.
+		accumulator += delta;
+		
+		int numSimSteps = 0;
+		
+		// Step the simulation at the given fixed rate for as many times as 
+		// required. Any left over time is passed over to the next frame.
+		while (accumulator >= dt) {
+			
+			// Run the simulation for one timestep.
+			preStep(state);		
+			world.step(dt, 8, 3);			
+			postStep(state);
+			
+			accumulator -= dt;
+			++numSimSteps;
+		}
+		
+		return numSimSteps;
 	}
 	
 	/**
@@ -507,7 +544,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	 * @param prey - the list of prey for the current game state.
 	 */
 	private void preStepProcess(Body body, List<Predator> predators, 
-			List<Prey> prey) {
+			List<Prey> prey, Maze maze) {
 		
 		PhysicsData data = (PhysicsData) body.getUserData();
 		PhysicsBodyType type = data.getType();
@@ -520,11 +557,11 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 				return;
 		
 			case Prey:
-				processAgent(body, prey, preySpeed);
+				processAgent(body, prey, preySpeed, maze);
 				break;
 				
 			case Predator:
-				processAgent(body, predators, predatorSpeed);
+				processAgent(body, predators, predatorSpeed, maze);
 				break;
 			
 			default:
@@ -543,22 +580,69 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	 * the body.
 	 */
 	private void processAgent(Body body, List<? extends Agent> agents, 
-			float speed) {
+			float speed, Maze maze) {
 		
 		Agent agent = findAgent(body, agents);
 		
 		if (agent != null) {
 			PhysicsDataAgent data = (PhysicsDataAgent) body.getUserData();
 			
+			Vector2 bodyWorldPos = body.getPosition();
+			long xd = Math.round(bodyWorldPos.x);
+			long yd = Math.round(bodyWorldPos.y);
+			if (Math.abs(bodyWorldPos.x - xd) < 0.0001 &&
+				Math.abs(bodyWorldPos.y - yd) < 0.0001) {
+				body.setTransform((float) xd, (float) yd, 0);
+				bodyWorldPos = body.getPosition();
+			}
+			
 			Move move = agent.getNextMove();
 			Vector2 velocity = body.getLinearVelocity();
-			updateVelocity(velocity, move, speed);
-			body.setLinearVelocity(velocity);
 			
-			if (data.getCurrentMove() != Direction.None) {
-				data.setPreviousMove(data.getCurrentMove());
+			if (moveValid(move, body, maze)) {
+				
+				updateVelocity(velocity, move, speed);
+				body.setLinearVelocity(velocity);
+				
+				if (data.getCurrentMove() != Direction.None) {
+					data.setPreviousMove(data.getCurrentMove());
+				}
+				data.setCurrentMove(move.getDirection());
 			}
-			data.setCurrentMove(move.getDirection());
+			
+			PointXY bodyStatePos = worldToState(bodyWorldPos);
+			Vector2 squareWorldPos = stateToWorld(bodyStatePos);
+			if (bodyWorldPos.equals(squareWorldPos)) {
+				Direction dir = getDirectionFromVelocity(body.getLinearVelocity());
+				MazeNode node = maze.getNode(bodyStatePos);
+				
+				int targetX = bodyStatePos.getX();
+				int targetY = bodyStatePos.getY();
+				
+				switch (dir) {
+					case Down:
+						--targetY;
+						break;
+					case Left:
+						--targetX;
+						break;
+					case Right:
+						++targetX;
+						break;
+					case Up:
+						++targetY;
+						break;
+					case None:
+						break;
+					default:
+						break;
+				}
+				PointXY targetPos = new PointXY(targetX, targetY);
+				if (!node.isNeighbour(targetPos)) {
+					body.setLinearVelocity(new Vector2(0, 0));
+				}
+			}
+
 		}
 	}
 	
@@ -584,6 +668,120 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 		return null;
 	}
+	
+	private boolean moveValid(Move move, Body body, Maze maze) {
+		
+		Direction moveDir = move.getDirection();
+		Direction dir = getDirectionToNearestCentre(body, maze);
+		if (dir == Direction.None) {
+			
+			Vector2 bodyWorldPos = body.getPosition();
+			PointXY bodyStatePos = worldToState(bodyWorldPos);
+			MazeNode node = maze.getNode(bodyStatePos);
+			
+			int targetX = bodyStatePos.getX();
+			int targetY = bodyStatePos.getY();
+			
+			switch (moveDir) {
+				case Down:
+					--targetY;
+					break;
+				case Left:
+					--targetX;
+					break;
+				case Right:
+					++targetX;
+					break;
+				case Up:
+					++targetY;
+					break;
+				case None:
+					break;
+				default:
+					break;
+			}
+			PointXY targetPos = new PointXY(targetX, targetY);
+			if (node.isNeighbour(targetPos)) {
+				return true;
+			} else {
+				return false;
+			}
+			
+		} else {
+			if (dir == Direction.Left || dir == Direction.Right) {
+				if (moveDir == Direction.Left || moveDir == Direction.Right) {
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				if (moveDir == Direction.Up || moveDir == Direction.Down) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		
+	}
+
+	private Direction getDirectionToNearestCentre(Body body, Maze maze) {
+		
+		Vector2 bodyWorldPos = body.getPosition();
+		PointXY bodyStatePos = worldToState(bodyWorldPos);
+		Vector2 squareWorldPos = stateToWorld(bodyStatePos);
+		
+		if (bodyWorldPos.equals(squareWorldPos)) {
+			// The body is at a square centre
+			return Direction.None;
+		}
+		
+		float xDiff = bodyWorldPos.x - squareWorldPos.x;
+		float yDiff = bodyWorldPos.y - squareWorldPos.y;
+		
+		if (Math.abs(xDiff) > Math.abs(yDiff)) {
+			if (xDiff > 0) {
+				return Direction.Left;
+			} else {
+				return Direction.Right;
+			}
+		} else {
+			if (yDiff > 0) {
+				return Direction.Down;
+			} else {
+				return Direction.Up;
+			}
+		}
+	}
+	
+	private Direction getDirectionFromVelocity(Vector2 velocity) {
+		
+		if (velocity.x == 0 && velocity.y == 0) {
+			return Direction.None;
+		}
+		
+		if (Math.abs(velocity.x) > Math.abs(velocity.y)) {
+			 if (velocity.x > 0) {
+				 return Direction.Right;
+			 } else {
+				 return Direction.Left;
+			 }
+		} else {
+			if (velocity.y > 0) {
+				return Direction.Up;
+			} else {
+				return Direction.Down;
+			}
+		}
+	}
+	
+//	private boolean atSquareCentre(Vector2 pos) {
+//		
+//		PointXY statePos = worldToState(pos);
+//		Vector2 worldPos = stateToWorld(statePos);
+//		
+//		return pos.equals(worldPos);
+//	}
 	
 	/**
 	 * Find the agent equivalent to the provided body if there is one. If there 
@@ -834,6 +1032,38 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 	}
 	
+//	private void updatePosition(Body body, Move move, int speedFactor) {
+//		
+//		int minHalfSquareDivision = 8;
+//		float moveMagnitude = (squareSize /2) / (minHalfSquareDivision + speedFactor);
+//		
+//		Vector2 position = body.getPosition();
+//		
+//		Direction direction = move.getDirection();
+//		switch (direction) {
+//			case None:
+//				// do nothing
+//				break;
+//			case Up:
+//				position.y = position.y + moveMagnitude;
+//				break;
+//			case Down:
+//				position.y = position.y - moveMagnitude;
+//				break;
+//			case Left:
+//				position.x = position.x - moveMagnitude;
+//				break;
+//			case Right:
+//				position.x = position.x + moveMagnitude;
+//				break;
+//			default:
+//				throw new IllegalArgumentException("Unknown direction enum.");
+//		}
+//		
+//		body.setTransform(position, 0);
+//		
+//	}
+	
 	@Override
 	public float getSquareSize() {
 		return squareSize;
@@ -934,47 +1164,47 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		return body;
 	}
 	
-	private void processSaferPositions(GameState state) {
-		
-		Map<Agent, Set<PointXY>> saferPositions = state.getSaferPositions();
-		if (saferPositions == null) {
-			return;
-		}
-		
-		Set<Agent> agents = saferPositions.keySet();
-		int numAgents = agents.size();
-		
-		Set<PointXY> positionsProcessed = new HashSet<PointXY>();
-		
-		for (Agent agent : agents) {
-			
-			Agent check = state.getAgent(agent.getID());
-			if (check == null) {
-				continue;
-			}
-			
-			Set<PointXY> agentPoints = saferPositions.get(agent);
-			
-			for (PointXY pos : agentPoints) {
-				Body body = findPartitionBody(pos);
-				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
-				data.setAgentID(agent.getID());
-				data.setNumAgents(numAgents);
-				positionsProcessed.add(pos);
-			}
-			
-		}
-		
-		Set<PointXY> allPositions = state.getMaze().getNodes().keySet();
-		
-		for (PointXY pos : allPositions) {
-			if (!positionsProcessed.contains(pos)) {
-				Body body = findPartitionBody(pos);
-				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
-				data.setAgentID(-1);
-				data.setNumAgents(numAgents);				
-			}
-		}
-		
-	}
+//	private void processSaferPositions(GameState state) {
+//		
+//		Map<Agent, Set<PointXY>> saferPositions = state.getSaferPositions();
+//		if (saferPositions == null) {
+//			return;
+//		}
+//		
+//		Set<Agent> agents = saferPositions.keySet();
+//		int numAgents = agents.size();
+//		
+//		Set<PointXY> positionsProcessed = new HashSet<PointXY>();
+//		
+//		for (Agent agent : agents) {
+//			
+//			Agent check = state.getAgent(agent.getID());
+//			if (check == null) {
+//				continue;
+//			}
+//			
+//			Set<PointXY> agentPoints = saferPositions.get(agent);
+//			
+//			for (PointXY pos : agentPoints) {
+//				Body body = findPartitionBody(pos);
+//				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
+//				data.setAgentID(agent.getID());
+//				data.setNumAgents(numAgents);
+//				positionsProcessed.add(pos);
+//			}
+//			
+//		}
+//		
+//		Set<PointXY> allPositions = state.getMaze().getNodes().keySet();
+//		
+//		for (PointXY pos : allPositions) {
+//			if (!positionsProcessed.contains(pos)) {
+//				Body body = findPartitionBody(pos);
+//				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
+//				data.setAgentID(-1);
+//				data.setNumAgents(numAgents);				
+//			}
+//		}
+//		
+//	}
 }

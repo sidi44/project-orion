@@ -40,10 +40,6 @@ public class PhysicsContact implements ContactListener {
 	@Override
 	public void preSolve(Contact contact, Manifold oldManifold) {
 		
-	}
-
-	@Override
-	public void postSolve(Contact contact, ContactImpulse impulse) {
 		// Get the UserData and the body type associated with the two colliding
 		// fixtures.
 		Fixture fix1 = contact.getFixtureA();
@@ -107,6 +103,13 @@ public class PhysicsContact implements ContactListener {
 
 			data1.setFlaggedForDelete(true);
 		}
+		
+		contact.setEnabled(false);
+	}
+
+	@Override
+	public void postSolve(Contact contact, ContactImpulse impulse) {
+
 	}
 
 }

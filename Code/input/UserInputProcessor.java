@@ -26,6 +26,7 @@ public class UserInputProcessor implements InputProcessor {
 	public UserInputProcessor() {
 		mMove = new Move();
 		mPressedMoveKeys = new LinkedList<Direction>();
+		mPressedMoveKeys.add(Direction.None);
 		mPressedCamKeys = new LinkedList<Direction>();
 		mPressedEnter = false;
 	}
@@ -77,6 +78,9 @@ public class UserInputProcessor implements InputProcessor {
 	@Override
 	public boolean keyDown(int keycode) {
 
+		if (!mPressedMoveKeys.isEmpty()) {
+			mPressedMoveKeys.remove();
+		}
 		boolean keyProcessed = true;
 		mPressedEnter = false;
 		
@@ -133,21 +137,21 @@ public class UserInputProcessor implements InputProcessor {
 		boolean keyProcessed = true;
 
 		switch (keycode) {
-		case Input.Keys.LEFT:
-			mPressedMoveKeys.remove( Direction.Left );
-			break;
-
-		case Input.Keys.RIGHT:
-			mPressedMoveKeys.remove( Direction.Right );
-			break;
-
-		case Input.Keys.UP:
-			mPressedMoveKeys.remove( Direction.Up );
-			break;
-
-		case Input.Keys.DOWN:
-			mPressedMoveKeys.remove (Direction.Down );
-			break;
+//		case Input.Keys.LEFT:
+//			mPressedMoveKeys.remove( Direction.Left );
+//			break;
+//
+//		case Input.Keys.RIGHT:
+//			mPressedMoveKeys.remove( Direction.Right );
+//			break;
+//
+//		case Input.Keys.UP:
+//			mPressedMoveKeys.remove( Direction.Up );
+//			break;
+//
+//		case Input.Keys.DOWN:
+//			mPressedMoveKeys.remove (Direction.Down );
+//			break;
 
 		// Camera movement inputs
 		case Input.Keys.A:
@@ -211,6 +215,12 @@ public class UserInputProcessor implements InputProcessor {
 		mCamZoomChanged = true;
 
 		return true;
+	}
+	
+	public void reset() {
+		mPressedMoveKeys.clear();
+		mPressedMoveKeys.add(Direction.None);
+		mPressedCamKeys.clear();
 	}
 
 }
