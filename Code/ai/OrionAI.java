@@ -144,10 +144,6 @@ public class OrionAI implements AILogic {
 		
 		for (Agent agent : agents) {
 			
-			if (agent.isInTransition()) {
-				continue;
-			}
-			
 			if (agent instanceof Predator) {
 				calcNextMovePredator(agent, state);
 			} else if (agent instanceof Prey) {

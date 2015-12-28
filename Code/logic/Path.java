@@ -14,7 +14,7 @@ import geometry.PointXY;
  * point to another.
  * 
  * @author Simon Dicken
- * @version 2015-05-31
+ * @version 2015-12-28
  */
 public class Path {
 
@@ -30,6 +30,21 @@ public class Path {
 	public Path() {
 		path = new ArrayList<PointXY>();
 		points = new HashSet<PointXY>();
+	}
+	
+	/**
+	 * Copy constructor for Path. 
+	 * 
+	 * (Note that this makes a shallow copy of the Path's internal structures.)
+	 * 
+	 * @param path - the Path to copy
+	 */
+	public Path(Path path) {
+		this.path = new ArrayList<PointXY>();
+		this.points = new HashSet<PointXY>();
+		
+		this.path.addAll(path.path);
+		this.points.addAll(path.points);
 	}
 	
 	/**

@@ -26,6 +26,12 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 
+/**
+ * GameScreen class.
+ * 
+ * @author Paulius Balasevicius, Simon Dicken, Martin Wong
+ * @version 2015-12-28
+ */
 public class GameScreen implements Screen {
 
 	private int numSimSteps;
@@ -39,9 +45,6 @@ public class GameScreen implements Screen {
 	private PhysicsProcessor physProc;
 	private final UserInputProcessor inputProc;
 	private Stage gameStage;
-
-	private final float dt = 1.0f / 60.0f;
-	private float accumulator;
 	
 	// Gameplay fields
 //	private final static long nanoToSeconds = 1000000000;
@@ -72,8 +75,6 @@ public class GameScreen implements Screen {
 		setInitialViewport(1.5f);
 //		trackPlayer(1.4f, false);
 		
-		accumulator = 0;
-		
 		numSimSteps = 0;
 		maxSimSteps = 5000;
 	}
@@ -103,24 +104,8 @@ public class GameScreen implements Screen {
 		inputProc.processCameraInputs(camera);
 
 		GameState state = gameLogic.getGameState();
-		physProc.preStep(state);
 		
-		// Grab the time difference. Limit the maximum amount of time we can 
-		// progress the physics simulation for a given render frame.
-		delta = (float) Math.min(delta, 0.25);
-		
-		// Add this frame's time to the accumulator.
-		accumulator += delta;
-		
-		// Step the simulation at the given fixed rate for as many times as 
-		// required. Any left over time is passed over to the next frame.
-		while (accumulator >= dt) {
-			physProc.stepSimulation(dt);
-			accumulator -= dt;
-			++numSimSteps;
-		}
-
-		physProc.postStep(state);
+		numSimSteps += physProc.stepSimulation(delta, state);
 		
 //		setViewportJump(5);
 		setViewport(12, 0.5f);
@@ -254,6 +239,12 @@ public class GameScreen implements Screen {
 	
 	private void trackPlayer(float factor, boolean jump) {
 		
+		GameState state = gameLogic.getGameState();
+		List<Predator> predators = state.getPredators();
+		if (predators.size() == 0) {
+			return;
+		}
+		
 		Vector2[] mazeBoundaries = getWorldMazeBoundaries();
 		Vector2 mazeLL = mazeBoundaries[0];
 		Vector2 mazeUR = mazeBoundaries[1];
@@ -268,7 +259,7 @@ public class GameScreen implements Screen {
 		float viewportWidthHalf = (camera.viewportWidth / 2);
 		float viewportHeightHalf = (camera.viewportHeight / 2);
 		
-		Predator firstPredator = gameLogic.getGameState().getPredators().get(0);
+		Predator firstPredator = predators.get(0);
 		Vector2 playerVector = physProc.stateToWorld(firstPredator.getPosition());
 		double newX = 0;
 		double newY = 0;
@@ -388,6 +379,7 @@ public class GameScreen implements Screen {
 	
 	public void resetGame() {
 		numSimSteps = 0;
+		inputProc.reset();
 		game.resetGame();
 	}
 	
