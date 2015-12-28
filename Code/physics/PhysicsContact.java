@@ -18,12 +18,8 @@ import com.badlogic.gdx.physics.box2d.Manifold;
  * be removed in their UserData. The main PhysicsProcessor can then remove the 
  * bodies after the step is complete.
  * 
- * As we are just setting a flag, the handling code could have been put in any
- * of the four ContactListener methods. The code has been placed in the 
- * postSolve() here and the other methods are left empty. 
- * 
  * @author Simon Dicken
- * @version 2015-07-19
+ * @version 2015-12-28
  */
 public class PhysicsContact implements ContactListener {
 
@@ -39,6 +35,16 @@ public class PhysicsContact implements ContactListener {
 
 	@Override
 	public void preSolve(Contact contact, Manifold oldManifold) {
+		
+		// The contact handling code must reside in the preSolve() method. After 
+		// working out which bodies have collided, the contact between the 
+		// bodies is disabled.
+		// This prevents the bodies being physically effected by the contact. If
+		// the contact were not disabled, the bodies would be 'knocked off 
+		// course' by the contact (i.e. we rely on Predator/Prey being an exact
+		// fraction of a square size away from a square centre in X and Y 
+		// directions, the contact would disrupt this and the bodies would risk 
+		// becoming stuck). 
 		
 		// Get the UserData and the body type associated with the two colliding
 		// fixtures.

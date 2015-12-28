@@ -6,6 +6,7 @@ import java.util.Map;
 import logic.GameConfiguration;
 import logic.GameLogic;
 import physics.PhysicsConfiguration;
+import physics.PhysicsDebugType;
 import physics.PhysicsProcessor;
 import physics.PhysicsProcessorBox2D;
 import render.GameScreen;
@@ -56,6 +57,9 @@ public class PredatorPreyGame extends Game	 {
 		inputMultiplexer = new InputMultiplexer();
 	}
 	
+	// Physics debug information
+	private final PhysicsDebugType debugType = PhysicsDebugType.DebugNone;
+	
 	@Override
 	public void create() {
 
@@ -77,7 +81,8 @@ public class PredatorPreyGame extends Game	 {
 
 		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
 				physicsConfig);
-
+		physProc.setDebugCategory(debugType);
+		
 		renderer = new Renderer(false, false);
 		
 		renderer.loadTextures(rendererConfig);
@@ -193,6 +198,7 @@ public class PredatorPreyGame extends Game	 {
 		gameLogic = new GameLogic(gameConfig);
 		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
 				physicsConfig);
+		physProc.setDebugCategory(debugType);
 		
 		Screen screen = getScreenByName("GAME");
 		GameScreen gameScreen = (GameScreen) screen;

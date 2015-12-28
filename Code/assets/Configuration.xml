@@ -30,17 +30,17 @@
             <NumPredator>1</NumPredator>
             <NumPredatorPlayer>1</NumPredatorPlayer>
             <MaxPredatorPowerUp>5</MaxPredatorPowerUp>
-            <NumPrey>3</NumPrey>
+            <NumPrey>5</NumPrey>
             <NumPreyPlayer>0</NumPreyPlayer>
             <MaxPreyPowerUp>5</MaxPreyPowerUp>
         </AgentConfiguration>
         <PowerUpConfiguration>
-            <NumberPredatorPowerUps>3</NumberPredatorPowerUps>
+            <NumberPredatorPowerUps>8</NumberPredatorPowerUps>
             <NumberPreyPowerUps>0</NumberPreyPowerUps>
             <PredatorPowerUps>
                 <PredatorPowerUp>
                     <PredatorPowerUpType>SpeedUpPredator</PredatorPowerUpType>
-                    <TimeLimit>150</TimeLimit>
+                    <TimeLimit>200</TimeLimit>
                     <SpeedUpFactor>2</SpeedUpFactor>
                 </PredatorPowerUp>
                 <PredatorPowerUp>
@@ -94,8 +94,8 @@
 		<WallWidthRatio>0.1</WallWidthRatio>
 		<PillRadiusRatio>0.2</PillRadiusRatio>
 		<PowerUpRadiusRatio>0.5</PowerUpRadiusRatio>
-		<PredatorSpeed>40</PredatorSpeed>
-		<PreySpeed>32</PreySpeed>
+		<PredatorSpeed>20</PredatorSpeed>
+		<PreySpeed>10</PreySpeed>
 	</PhysicsConfiguration>
 	<RendererConfiguration>
 	    <AllowRotations>true</AllowRotations>

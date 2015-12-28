@@ -26,6 +26,12 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 
+/**
+ * GameScreen class.
+ * 
+ * @author Paulius Balasevicius, Simon Dicken, Martin Wong
+ * @version 2015-12-28
+ */
 public class GameScreen implements Screen {
 
 	private int numSimSteps;

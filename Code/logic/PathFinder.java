@@ -3,7 +3,6 @@ package logic;
 import geometry.PointXY;
 import geometry.PointXYPair;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,33 +16,36 @@ import java.util.Set;
  * shortest point from a start point to the closest point in a set of 'goal' 
  * points.
  * 
- * If generateAllPaths() is called, the getPath(start, end) will (probably) be
+ * If generateAllPaths() is called, the shortest path from every node in the 
+ * maze to every other node will be calculated and stored. The stored paths will 
+ * be used when getPath(start, end) is called to return the path in constant 
+ * time. If generateAllPaths() has not been called, getPath(start, end) will 
+ * do the shortest path calculation at this time.
  * more efficient for longer paths. Note that generateAllPaths() may take time 
  * to complete, particularly for large mazes.
- * generateAllPaths() does not calculate a path from every node to every other 
- * node in the maze, but rather calculates a collections of paths such that at
- * least one path exists which contains each pair of points in the maze.
  * 
  * @author Simon Dicken
- * @version 2015-05-31
+ * @version 2015-12-28
  */
 public class PathFinder {
 
+	// The maze we're searching
 	private Maze maze;
 	
+	// These variables are used in the shortest path calculations 
 	private Map<PointXY, Integer> nodeCosts;
 	private int shortestPath;
 	
+	// Store whether a path exists from a start node to other nodes in the maze
 	private Map<PointXY, Set<PointXY>> pathExists;
 	
-	private List<Path> paths;
-	
+	// The collection of all shortest paths between pairs of points in the maze
 	private Map<PointXYPair, Path> allPaths;
 	
 	/**
 	 * Constructor for PathFinder.
 	 * 
-	 * @param maze - the 
+	 * @param maze - the maze in which to find paths.
 	 */
 	public PathFinder(Maze maze) {
 		this.maze = maze;
@@ -51,8 +53,6 @@ public class PathFinder {
 		reset();
 		
 		initialisePathExists();
-		
-		paths = new ArrayList<Path>();
 		
 		allPaths = new HashMap<PointXYPair, Path>();
 	}
@@ -76,8 +76,11 @@ public class PathFinder {
 	 * allPaths.
 	 */
 	private void initialisePathExists() {
+		
 		pathExists = new HashMap<PointXY, Set<PointXY>>();
 		
+		// Add each point to the map, with the corresponding set just containing
+		// that point initially.
 		Set<PointXY> nodes = maze.getNodes().keySet();
 		for (PointXY point : nodes) {
 			Set<PointXY> pathsToNodes = new HashSet<PointXY>();
@@ -97,20 +100,18 @@ public class PathFinder {
 	 * @return the shortest path from the provided start and end points.
 	 */
 	private Path shortestPath(PointXY start, PointXY end) {
-		reset();
-		
-		Path path = new Path();
+
+		// Call the overloaded method to do the work
 		Set<PointXY> goals = new HashSet<PointXY>();
 		goals.add(end);
-		shortestPath(start, goals, 0, path);
-		path.reversePath();
+		Path path = shortestPath(start, goals);
 		
 		return path;
 	}
 	
 	/**
 	 * Calculate the shortest path between the provided start point and the 
-	 * first (closest) point found in the provided set of goal points.
+	 * closest point found in the provided set of goal points.
 	 * 
 	 * If no such path exists, an empty Path is returned.
 	 * 
@@ -124,6 +125,9 @@ public class PathFinder {
 		
 		Path path = new Path();
 		shortestPath(start, goals, 0, path);
+		
+		// The returned shortest path is from the goal to the start, so we need  
+		// to reverse it.
 		path.reversePath();
 		
 		return path;
@@ -134,7 +138,7 @@ public class PathFinder {
 	 * the closest point in a set of goal points.
 	 * 
 	 * @param start - the starting point in the shortest path. 
-	 * @param goals - the set of goal point for the shortest path.
+	 * @param goals - the set of goal points for the shortest path.
 	 * @param pathLength - the current length of the path.
 	 * @param path - the Path to populate with the points along the shortest 
 	 * path. NOTE: This will be the reverse path from goal back to start.
@@ -184,8 +188,10 @@ public class PathFinder {
 	}
 	
 	/**
-	 * Generates a collection of paths such that there is at least one path 
-	 * which contains each pair of points in the maze.
+	 * Generates (and stores) the shortest path from every point in the maze to 
+	 * every other point.
+	 * 
+	 * (This may take some time for larger mazes!)
 	 */
 	public void generateAllPaths() {
 		
@@ -194,43 +200,28 @@ public class PathFinder {
 		for (PointXY point : mazePoints) {
 			
 			while (!allPathsExist(point)) {
+				// Find a path from this point to another point in the maze 
+				// which we haven't calculated yet.
 				Path p = findNewPath(point);
-				if (!p.empty()) {
-					//addToPathExists(p);
-					addToAllPaths(p);
-					//paths.add(p);
-				}
+				
+				// Add this path (and all sub-paths) to our stored paths.
+				addToAllPaths(p);
 			}
 		}
 		
-		if (allPathsExist()) {
-			System.out.println("All paths exist!");
-		} else {
-			System.out.println("Not all paths exist!");
-		}
-		
+//		if (allPathsExist()) {
+//			System.out.println("All paths exist!");
+//		} else {
+//			System.out.println("Not all paths exist!");
+//		}		
 	}
 	
-//	/**
-//	 * Populates the pathExists field variable with information in the given 
-//	 * Path. (i.e. every pair of points in the given Path is added to the 
-//	 * pathExists map).
-//	 * 
-//	 * @param path
-//	 */
-//	private void addToPathExists(Path path) {
-//		
-//		List<PointXY> pathNodes = path.getPathNodes();
-//		
-//		for (int i = 0; i < pathNodes.size(); ++i) {
-//			Set<PointXY> pathToNodes = pathExists.get(pathNodes.get(i));
-//			for (int j = i + 1; j < pathNodes.size(); ++j) {
-//				pathToNodes.add(pathNodes.get(j));
-//			}
-//		}
-//		
-//	}
-	
+	/**
+	 * Add the provided path and all of its sub-paths to the stored paths.
+	 * All sub-paths are added i.e. the path from each pair of points 
+	 * 
+	 * @param path
+	 */
 	private void addToAllPaths(Path path) {
 		
 		List<PointXY> pathNodes = path.getPathNodes();
@@ -273,12 +264,14 @@ public class PathFinder {
 	 * @return true if a path exists between every pair of points in the maze,
 	 * false otherwise.
 	 */
-//	@SuppressWarnings("unused")
+	@SuppressWarnings("unused")
 	private boolean allPathsExist() {
 		
 		Set<PointXY> points = pathExists.keySet();
 		for (PointXY point : points) {
-			allPathsExist(point);
+			if (!allPathsExist(point)) {
+				return false;
+			}
 		}
 		
 		return true;
@@ -320,11 +313,14 @@ public class PathFinder {
 		Set<PointXY> pathsToNodes = pathExists.get(start);
 		notVisited.removeAll(pathsToNodes);
 		
+		// Find the furthest (Euclidean distance) point from the start point in 
+		// the set of not visited nodes.
 		PointXY end = furthestPoint(start, notVisited);
 		
-		Path p = shortestPath(start, end);
+		// Get the shortest path between the start and end nodes.
+		Path path = shortestPath(start, end);
 		
-		return p;
+		return path;
 	}
 	
 	/**
@@ -358,9 +354,9 @@ public class PathFinder {
 	 * point.
 	 * 
 	 * If generateAllPaths() has been called prior to this method, this is 
-	 * (probably) more efficient than calling shortestPath() for long paths.
-	 * If generateAllPaths() has not been called, this method simply returns the
-	 * result of shortestPath()
+	 * will obtain the path efficiently by looking up the path in stored paths.
+	 * If generateAllPaths() has not been called, this method will do the 
+	 * shortest path calculation between the provided nodes at this time.
 	 * 
 	 * @param start - the first point in the shortest path to find.
 	 * @param end - the last point in the shortest path to find.
@@ -374,12 +370,6 @@ public class PathFinder {
 		if (!allPaths.isEmpty()) {
 			PointXYPair pair = new PointXYPair(start, end);
 			path = allPaths.get(pair);
-//			for (Path p : paths) {
-//				if (p.contains(start) && p.contains(end)) {
-//					path = p.subPath(start, end);
-//					break;
-//				}
-//			}
 		} else {
 			path = shortestPath(start, end);
 		}
@@ -387,6 +377,22 @@ public class PathFinder {
 		return path;
 	}
 	
+	/**
+	 * Get the shortest path from the provided start point to the provided set 
+	 * of 'goal' points
+	 * 
+	 * If generateAllPaths() has been called prior to this method, this is 
+	 * will obtain the path efficiently by looking each path in the stored paths
+	 * and returning the shortest path.
+	 * If generateAllPaths() has not been called, this method will do the 
+	 * shortest path calculation for each pair of points before determining the
+	 * shortest path.
+	 * 
+	 * @param start - the first point in the shortest path to find.
+	 * @param goals - the set of goal points to find the shortest path too.
+	 * @return the shortest path from the provided start point to the closest 
+	 * point in the provided set of goal points.
+	 */
 	public Path getPath(PointXY start, Set<PointXY> goals) {
 		
 		Path path = new Path();

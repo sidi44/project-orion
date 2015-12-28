@@ -2,6 +2,7 @@ package physics;
 
 import geometry.PointXY;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +41,7 @@ import logic.powerup.PreyPowerUp;
  * game.
  * 
  * @author Simon Dicken
- * @version 2015-10-18
+ * @version 2015-12-28
  */
 public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	
@@ -82,14 +83,13 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	private final short MASK_POWERUP_PREY = CATEGORY_WALL | CATEGORY_PREY;
 	private final short MASK_DEBUG = CATEGORY_WALL;
 	
-	// This determines how much of a square from each of its borders is
-	// considered as a 'transition zone'. If the centre of an agent is in this
-	// zone it is flagged as 'inTransition' (i.e. moving between maze squares).
-	private float transZone = 0.4f;
-	
 	// Physics simulation step variables
 	private final float dt = 1.0f / 60.0f;
 	private float accumulator;
+	
+	// The type of debug information to process and display
+	PhysicsDebugType debugType;
+	boolean debugBodiesCreated;
 	
 	/**
 	 * Constructor for PhysicsProcessorBox2D.
@@ -115,14 +115,17 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		this.predatorSpeed = config.getPredatorSpeed();
 		this.preySpeed = config.getPreySpeed();
 		
+		this.accumulator = 0;
+		
+		this.debugType = PhysicsDebugType.DebugNone;
+		this.debugBodiesCreated = false;
+		
 		buildPhysics(initialState);
 		
 		PhysicsContact contact = new PhysicsContact();
 		this.world.setContactListener(contact);
 		
 		this.powerUpProc = new PowerUpProcessor(world, this);
-		
-		this.accumulator = 0;
 	}
 	
 	/**
@@ -171,8 +174,10 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 			createPreyPowerUp(preyPowerUps.get(pos), pos);
 		}
 		
-		// Create the debugging partitioned maze info
-		createPartition(keys);
+		// Create the debugging bodies if required
+		if (debugType != PhysicsDebugType.DebugNone) {
+			createDebugBodies(keys);
+		}
 	}
 	
 	/**
@@ -480,8 +485,8 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 			processPowerUps(b, state);
 		}
 		
-		processPartition(state);
-//		processSaferPositions(state);
+		// Process any debug information
+		processDebugInfo(state);
 	}
 
 	/**
@@ -582,67 +587,68 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	private void processAgent(Body body, List<? extends Agent> agents, 
 			float speed, Maze maze) {
 		
+		// Find the agent associated with this body.
 		Agent agent = findAgent(body, agents);
 		
-		if (agent != null) {
-			PhysicsDataAgent data = (PhysicsDataAgent) body.getUserData();
+		// There should be an agent. If not, something's gone wrong.
+		if (agent == null) {
+			System.err.println("Couldn't find agent associated with the body.");
+			return;
+		}
+		
+		PhysicsDataAgent data = (PhysicsDataAgent) body.getUserData();
+		
+		// Round the position of the body so that we don't lose accuracy due to
+		// floating point arithmetic. (This will only change the position if the
+		// current position is within a small tolerance of a multiple of half 
+		// the square size.)
+		roundPosition(body);
+		Vector2 bodyWorldPos = body.getPosition();
+		
+		Move move = agent.getNextMove();
+		Vector2 velocity = body.getLinearVelocity();
+		
+		// Is the proposed move valid? (e.g. trying to move left when there is 
+		// a wall there is not valid)
+		if (moveValid(move, body, maze)) {
 			
-			Vector2 bodyWorldPos = body.getPosition();
-			long xd = Math.round(bodyWorldPos.x);
-			long yd = Math.round(bodyWorldPos.y);
-			if (Math.abs(bodyWorldPos.x - xd) < 0.0001 &&
-				Math.abs(bodyWorldPos.y - yd) < 0.0001) {
-				body.setTransform((float) xd, (float) yd, 0);
-				bodyWorldPos = body.getPosition();
+			// The proposed move is ok, so update the velocity vector as 
+			// appropriate and set it on the body.
+			updateVelocity(velocity, move.getDirection(), speed);
+			body.setLinearVelocity(velocity);
+			
+			// We store the previous move as long as it's not 'None'.
+			if (data.getCurrentMove() != Direction.None) {
+				data.setPreviousMove(data.getCurrentMove());
 			}
+			data.setCurrentMove(move.getDirection());
 			
-			Move move = agent.getNextMove();
-			Vector2 velocity = body.getLinearVelocity();
-			
-			if (moveValid(move, body, maze)) {
-				
-				updateVelocity(velocity, move, speed);
-				body.setLinearVelocity(velocity);
-				
-				if (data.getCurrentMove() != Direction.None) {
-					data.setPreviousMove(data.getCurrentMove());
-				}
-				data.setCurrentMove(move.getDirection());
-			}
-			
-			PointXY bodyStatePos = worldToState(bodyWorldPos);
-			Vector2 squareWorldPos = stateToWorld(bodyStatePos);
-			if (bodyWorldPos.equals(squareWorldPos)) {
-				Direction dir = getDirectionFromVelocity(body.getLinearVelocity());
-				MazeNode node = maze.getNode(bodyStatePos);
-				
-				int targetX = bodyStatePos.getX();
-				int targetY = bodyStatePos.getY();
-				
-				switch (dir) {
-					case Down:
-						--targetY;
-						break;
-					case Left:
-						--targetX;
-						break;
-					case Right:
-						++targetX;
-						break;
-					case Up:
-						++targetY;
-						break;
-					case None:
-						break;
-					default:
-						break;
-				}
-				PointXY targetPos = new PointXY(targetX, targetY);
-				if (!node.isNeighbour(targetPos)) {
-					body.setLinearVelocity(new Vector2(0, 0));
-				}
-			}
+		} else {
+			// The proposed move isn't ok. Note that we might be coming out of a
+			// power up at this point, so the velocity may be incorrect. We 
+			// work out the direction from the velocity, then the correct
+			// velocity (i.e. of the right magnitude) from the direction.
+			Direction currentDir = getDirectionFromVelocity(velocity);
+			updateVelocity(velocity, currentDir, speed);
+			body.setLinearVelocity(velocity);
+		}
+		
+		// This bit of code prevents agents moving past the square centre when
+		// there's a wall ahead. If the agent is at a square centre and the node
+		// in the direction of travel is not a neighbouring node, the velocity
+		// is set to zero.
+		PointXY bodyStatePos = worldToState(bodyWorldPos);
+		Vector2 squareWorldPos = stateToWorld(bodyStatePos);
+		if (bodyWorldPos.equals(squareWorldPos)) {
+			Direction dir = getDirectionFromVelocity(body.getLinearVelocity());
+			MazeNode node = maze.getNode(bodyStatePos);
 
+			PointXY targetPos = getTarget(bodyStatePos, dir);
+			
+			if (!node.isNeighbour(targetPos)) {
+				body.setLinearVelocity(new Vector2(0, 0));
+				data.setCurrentMove(Direction.None);
+			}
 		}
 	}
 	
@@ -669,46 +675,76 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		return null;
 	}
 	
+	/**
+	 * If the x or y-coordinate of the position of the provided body is within a
+	 * small tolerance of a multiple of half the square size, then the 
+	 * coordinate is rounded such that it is an exact multiple of half the 
+	 * square size.
+	 * 
+	 * @param body - the body which should have its position rounded.
+	 */
+	private void roundPosition(Body body) {
+		
+		float halfSquare = squareSize / 2;
+		Vector2 bodyWorldPos = body.getPosition();
+		float x = bodyWorldPos.x;
+		float y = bodyWorldPos.y;
+		
+		float tol = 0.0001f;
+		if (x % halfSquare < tol || (halfSquare - x % halfSquare) < tol) {
+			int multiple = Math.round(x / halfSquare);
+			x = multiple * halfSquare;
+		}
+		
+		if (y % halfSquare < tol || (halfSquare - y % halfSquare) < tol) {
+			int multiple = Math.round(y / halfSquare);
+			y = multiple * halfSquare;
+		}		
+		
+		body.setTransform(x, y, 0);
+	}
+	
+	/**
+	 * Is the provided move for the provided body valid? 
+	 * 
+	 * A move is valid if the body is at a square centre and the move direction
+	 * is to a square which is a neighbour of this square. A move is also valid 
+	 * if the body is currently transitioning in the x direction and the move 
+	 * direction is left/right or if the cody is transitioning in the y 
+	 * direction and the move direction us up/down.
+	 * 
+	 * @param move - the proposed move for the provided body.
+	 * @param body - the body to which the move is to be applied.
+	 * @param maze - the maze in which the body resides.
+	 * @return true if the provided move is valid, false otherwise.
+	 */
 	private boolean moveValid(Move move, Body body, Maze maze) {
 		
 		Direction moveDir = move.getDirection();
-		Direction dir = getDirectionToNearestCentre(body, maze);
-		if (dir == Direction.None) {
+		Direction centreDir = getDirectionToNearestCentre(body, maze);
+		if (centreDir == Direction.None) {
+			// We're currently at a square centre, so find whether the target
+			// square is a neighbour of the current square.
 			
 			Vector2 bodyWorldPos = body.getPosition();
 			PointXY bodyStatePos = worldToState(bodyWorldPos);
+
+			PointXY targetPos = getTarget(bodyStatePos, moveDir);
+			
 			MazeNode node = maze.getNode(bodyStatePos);
 			
-			int targetX = bodyStatePos.getX();
-			int targetY = bodyStatePos.getY();
-			
-			switch (moveDir) {
-				case Down:
-					--targetY;
-					break;
-				case Left:
-					--targetX;
-					break;
-				case Right:
-					++targetX;
-					break;
-				case Up:
-					++targetY;
-					break;
-				case None:
-					break;
-				default:
-					break;
-			}
-			PointXY targetPos = new PointXY(targetX, targetY);
-			if (node.isNeighbour(targetPos)) {
+			if (node.isNeighbour(targetPos) || bodyStatePos.equals(targetPos)) {
 				return true;
 			} else {
 				return false;
 			}
 			
 		} else {
-			if (dir == Direction.Left || dir == Direction.Right) {
+			// We're transitioning between squares. If the closest square centre
+			// is left/right (i.e. we're transitioning to the left or right 
+			// node), then check the move direction matches that. And similar
+			// for up/down.
+			if (centreDir == Direction.Left || centreDir == Direction.Right) {
 				if (moveDir == Direction.Left || moveDir == Direction.Right) {
 					return true;
 				} else {
@@ -725,6 +761,15 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 	}
 
+	/**
+	 * Find the direction from the provided body to the nearest square centre. 
+	 * Return 'None' if the body is already at a square centre.
+	 * 
+	 * @param body - the body for which to find the direction.
+	 * @param maze - the maze in which the body resides.
+	 * @return the direction from the provided body to the nearest square 
+	 * centre.
+	 */
 	private Direction getDirectionToNearestCentre(Body body, Maze maze) {
 		
 		Vector2 bodyWorldPos = body.getPosition();
@@ -754,6 +799,12 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		}
 	}
 	
+	/**
+	 * Convert the provided velocity into a direction.
+	 * 
+	 * @param velocity - the velocity to convert.
+	 * @return the velocity converted to a direction.
+	 */
 	private Direction getDirectionFromVelocity(Vector2 velocity) {
 		
 		if (velocity.x == 0 && velocity.y == 0) {
@@ -775,13 +826,42 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		}
 	}
 	
-//	private boolean atSquareCentre(Vector2 pos) {
-//		
-//		PointXY statePos = worldToState(pos);
-//		Vector2 worldPos = stateToWorld(statePos);
-//		
-//		return pos.equals(worldPos);
-//	}
+	/**
+	 * Find the target square position which will be hit if a body moves in the 
+	 * provided direction from the provided current position (ignoring all 
+	 * walls).
+	 * 
+	 * @param currentPos - the current position.
+	 * @param moveDir - the direction of movement.
+	 * @return the target position that will be hit by moving in the provided
+	 * direction from the provided current position.
+	 */
+	private PointXY getTarget(PointXY currentPos, Direction moveDir) {
+		
+		int targetX = currentPos.getX();
+		int targetY = currentPos.getY();
+		
+		switch (moveDir) {
+			case Down:
+				--targetY;
+				break;
+			case Left:
+				--targetX;
+				break;
+			case Right:
+				++targetX;
+				break;
+			case Up:
+				++targetY;
+				break;
+			case None:
+				break;
+			default:
+				break;
+		}
+		PointXY targetPos = new PointXY(targetX, targetY);
+		return targetPos;
+	}
 	
 	/**
 	 * Find the agent equivalent to the provided body if there is one. If there 
@@ -937,50 +1017,21 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 				PhysicsDataAgent preyData = (PhysicsDataAgent) data;
 				int preyID = preyData.getID();
 				Vector2 preyPos = body.getPosition();
-				boolean preyInTransition = checkForTransition(preyPos);
 				
-				state.updatePreyPosition(preyID, worldToState(preyPos), 
-						preyInTransition);
+				state.updatePreyPosition(preyID, worldToState(preyPos));
 				break;
 			
 			case Predator:
 				PhysicsDataAgent predatorData = (PhysicsDataAgent) data;
 				int predatorID = predatorData.getID();
-				Vector2 predPos = body.getPosition();				
-				boolean predInTransition = checkForTransition(predPos);
+				Vector2 predPos = body.getPosition();
 
-				state.updatePredatorPosition(predatorID, worldToState(predPos), 
-						predInTransition);
+				state.updatePredatorPosition(predatorID, worldToState(predPos));
 				break;
 		
 			default:
 				break;
 		}
-	}
-	
-	/**
-	 * Check whether the physics world position is in the 'transition zone' 
-	 * part of a maze square. This zone is at the edges of the square and 
-	 * can be used to indicate that an Agent is moving from being fully in one
-	 * maze square to fully in another square.
-	 * 
-	 * @param position - the physics world position to check.
-	 * @return true if the position is in a transition zone, false otherwise.
-	 */
-	private boolean checkForTransition(Vector2 position) {
-
-		
-		float XPosFactor = (position.x % squareSize) / squareSize;
-		float YPosFactor = (position.y % squareSize) / squareSize;
-		
-		boolean inTransition = false;
-		if (XPosFactor < transZone || XPosFactor > (1 - transZone)) {
-			inTransition = true;
-		} else if (YPosFactor < transZone || YPosFactor > (1 - transZone)) {
-			inTransition = true;
-		}
-		
-		return inTransition;
 	}
 	
 	@Override
@@ -1000,15 +1051,14 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 	}
 	
 	/**
-	 * Update the given velocity based on the given Move and magnitude.
+	 * Update the given velocity based on the given Direction and magnitude.
 	 * 
 	 * @param velocity - the velocity to update.
-	 * @param move - the move which gives the direction of travel.
+	 * @param direction - the direction of travel.
 	 * @param magnitude - the magnitude of the velocity (i.e. the speed)
 	 */
-	private void updateVelocity(Vector2 velocity, Move move, float magnitude) {
-		
-		Direction direction = move.getDirection();
+	private void updateVelocity(Vector2 velocity, Direction direction, 
+			float magnitude) {
 		
 		switch (direction) {
 			case None:
@@ -1032,41 +1082,14 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 	}
 	
-//	private void updatePosition(Body body, Move move, int speedFactor) {
-//		
-//		int minHalfSquareDivision = 8;
-//		float moveMagnitude = (squareSize /2) / (minHalfSquareDivision + speedFactor);
-//		
-//		Vector2 position = body.getPosition();
-//		
-//		Direction direction = move.getDirection();
-//		switch (direction) {
-//			case None:
-//				// do nothing
-//				break;
-//			case Up:
-//				position.y = position.y + moveMagnitude;
-//				break;
-//			case Down:
-//				position.y = position.y - moveMagnitude;
-//				break;
-//			case Left:
-//				position.x = position.x - moveMagnitude;
-//				break;
-//			case Right:
-//				position.x = position.x + moveMagnitude;
-//				break;
-//			default:
-//				throw new IllegalArgumentException("Unknown direction enum.");
-//		}
-//		
-//		body.setTransform(position, 0);
-//		
-//	}
-	
 	@Override
 	public float getSquareSize() {
 		return squareSize;
+	}
+	
+	@Override
+	public float getSimulationStep() {
+		return dt;
 	}
 
 	@Override
@@ -1087,7 +1110,16 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 	}
 	
-	private void createPartition(Set<PointXY> mazeNodes) {
+	// *************************************************************************
+	// ***** The following methods are used for debugging purposes only. *******
+	// *************************************************************************
+	
+	@Override
+	public void setDebugCategory(PhysicsDebugType type) {
+		this.debugType = type;
+	}
+	
+	private void createDebugBodies(Set<PointXY> mazeNodes) {
 		
 		for (PointXY pos : mazeNodes) {
 			// Create the node body and add it to the world at the given location.
@@ -1119,6 +1151,30 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 			debugBody.createFixture(fixtureDef);
 		}
 		
+		debugBodiesCreated = true;
+	}
+	
+	private void processDebugInfo(GameState state) {
+		
+		if (debugType != PhysicsDebugType.DebugNone && !debugBodiesCreated) {
+			Maze maze = state.getMaze();
+			Map<PointXY, MazeNode> nodes = maze.getNodes();
+			Set<PointXY> keys = nodes.keySet();
+			createDebugBodies(keys);
+		}
+		
+		switch (debugType) {
+			case DebugNone:
+				break;
+			case DebugPartition:
+				processPartition(state);
+				break;
+			case DebugSaferPositions:
+				processSaferPositions(state);
+				break;
+			default:
+				break;
+		}
 	}
 	
 	private void processPartition(GameState state) {
@@ -1126,7 +1182,6 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		Map<Agent, Set<PointXY>> partition = state.getPartition();
 		
 		Set<Agent> agents = partition.keySet();
-		int numAgents = agents.size();
 		
 		for (Agent agent : agents) {
 			
@@ -1136,7 +1191,6 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 				Body body = findPartitionBody(pos);
 				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
 				data.setAgentID(agent.getID());
-				data.setNumAgents(numAgents);
 			}
 			
 		}
@@ -1164,47 +1218,45 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		return body;
 	}
 	
-//	private void processSaferPositions(GameState state) {
-//		
-//		Map<Agent, Set<PointXY>> saferPositions = state.getSaferPositions();
-//		if (saferPositions == null) {
-//			return;
-//		}
-//		
-//		Set<Agent> agents = saferPositions.keySet();
-//		int numAgents = agents.size();
-//		
-//		Set<PointXY> positionsProcessed = new HashSet<PointXY>();
-//		
-//		for (Agent agent : agents) {
-//			
-//			Agent check = state.getAgent(agent.getID());
-//			if (check == null) {
-//				continue;
-//			}
-//			
-//			Set<PointXY> agentPoints = saferPositions.get(agent);
-//			
-//			for (PointXY pos : agentPoints) {
-//				Body body = findPartitionBody(pos);
-//				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
-//				data.setAgentID(agent.getID());
-//				data.setNumAgents(numAgents);
-//				positionsProcessed.add(pos);
-//			}
-//			
-//		}
-//		
-//		Set<PointXY> allPositions = state.getMaze().getNodes().keySet();
-//		
-//		for (PointXY pos : allPositions) {
-//			if (!positionsProcessed.contains(pos)) {
-//				Body body = findPartitionBody(pos);
-//				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
-//				data.setAgentID(-1);
-//				data.setNumAgents(numAgents);				
-//			}
-//		}
-//		
-//	}
+	private void processSaferPositions(GameState state) {
+		
+		Map<Agent, Set<PointXY>> saferPositions = state.getSaferPositions();
+		if (saferPositions == null) {
+			return;
+		}
+		
+		Set<Agent> agents = saferPositions.keySet();
+		
+		Set<PointXY> positionsProcessed = new HashSet<PointXY>();
+		
+		for (Agent agent : agents) {
+			
+			Agent check = state.getAgent(agent.getID());
+			if (check == null) {
+				continue;
+			}
+			
+			Set<PointXY> agentPoints = saferPositions.get(agent);
+			
+			for (PointXY pos : agentPoints) {
+				Body body = findPartitionBody(pos);
+				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
+				data.setAgentID(agent.getID());
+				positionsProcessed.add(pos);
+			}
+			
+		}
+		
+		Set<PointXY> allPositions = state.getMaze().getNodes().keySet();
+		
+		for (PointXY pos : allPositions) {
+			if (!positionsProcessed.contains(pos)) {
+				Body body = findPartitionBody(pos);
+				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
+				data.setAgentID(-1);			
+			}
+		}
+		
+	}
+	
 }

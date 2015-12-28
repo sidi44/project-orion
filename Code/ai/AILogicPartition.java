@@ -19,6 +19,30 @@ import logic.Path;
 import logic.Predator;
 import logic.Prey;
 
+/**
+ * AILogicPartition class.
+ * 
+ * This class implements the AILogic interface. To calculate the next move for 
+ * the prey, the maze is partitioned such that each maze square is assigned to 
+ * the nearest prey. The prey then go to the nearest pill in their partition. 
+ * 
+ * If the predator is within a certain distance of a prey, the prey will assess
+ * which positions in the maze are safer than its current position, then pick
+ * one of those safer positions at random to move to. (This is continually 
+ * re-assessed in case the movement of the predator changes the situation.) 
+ * The safer positions which contain pills are prioritised over those which 
+ * don't.
+ * 
+ * If the predator is further than the specified distance, but moving to the 
+ * next square will make the prey within the distance, the prey is set to stay
+ * still until it is safe to move again.
+ * 
+ * For the predator, the shortest path to the nearest prey is calculated and 
+ * used to determine the movement of the predator.
+ * 
+ * @author Simon Dicken
+ * @version 2015-12-28
+ */
 public class AILogicPartition implements AILogic {
 
 	private Map<Agent, Set<PointXY>> partition;
@@ -102,6 +126,13 @@ public class AILogicPartition implements AILogic {
 				allPrey.add(p);
 			}
 		}
+		
+		// If there aren't any prey we don't need to do anything
+		if (allPrey.size() == 0) {
+			return;
+		}
+		
+		// Sort the prey into Agent ID order
 		allPrey.sort(new AgentComparator());
 		
 		// Reset the partition field
@@ -154,10 +185,6 @@ public class AILogicPartition implements AILogic {
 	
 	private void calcNextMovePrey(Agent agent, GameState state) {
 		
-		if (agent.isInTransition()) {
-			return;
-		}
-		
 		// Find the closest Predator.
 		Path closestPredatorPath = findClosestPredatorPath(agent, state);
 		
@@ -190,8 +217,29 @@ public class AILogicPartition implements AILogic {
 			if (pillNodes.size() != 0) {
 				PointXY preyPos = agent.getPosition();
 				Path closestPillPath = state.getClosestPath(preyPos, pillNodes);
+				
+				if (closestPillPath.getLength() > 1) {
+					PointXY nextSquare = closestPillPath.getPathNodes().get(1);
 					
-				// Use the closestPillPath to get the direction in which to travel.
+					List<Predator> predators = state.getPredators();
+					
+					// Find the closest Predator.
+					int closestPredPathLength = Integer.MAX_VALUE;
+					for (Predator p : predators) {
+						PointXY predatorPos = p.getPosition();
+						Path path = state.getPath(nextSquare, predatorPos);
+						if (path.getLength() < closestPredPathLength) {
+							closestPredPathLength = path.getLength();
+						}
+					}
+					if (closestPredPathLength <= runFromPredDist) {
+						agent.setNextMoveDirection(Direction.None);
+						return;
+					}
+				}
+				
+				// Use the closestPillPath to get the direction in which to 
+				// travel.
 				setDirectionFromPath(agent, closestPillPath);
 			} else {
 				pickRandomTarget(agent, state);
@@ -267,7 +315,7 @@ public class AILogicPartition implements AILogic {
 		}
 		
 		PointXY target = targets.get(agent);
-		boolean reevaluatePath = true;
+		boolean reevaluatePath = false;
 		if (target != null) {
 			// Check whether the current target is still reasonable (i.e. if the
 			// predator has moved onto or close to the target path, we should 
@@ -279,7 +327,7 @@ public class AILogicPartition implements AILogic {
 		} 
 		
 		// The current target node is ok, so set the move using that.
-		if (!reevaluatePath) {
+		if (!reevaluatePath && target != null) {
 			setMoveFromTarget(agent, state);
 			return;
 		}
@@ -289,7 +337,8 @@ public class AILogicPartition implements AILogic {
 		
 		// The list of positions in the maze which we can get too without 
 		// getting any closer to the nearby predators.
-		List<PointXY> saferPositions = findSaferPositions(agentPos, state, predatorDist);
+		List<PointXY> saferPositions = 
+				findSaferPositions(agentPos, state, predatorDist);
 			
 		// Add the data to the member variable (currently only used for 
 		// debugging).
@@ -309,29 +358,10 @@ public class AILogicPartition implements AILogic {
 		
 		// Set the move using the target
 		setMoveFromTarget(agent, state);
-		
-		
-		
-//		List<PointXY> path = closestPredatorPath.getPathNodes();
-//		
-//		// If the Predator is in our square or the path is empty, we are 
-//		// essentially caught so just continue what we were doing for the last
-//		// few moments.
-//		if (path.size() <= 1) {
-//			return;
-//		}
-//		
-//		// Use the first couple of points on the path to work out from which 
-//		// direction the Predator is coming.
-//		PointXY pos1 = path.get(0);
-//		PointXY pos2 = path.get(1);
-//		Direction runFromDir = getDirection(pos1, pos2);
-//		
-//		Direction dir = getPreferredMoveDirection(pos1, runFromDir, maze);
-//		agent.setNextMoveDirection(dir);
 	}
 	
-	private Map<Predator, Integer> findClosePredators(Agent agent, GameState state) {
+	private Map<Predator, Integer> findClosePredators(Agent agent, 
+			GameState state) {
 		
 		PointXY agentPos = agent.getPosition();
 		
@@ -403,7 +433,8 @@ public class AILogicPartition implements AILogic {
 		for (PointXY pos : allPositions) {
 			Path path = state.getPath(agentPos, pos);
 			
-			boolean tooClose = pathTooCloseToPredators(path, predatorDist, state);
+			boolean tooClose = 
+					pathTooCloseToPredators(path, predatorDist, state);
 			if (!tooClose) {
 				saferPositions.add(pos);
 			}
@@ -450,69 +481,7 @@ public class AILogicPartition implements AILogic {
 		
 	}
 	
-	private Direction getPreferredMoveDirection(PointXY pos, 
-			Direction runFromDir, Maze maze) {
-		
-		if (runFromDir == Direction.None) {
-			return Direction.None;
-		}
-		
-		Direction[] runDirs = runDirections.get(runFromDir);
-		PointXY first = getPointFromDirection(pos, runDirs[0]);
-		PointXY second = getPointFromDirection(pos, runDirs[1]);
-		PointXY third = getPointFromDirection(pos, runDirs[2]);
-
-		Direction dir;
-		if (maze.areNeighbours(pos, first)) {
-			dir = runDirs[0];
-		} else if (maze.areNeighbours(pos, second)) {
-			dir = runDirs[1];
-		} else if (maze.areNeighbours(pos, third)) {
-			dir = runDirs[2];
-		} else {
-			// We'll try this, to avoid getting stuck, even if it means getting
-			// closer to the undesirable location (i.e. the Predator).
-			dir = runFromDir;
-		}
-		return dir;
-	}
-	
-	private PointXY getPointFromDirection(PointXY point, Direction dir) {
-		
-		PointXY newPoint;
-		
-		switch (dir) {
-			case Down: {
-				newPoint = new PointXY(point.getX(), point.getY() - 1);
-				break;
-			}
-			case Left: {
-				newPoint = new PointXY(point.getX() - 1, point.getY());
-				break;
-			}
-			case Right: {
-				newPoint = new PointXY(point.getX() + 1, point.getY());
-				break;
-			}
-			case Up: {
-				newPoint = new PointXY(point.getX(), point.getY() + 1);
-				break;
-			}
-			case None:
-			default: {
-				newPoint = point;
-				break;
-			}
-		}
-		
-		return newPoint;
-	}
-	
 	private void calcNextMovePredator(Agent agent, GameState state) {
-		
-		if (agent.isInTransition()) {
-			return;
-		}
 		
 		// Find the closest prey.
 		Path closestPreyPath = findClosestPreyPath(agent, state);

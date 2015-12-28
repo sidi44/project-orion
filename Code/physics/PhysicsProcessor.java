@@ -13,7 +13,7 @@ import com.badlogic.gdx.math.Vector2;
  * GameState snapshot with the post-simulation data.
  * 
  * @author Simon Dicken
- * @version 2015-10-18
+ * @version 2015-12-28
  */
 public interface PhysicsProcessor {
 	
@@ -50,11 +50,26 @@ public interface PhysicsProcessor {
 	float getSquareSize();
 	
 	/**
+	 * Gets the (fixed) simulation time step.
+	 * 
+	 * @return the simulation time step.
+	 */
+	float getSimulationStep();
+	
+	/**
 	 * Return the default speed of the given physics body type.
 	 * 
 	 * @param type - the physics body type for which to return the speed.
 	 * @return the speed of the provided physics body type.
 	 */
 	float getBodySpeed(PhysicsBodyType type);
+	
+	/**
+	 * Set what type of debug information to process and display. The default is
+	 * DebugNone.
+	 * 
+	 * @param type - the type of debug information to process and display.
+	 */
+	void setDebugCategory(PhysicsDebugType type);
 	
 }

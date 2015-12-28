@@ -352,7 +352,6 @@ public class Renderer {
 			PhysicsDataDebug debugData = 
 					(PhysicsDataDebug) body.getUserData();
 			int agentID = debugData.getAgentID();
-//			int numAgents = debugData.getNumAgents();
 			
 			Color colour = new Color();
 			if (agentID == 1) {

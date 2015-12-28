@@ -17,7 +17,7 @@ import logic.powerup.PreyPowerUp;
  * Represents the state of the game.
  * 
  * @author Martin Wong, Simon Dicken
- * @version 2015-10-18
+ * @version 2015-12-28
  */
 public class GameState {
 	
@@ -53,11 +53,7 @@ public class GameState {
 		this.preyPowerUps = preyPowerUps;
 		
 		this.pathFinder = new PathFinder(maze);
-		long startTime = System.currentTimeMillis();
 		this.pathFinder.generateAllPaths();
-		long endTime = System.currentTimeMillis();
-		long time = (endTime - startTime) / 1000;
-		System.out.println("Time to generate all paths: " + time + "s");
 		
 	}
 	
@@ -259,13 +255,12 @@ public class GameState {
 	 * @param id (int)
 	 * @param pos (PointXY)
 	 */
-	public void updatePredatorPosition(int id, PointXY pos, boolean inTransition) {
+	public void updatePredatorPosition(int id, PointXY pos) {
 		Iterator<Predator> iter = predators.iterator();
 		while(iter.hasNext()) {
 			Predator p = iter.next();
 			if (p.getID() == id) {
 				p.setPosition(pos);
-				p.setInTransition(inTransition);
 			}
 		}
 	}
@@ -301,13 +296,12 @@ public class GameState {
 	 * @param id (int)
 	 * @param pos (PointXY)
 	 */
-	public void updatePreyPosition(int id, PointXY pos, boolean inTransition) {
+	public void updatePreyPosition(int id, PointXY pos) {
 		Iterator<Prey> iter = prey.iterator();
 		while(iter.hasNext()) {
 			Prey p = iter.next();
 			if (p.getID() == id) {
 				p.setPosition(pos);
-				p.setInTransition(inTransition);
 			}
 		}
 	}
@@ -357,6 +351,15 @@ public class GameState {
 		return pathFinder.getPath(start, end);
 	}
 	
+	/**
+	 * Find the shortest path in the GameState's maze from the provided start
+	 * point to the nearest point in the set of goal points.
+	 * 
+	 * @param start - the start point on the Path.
+	 * @param goals - the set of goal points.
+	 * @return the shortest path from the start point to the nearest point in 
+	 * the set of goal points.
+	 */
 	public Path getClosestPath(PointXY start, Set<PointXY> goals) {
 		return pathFinder.getPath(start, goals);
 	}
@@ -428,19 +431,53 @@ public class GameState {
 		return null;
 	}
 	
+	/**
+	 * ** Intended for Debug only. **
+	 * 
+	 * Set the partitioned maze. The partitioned maze is created by assigning 
+	 * each node in the maze to a Prey.
+	 * 
+	 * @param partition - the partition to set.
+	 */
 	public void setPartition(Map<Agent, Set<PointXY>> partition) {
 		this.partition = partition;
 	}
 	
+	/**
+	 * ** Intended for Debug only **
+	 * 
+	 * Get the current partitioned maze. The partitioned maze is created by 
+	 * assigning each node in the maze to a Prey.
+	 * 
+	 * @return Get the current partitioned maze.
+	 */
 	public Map<Agent, Set<PointXY>> getPartition() {
 		return partition;
 	}
 
-	public Map<Agent, Set<PointXY>> getSaferPositions() {
-		return saferPositions;
-	}
-
+	/**
+	 * ** Intended for Debug only. **
+	 * 
+	 * Set the safer positions map. Safer positions are the collection of points 
+	 * which a prey considers safer than its current position.
+	 * 
+	 * @param saferPositions - maps agents to the set of positions that they 
+	 * consider safer than their current position.
+	 */
 	public void setSaferPositions(Map<Agent, Set<PointXY>> saferPositions) {
 		this.saferPositions = saferPositions;
+	}
+
+	/**
+	 * ** Intended for Debug only. **
+	 * 
+	 * Get the safer positions map. Safer positions are the collection of points 
+	 * which a prey considers safer than its current position.
+	 * 
+	 * @return saferPositions - maps agents to the set of positions that they 
+	 * consider safer than their current position.
+	 */
+	public Map<Agent, Set<PointXY>> getSaferPositions() {
+		return saferPositions;
 	}
 }

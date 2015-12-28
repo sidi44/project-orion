@@ -12,14 +12,9 @@ import java.util.Set;
 import logic.powerup.PredatorPowerUp;
 import logic.powerup.PredatorPowerUpTeleport;
 import logic.powerup.PreyPowerUp;
-import logic.powerup.PreyPowerUpSlowDownPredator;
-import logic.powerup.PreyPowerUpSpeedUp;
 import logic.powerup.PreyPowerUpTeleport;
 import ai.AILogic;
 import ai.AILogicPartition;
-import ai.AILogicRandom;
-import ai.AILogicSimple;
-import ai.OrionAI;
 import utils.NumberUtils;
 
 /**
@@ -27,7 +22,7 @@ import utils.NumberUtils;
  * different game components.
  * 
  * @author Martin Wong
- * @version 2015-10-18
+ * @version 2015-12-28
  */
 public class GameLogic {
 	
@@ -121,6 +116,7 @@ public class GameLogic {
 				predatorPowerUp = pConfig.getPredatorPowerUps().get(randomNum);
 				
 				if (predatorPowerUp instanceof PredatorPowerUpTeleport) {
+					predatorPowerUp = new PredatorPowerUpTeleport();
 					PredatorPowerUpTeleport teleport = 
 							(PredatorPowerUpTeleport) predatorPowerUp;
 					teleport.setNextPoint(maze.getRandomPoint());
@@ -142,6 +138,7 @@ public class GameLogic {
 				preyPowerUp = pConfig.getPreyPowerUps().get(randomNum);
 				
 				if (preyPowerUp instanceof PreyPowerUpTeleport) {
+					preyPowerUp = new PreyPowerUpTeleport();
 					PreyPowerUpTeleport teleport = 
 							(PreyPowerUpTeleport) preyPowerUp;
 					teleport.setNextPoint(maze.getRandomPoint());
