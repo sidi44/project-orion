@@ -43,7 +43,7 @@ public class MainMenuScreen implements Screen {
 										 	 50, 400);
 		
 		stage.addActor(gameButton);
-		stage.addActor(settingsButton);
+		//stage.addActor(settingsButton);
 	}
 	
 	@Override

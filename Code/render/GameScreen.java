@@ -4,6 +4,7 @@ import game.GameResult;
 import game.PredatorPreyGame;
 import geometry.PointXY;
 import geometry.PolygonShape;
+import input.CameraAccessor;
 import input.UserInputProcessor;
 
 import java.util.List;
@@ -22,6 +23,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -32,7 +34,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
  * @author Paulius Balasevicius, Simon Dicken, Martin Wong
  * @version 2015-12-28
  */
-public class GameScreen implements Screen {
+public class GameScreen implements Screen, CameraAccessor {
 
 	private int numSimSteps;
 	private final int maxSimSteps;
@@ -64,7 +66,7 @@ public class GameScreen implements Screen {
 //		this.timeLimit = 200; // seconds.
 		
 		// Process gameplay inputs
-		this.inputProc = new UserInputProcessor();
+		this.inputProc = new UserInputProcessor(this);
 		game.addInputProcessor(inputProc);
 		
 		// TODO this should be reworked and moved into a separate class.
@@ -404,6 +406,16 @@ public class GameScreen implements Screen {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public Vector3 screenToWorld(Vector3 screenCoords) {
+		return camera.unproject(screenCoords);
+	}
+
+	@Override
+	public Vector3 cameraPosition() {
+		return camera.position;
 	}
 
 }

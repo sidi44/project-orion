@@ -29,7 +29,7 @@ public class SettingsScreen implements Screen {
 											  500, 100);
 		stage = new Stage();
 		game.addInputProcessor(stage);
-		stage.addActor(menuButton);
+		//stage.addActor(menuButton);
 	}
 	
 	@Override

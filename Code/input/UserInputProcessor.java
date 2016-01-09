@@ -8,6 +8,7 @@ import logic.Move;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.math.Vector3;
 
 public class UserInputProcessor implements InputProcessor {
 
@@ -23,11 +24,14 @@ public class UserInputProcessor implements InputProcessor {
 	private final float mCamZoomSize = 0.2f;
 	public final LinkedList<Direction> mPressedCamKeys;
 
-	public UserInputProcessor() {
+	private CameraAccessor mCameraAccessor;
+	
+	public UserInputProcessor(CameraAccessor ca) {
 		mMove = new Move();
 		mPressedMove = Direction.None;
 		mPressedCamKeys = new LinkedList<Direction>();
 		mPressedEnter = false;
+		mCameraAccessor = ca;
 	}
 
 	public Move getNextMove() {
@@ -161,8 +165,23 @@ public class UserInputProcessor implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		System.out.println("Game input proc");
-		return false;
+		Vector3 screenCoords = new Vector3(screenX, screenY, 0);
+		Vector3 worldCoords = mCameraAccessor.screenToWorld(screenCoords);
+		Vector3 camPos = mCameraAccessor.cameraPosition();
+		
+		if (worldCoords.x <= 1 * (camPos.x / 2)) {
+			mPressedMove = Direction.Left;
+		} else if (worldCoords.x >= 3 * (camPos.x / 2)) {
+			mPressedMove = Direction.Right;
+		} else if (worldCoords.y <= camPos.y) {
+			mPressedMove = Direction.Down;
+		} else if (worldCoords.y > camPos.y) {
+			mPressedMove = Direction.Up;
+		} else {
+			return false;
+		}
+		
+		return true;
 	}
 
 	@Override

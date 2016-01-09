@@ -15,7 +15,7 @@ import render.Renderer;
 import render.RendererConfiguration;
 import render.SettingsScreen;
 import render.SplashScreen;
-import xml.ConfigurationXMLParser;
+//import xml.ConfigurationXMLParser;
 import ai.AILogic;
 
 import com.badlogic.gdx.Game;
@@ -65,12 +65,13 @@ public class PredatorPreyGame extends Game	 {
 
 		String filename = "Configuration.xml";
 		String schemaFilename = "Configuration.xsd";
-		ConfigurationXMLParser xmlParser = 
-				new ConfigurationXMLParser(filename, schemaFilename);
-		xmlParser.parseXML();
-		gameConfig = xmlParser.getGameConfig();
-		physicsConfig = xmlParser.getPhysicsConfig();
-		rendererConfig = xmlParser.getRendererConfig();
+//		ConfigurationXMLParser xmlParser = 
+//				new ConfigurationXMLParser(filename, schemaFilename);
+//		xmlParser.parseXML();
+		Configuration config = new Configuration();
+		gameConfig = config.getGameConfig();
+		physicsConfig = config.getPhysicsConfig();
+		rendererConfig = config.getRendererConfig();
 
 		// Create the world.
 		Vector2 gravity = new Vector2(0f, 0f);
