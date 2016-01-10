@@ -22,6 +22,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.World;
@@ -68,6 +69,7 @@ public class GameScreen implements Screen, CameraAccessor {
 		// Process gameplay inputs
 		this.inputProc = new UserInputProcessor(this);
 		game.addInputProcessor(inputProc);
+		game.addInputProcessor(new GestureDetector(inputProc));
 		
 		// TODO this should be reworked and moved into a separate class.
 		setupStage();

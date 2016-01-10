@@ -8,6 +8,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import logic.powerup.PredatorPowerUp;
+import logic.powerup.PredatorPowerUpFreezePrey;
+import logic.powerup.PredatorPowerUpMagnet;
+import logic.powerup.PredatorPowerUpSlowDownPrey;
+import logic.powerup.PredatorPowerUpSpeedUp;
+import logic.powerup.PredatorPowerUpTeleport;
 import logic.powerup.PreyPowerUp;
 import xml.PredatorPowerUpAdapter;
 import xml.PreyPowerUpAdapter;
@@ -32,10 +37,35 @@ public class PowerUpConfig {
 	 * Sets parameters to their default values.
 	 */
 	public PowerUpConfig() {
-		this.numPredPow = 0;
+		this.numPredPow = 5;
 		this.numPreyPow = 0;
 		this.predatorPowerUps = new ArrayList<PredatorPowerUp>();
 		this.preyPowerUps = new ArrayList<PreyPowerUp>();
+		
+		initialisePowerUps();
+	}
+	
+	private void initialisePowerUps() {
+		int duration = 200;
+		float speedUpFactor = 2.0f;
+		float slowDownFactor = 2.0f;
+		int magnetForce = 2000;
+		int magnetRange = 3;
+		
+		PredatorPowerUp powerUpSpeedUp = 
+				new PredatorPowerUpSpeedUp(duration, speedUpFactor);
+		PredatorPowerUp powerUpSlowDown = 
+				new PredatorPowerUpSlowDownPrey(duration, slowDownFactor);
+		PredatorPowerUp powerUpFreeze = new PredatorPowerUpFreezePrey(duration);
+		PredatorPowerUp powerUpMagnet = 
+				new PredatorPowerUpMagnet(duration, magnetForce, magnetRange);
+		PredatorPowerUp powerUpTeleport = new PredatorPowerUpTeleport();
+		
+		predatorPowerUps.add(powerUpSpeedUp);
+		predatorPowerUps.add(powerUpSlowDown);
+		predatorPowerUps.add(powerUpFreeze);
+		predatorPowerUps.add(powerUpMagnet);
+		predatorPowerUps.add(powerUpTeleport);
 	}
 	
 	/**
