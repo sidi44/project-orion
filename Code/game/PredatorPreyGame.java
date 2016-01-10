@@ -15,6 +15,7 @@ import render.Renderer;
 import render.RendererConfiguration;
 import render.SettingsScreen;
 import render.SplashScreen;
+import sound.SoundManager;
 import xml.ConfigurationXMLParser;
 import ai.AILogic;
 
@@ -40,6 +41,7 @@ public class PredatorPreyGame extends Game	 {
 	private GameLogic gameLogic;
 	private Renderer renderer;
 	private PhysicsProcessor physProc;
+	private SoundManager soundManager;
 	
 	private GameConfiguration gameConfig;
 	private PhysicsConfiguration physicsConfig;
@@ -92,6 +94,9 @@ public class PredatorPreyGame extends Game	 {
 		setScreen(getScreenByName("SPLASH"));
 		
 		logger = new ResultLogger();
+		
+		soundManager = new SoundManager();
+		physProc.addReceiver(soundManager);
 	}
 
 	public void startGame() {
@@ -199,6 +204,7 @@ public class PredatorPreyGame extends Game	 {
 		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
 				physicsConfig);
 		physProc.setDebugCategory(debugType);
+		physProc.addReceiver(soundManager);
 		
 		Screen screen = getScreenByName("GAME");
 		GameScreen gameScreen = (GameScreen) screen;
