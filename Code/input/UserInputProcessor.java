@@ -181,7 +181,7 @@ public class UserInputProcessor implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		System.out.println("Game input proc");
+		System.out.println("Event received by " + this.getClass().getSimpleName());
 		return false;
 	}
 

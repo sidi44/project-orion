@@ -29,20 +29,35 @@ public class MainMenuScreen implements Screen {
 		// TODO create more buttons in an organised layout.
 		// The below chunk needs to be reorganised to make it more
 		// reusable and avoid repetitive code bloat.
-		// Button sizes & locations should be derived from the viewport / camera
-
-		// Game button
+		
+		// TODO Read this from config
+		float buttonWidthCm = 2;
+		float buttonHeightCm = 1;
+		
 		Button gameButton = game.createButton("button_game.png",
 										 "button_game_highlight.png",
 										 "MAIN_MENU",
 										 "GAME",
-										 540, 430);
+										 0, 0,
+										 buttonWidthCm,
+										 buttonHeightCm);
 		
 		Button settingsButton = game.createButton("button_settings.png",
 								  		 	 "button_settings_highlight.png",
 								  		 	 "MAIN_MENU",
 								  		 	 "SETTINGS",
-										 	 0, 430);
+										 	 0, 0,
+										 	buttonWidthCm,
+										 	buttonHeightCm);
+		
+		float displayWidth = Gdx.graphics.getWidth();
+		float displayHeight = Gdx.graphics.getHeight();
+		
+		gameButton.setPosition(displayWidth - gameButton.getWidth(),
+							   displayHeight - gameButton.getHeight());
+		
+		settingsButton.setPosition(0, 
+								   displayHeight - settingsButton.getHeight());
 		
 		stage.addActor(gameButton);
 		stage.addActor(settingsButton);
@@ -72,7 +87,7 @@ public class MainMenuScreen implements Screen {
 
 	@Override
 	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
+		stage.getViewport().update(width, height);
 	}
 
 	@Override

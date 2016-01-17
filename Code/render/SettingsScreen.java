@@ -23,11 +23,21 @@ public class SettingsScreen implements Screen {
 		batch = new SpriteBatch();
 		screenTexture = new Texture(Gdx.files.internal("settings_screen.png"));
 		
+		// TODO Read this from config
+		float buttonWidthCm = 2;
+		float buttonHeightCm = 1;
+		
 		Button menuButton = game.createButton("button_menu.png",
 											  "button_menu_highlight.png",
 											  "SETTINGS",
 											  "MAIN_MENU",
-											  540, 430);
+											  0, 0,
+											  buttonWidthCm,
+											  buttonHeightCm);
+		
+		menuButton.setPosition(Gdx.graphics.getWidth() - menuButton.getWidth(),
+				   			   Gdx.graphics.getHeight() - menuButton.getHeight());
+		
 		stage = new Stage();
 		game.addInputProcessor("SETTINGS", stage);
 		stage.addActor(menuButton);
@@ -48,8 +58,7 @@ public class SettingsScreen implements Screen {
 
 	@Override
 	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		
+		stage.getViewport().update(width, height);
 	}
 
 	@Override

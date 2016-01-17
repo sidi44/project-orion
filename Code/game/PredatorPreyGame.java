@@ -1,5 +1,7 @@
 package game;
 
+import input.InputFilter;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,15 +21,15 @@ import ai.AILogic;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
@@ -38,6 +40,7 @@ public class PredatorPreyGame extends Game	 {
 
 	private GameLogic gameLogic;
 	private Renderer renderer;
+	private AssetManager assetManager;
 	private PhysicsProcessor physProc;
 	
 	private GameConfiguration gameConfig;
@@ -45,15 +48,16 @@ public class PredatorPreyGame extends Game	 {
 	private RendererConfiguration rendererConfig;
 	
 	private ResultLogger logger;
+	private OrthographicCamera stageCamera;
 	
 	// Screens
 	private final Map<String, Screen> screens;
-	private final InputMultiplexer inputMultiplexer;
+	private final InputFilter inputFilter;
 
 	// Final initialisers
 	{
 		screens = new HashMap<String, Screen>();
-		inputMultiplexer = new InputMultiplexer();
+		inputFilter = new InputFilter();
 	}
 	
 	@Override
@@ -79,16 +83,24 @@ public class PredatorPreyGame extends Game	 {
 				physicsConfig);
 
 		renderer = new Renderer(false, false);
+		assetManager = new AssetManager();
 		
 		renderer.loadTextures(rendererConfig);
 
-		Gdx.input.setInputProcessor(inputMultiplexer);
+		Gdx.input.setInputProcessor(inputFilter);
 		loadScreens();
 		setScreen(getScreenByName("SPLASH"));
 		
 		logger = new ResultLogger();
 	}
 
+	@Override
+	public void render() {
+		super.render();
+		
+		
+	}
+	
 	public void startGame() {
 		switchToScreen("GAME");
 	}
@@ -117,19 +129,12 @@ public class PredatorPreyGame extends Game	 {
 	}
 	
 	/**
-	 * Adds an input processer to the input multiplexer if it hasn't been 
+	 * Adds an input processor to the input multiplexer if it hasn't been 
 	 * already added. Throws an exception 
 	 * @param inputProc - the input processor.
 	 */
-	public void addInputProcessor(InputProcessor inputProc) {
-		
-		if (inputProc == null) {
-			throw new IllegalArgumentException("Input processor can't be null");
-		}
-		
-		if (!inputMultiplexer.getProcessors().contains(inputProc, true)) {
-			inputMultiplexer.addProcessor(inputProc);
-		}
+	public void addInputProcessor(String screenName, InputProcessor inputProc) {
+		inputFilter.addInputProcessorForScreen(screenName, inputProc);
 	}
 	
 	public PhysicsProcessor getPhysicsProcessor() {
@@ -140,21 +145,32 @@ public class PredatorPreyGame extends Game	 {
 		return screens.get(screenName);
 	}
 	
-	public void switchToScreen(String name) {
-		setScreen(getScreenByName(name));
+	public void switchToScreen(String screenName) {
+		setScreen(getScreenByName(screenName));
+		inputFilter.setActiveInputProcessor(screenName);
 	}
 	
-	public Button createButton(final String buttonName,
-							   final String buttonHighlightName, 
-							   final String screenName,
-							   float posX, float posY) {
+	public ImageButton createButton(final String buttonUpName,
+									final String buttonOverName,
+									final String locatedInScreenName,
+									final String switchToScreenName,
+									final float posX,
+									final float posY,
+									final float buttonWidthCm,
+									final float buttonHeightCm) {
 		
-		SpriteDrawable buttonDrawable = getDrawableFromFile(buttonName);
-		SpriteDrawable buttonDrawableMouseOver = getDrawableFromFile(buttonHighlightName);
+		float buttonWidth = buttonWidthCm * Gdx.graphics.getPpcX();
+		float buttonHeight = buttonHeightCm * Gdx.graphics.getPpcY();
 
+		Sprite buttonUp = getSprite(buttonUpName);
+		Sprite buttonOver = getSprite(buttonOverName);
+
+		buttonUp.setSize(buttonWidth, buttonHeight);
+		buttonOver.setSize(buttonWidth, buttonHeight);
+		
 		ImageButton.ImageButtonStyle buttonStyle = new ImageButton.ImageButtonStyle();
-		buttonStyle.imageUp = buttonDrawable;
-		buttonStyle.imageOver = buttonDrawableMouseOver;
+		buttonStyle.imageUp = new SpriteDrawable(buttonUp);
+		buttonStyle.imageOver = new SpriteDrawable(buttonOver);
 
 		ImageButton button = new ImageButton(buttonStyle);
 
@@ -162,20 +178,34 @@ public class PredatorPreyGame extends Game	 {
 		button.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				switchToScreen(screenName);
+				System.out.println("Event received by button: " + buttonUpName);
+
+				// Take action only if the event originated in the current active screen.
+				if (getScreenByName(locatedInScreenName) == getScreen()) {
+					switchToScreen(switchToScreenName);
+				}
 			}
 		});
 
 		return button;
 	}
 	
-	private SpriteDrawable getDrawableFromFile(String filename) {
+//	private SpriteDrawable getDrawableFromFile(String filename) {
+//		Texture texture = new Texture(Gdx.files.internal(filename));
+//		return new SpriteDrawable(new Sprite(texture));
+//	}
+	
+	public Sprite getSprite(String filename) {
 		Texture texture = new Texture(Gdx.files.internal(filename));
-		return new SpriteDrawable(new Sprite(texture));
+		return new Sprite(texture);
 	}
 	
 	public ResultLogger getLogger() {
 		return logger;
+	}
+	
+	public AssetManager getAssetManager() {
+		return assetManager;
 	}
 	
 	public void resetLogger() {

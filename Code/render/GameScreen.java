@@ -7,6 +7,7 @@ import geometry.PolygonShape;
 import input.UserInputProcessor;
 
 import java.util.List;
+import java.util.Locale;
 
 import logic.Agent;
 import logic.GameLogic;
@@ -20,12 +21,20 @@ import physics.PhysicsProcessor;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
+import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 public class GameScreen implements Screen {
 
@@ -34,20 +43,31 @@ public class GameScreen implements Screen {
 	
 	private final PredatorPreyGame game;
 	private World world;
-	private final OrthographicCamera camera;
+	private final OrthographicCamera gameCamera;
+	private final OrthographicCamera stageCamera;
+	private ScalingViewport viewport;
 	private GameLogic gameLogic;
 	private final Renderer renderer;
+	private BitmapFont font;
+	private SpriteBatch batch;
 	private PhysicsProcessor physProc;
 	private final InputMultiplexer inputMultiplexer;
 	private final UserInputProcessor inputProc;
-	private Stage gameStage;
 
+	// HUD fields
+	private Stage gameStage;
+	
 	private final float dt = 1.0f / 60.0f;
 	private float accumulator;
+	// We need a flag to know when the game is over to stop all processing
+	// and animations, but we may still want to render static content in the 
+	// background in case the screen is resized.
+	private boolean gameIsOver;
 	
 	// Gameplay fields
 //	private final static long nanoToSeconds = 1000000000;
-//	private long startTime;
+	private long startTime;
+	private long elapsedTime;
 //	private long timeLimit;
 	
 	private float widthToHeight;
@@ -59,7 +79,7 @@ public class GameScreen implements Screen {
 		gameLogic = game.getGameLogic();
 		physProc = game.getPhysicsProcessor();
 		
-//		this.startTime = System.nanoTime() / nanoToSeconds;
+		startTime = TimeUtils.nanoTime();
 //		this.timeLimit = 200; // seconds.
 		
 		// Process gameplay inputs
@@ -67,13 +87,14 @@ public class GameScreen implements Screen {
 		inputProc = new UserInputProcessor();
 		inputMultiplexer.addProcessor(inputProc);
 		game.addInputProcessor("GAME", inputMultiplexer);
-		
+				
+		gameCamera = new OrthographicCamera();
+		stageCamera = new OrthographicCamera();
 		// TODO this should be reworked and moved into a separate class.
 		setupStage();
-		
-		camera = new OrthographicCamera(); // TODO, investigate when this method call is needed.
-		camera.update();
-		setInitialViewport(1.5f);
+
+		setInitialViewport(1f);
+//		setInitialViewport(1.5f);
 //		trackPlayer(1.4f, false);
 		
 		accumulator = 0;
@@ -84,54 +105,127 @@ public class GameScreen implements Screen {
 	
 	private void setupStage() {
 		
-		// Game panel (UI) inputs
-		gameStage = new Stage();
-		inputMultiplexer.addProcessor(gameStage);
+		// TODO Read this from config
+		float buttonWidthCm = 2;
+		float buttonHeightCm = 1;
 
-		Button menuButton = game.createButton("button_menu.png",
-											  "button_menu_highlight.png",
-											  "GAME",
-											  "MAIN_MENU",
-											  540, 430);
+		ImageButton menuButton = game.createButton("button_menu.png",
+												   "button_menu_highlight.png",
+												   "GAME",
+												   "MAIN_MENU",
+												   0, 0,
+												   buttonWidthCm,
+												   buttonHeightCm);
+		
+		// ============================= DEBUG =================================
+		System.out.println("Button width / height: " 
+							+ menuButton.getWidth()
+							+ " | " + menuButton.getHeight());
+		// ============================= DEBUG =================================
+		
+		float displayWidth = Gdx.graphics.getWidth();
+		float displayHeight = Gdx.graphics.getHeight();
+		
+		menuButton.setPosition(displayWidth - menuButton.getWidth(),
+							   displayHeight - menuButton.getHeight());
+		
+		// ================================ DEBUG ==============================
+		System.out.println("------ Graphics ------");
+		System.out.println("Density: " + Gdx.graphics.getDensity());
+		System.out.println("Height: " + Gdx.graphics.getHeight());
+		System.out.println("Width: " + Gdx.graphics.getWidth());
+		System.out.println("Pixels per cm X: " + Gdx.graphics.getPpcX());
+		System.out.println("Pixels per cm Y: " + Gdx.graphics.getPpcY());
+		System.out.println("Pixels per inch X: " + Gdx.graphics.getPpiX());
+		System.out.println("Pixels per inch Y: " + Gdx.graphics.getPpiY());
+		System.out.println("----------------------");
+		// ================================ DEBUG ==============================
+		
+		viewport = new ScalingViewport(Scaling.stretch, displayWidth, displayHeight, stageCamera);
+//		viewport = new ScalingViewport(Scaling.stretch, 1200, 800, stageCamera);
+//		viewport = new FitViewport(640, 480, stageCamera);
+//		viewport = new ScreenViewport(640, 480, stageCamera);
+		gameStage = new Stage(viewport);
+		
+		// Game panel (UI) inputs
+		inputMultiplexer.addProcessor(gameStage);
+		font = new BitmapFont(Gdx.files.internal("Calibri_72.fnt")); 
+		font.setScale(0.4f);
+		batch = new SpriteBatch();
+		
+		// TODO debug
+//		System.out.println("displayWidth: " + displayWidth);
+//		System.out.println("display height: " + displayHeight);
+//		System.out.println("menuButtonPosX: " + menuButtonPosX);
+//		System.out.println("menuButtonPosY: " + menuButtonPosY);
+
 		gameStage.addActor(menuButton);
 	}
 	
 	@Override
 	public void render(float delta) {
+
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		if (!gameIsOver) {
+			renderer.render(world, gameCamera.combined, delta);
+			gameStage.draw();
+			
+			// TODO
+//			System.out.println("ViewportHeight: " + viewport.getViewportHeight());
+//			System.out.println("ViewportWidth: " + viewport.getViewportWidth());
+//			System.out.println("ViewportX: " + viewport.getViewportX());
+//			System.out.println("ViewportY: " + viewport.getViewportY());
+//			System.out.println("WorldHeight: " + viewport.getWorldHeight());
+//			System.out.println("WorldWidth: " + viewport.getWorldWidth());
+			
+			// TODO
+			// 1. Reuse the batch from the renderer
+			// 2. Use a custom font with a skin that's defined in a texture packer.
+			//    The default font is Arial-15
+			batch.begin();
+			font.draw(batch, "Time " + getFormattedTime(), 10, 470);
+			font.draw(batch, "Score: ", 10, 450);
+			batch.end();
+			
+			processMoves();
+			inputProc.processCameraInputs(gameCamera);
 
-		renderer.render(world, camera.combined);
-		gameStage.draw();
-		
-		processMoves();
-		inputProc.processCameraInputs(camera);
+			GameState state = gameLogic.getGameState();
+			physProc.preStep(state);
+			
+			// Grab the time difference. Limit the maximum amount of time we can 
+			// progress the physics simulation for a given render frame.
+			delta = (float) Math.min(delta, 0.25);
+			
+			// Add this frame's time to the accumulator.
+			accumulator += delta;
+			
+			// Step the simulation at the given fixed rate for as many times as 
+			// required. Any left over time is passed over to the next frame.
+			while (accumulator >= dt) {
+				physProc.stepSimulation(dt);
+				accumulator -= dt;
+				++numSimSteps;
+			}
 
-		GameState state = gameLogic.getGameState();
-		physProc.preStep(state);
-		
-		// Grab the time difference. Limit the maximum amount of time we can 
-		// progress the physics simulation for a given render frame.
-		delta = (float) Math.min(delta, 0.25);
-		
-		// Add this frame's time to the accumulator.
-		accumulator += delta;
-		
-		// Step the simulation at the given fixed rate for as many times as 
-		// required. Any left over time is passed over to the next frame.
-		while (accumulator >= dt) {
-			physProc.stepSimulation(dt);
-			accumulator -= dt;
-			++numSimSteps;
+			physProc.postStep(state);
+			
+//			setViewportJump(5);
+//			setViewport(12, 0.5f);
+			trackPlayer(1.4f, false);
+			checkForGameOver();
 		}
-
-		physProc.postStep(state);
+		else {
+			renderer.render(world, gameCamera.combined, 0);
+			gameStage.draw();
+			
+			// TODO draw a pop-up box / game over screen
+		}
 		
-//		setViewportJump(5);
-		setViewport(12, 0.5f);
-		trackPlayer(1.4f, false);
-//		camera.update();
-		checkForGameOver();
+		gameCamera.update();
+		stageCamera.update();
 	}
 	
 	private void setInitialViewport(float factor) {
@@ -145,22 +239,22 @@ public class GameScreen implements Screen {
 		widthToHeight = (float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth();
 		
 		if (widthToHeight <= 0) {
-			camera.viewportWidth = mazeWidth;
-			camera.viewportHeight = mazeWidth * widthToHeight;
+			gameCamera.viewportWidth = mazeWidth;
+			gameCamera.viewportHeight = mazeWidth * widthToHeight;
 		} else { // mazeHeight > mazeWidth
-			camera.viewportHeight = mazeHeight;
-			camera.viewportWidth = mazeHeight / widthToHeight;
+			gameCamera.viewportHeight = mazeHeight;
+			gameCamera.viewportWidth = mazeHeight / widthToHeight;
 		}
 		
-		camera.position.x = (mazeUR.x + mazeLL.x) / 2;
-		camera.position.y = (mazeUR.y + mazeLL.y) / 2;
+		gameCamera.position.x = (mazeUR.x + mazeLL.x) / 2;
+		gameCamera.position.y = (mazeUR.y + mazeLL.y) / 2;
 	}
 	
 //	private void setViewportJump(float maxSquaresX) {
 //		widthToHeight = (float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth();
 //		
-//		camera.viewportWidth = maxSquaresX * physProc.getSquareSize();
-//		camera.viewportHeight = camera.viewportWidth * widthToHeight;
+//		gameCamera.viewportWidth = maxSquaresX * physProc.getSquareSize();
+//		gameCamera.viewportHeight = gameCamera.viewportWidth * widthToHeight;
 //		
 //		Vector2[] mazeBoundaries = getWorldMazeBoundaries();
 //		Vector2 mazeLL = mazeBoundaries[0];
@@ -169,24 +263,23 @@ public class GameScreen implements Screen {
 //		float mazeWidth = (mazeUR.x - mazeLL.x);
 //		float mazeHeight = (mazeUR.y - mazeLL.y);
 //		
-//		float widthDiff = camera.viewportWidth - mazeWidth;
-//		float heightDiff = camera.viewportHeight - mazeHeight;
+//		float widthDiff = gameCamera.viewportWidth - mazeWidth;
+//		float heightDiff = gameCamera.viewportHeight - mazeHeight;
 //		
 //		float scale = 0f;
 //		
 //		if (widthDiff > 0 && heightDiff > 0) {
 //			if (widthDiff <= heightDiff) {
-//				scale = mazeWidth / camera.viewportWidth;
-//				camera.viewportWidth = camera.viewportWidth * scale;
-//				camera.viewportHeight = (camera.viewportHeight * scale) * widthToHeight;
+//				scale = mazeWidth / gameCamera.viewportWidth;
+//				gameCamera.viewportWidth = gameCamera.viewportWidth * scale;
+//				gameCamera.viewportHeight = (gameCamera.viewportHeight * scale) * widthToHeight;
 //			} else { // heightDiff < widthDiff
-//				scale = mazeHeight / camera.viewportHeight;
-//				camera.viewportHeight = camera.viewportHeight * scale;
-//				camera.viewportWidth = (camera.viewportWidth * scale) / widthToHeight;
+//				scale = mazeHeight / gameCamera.viewportHeight;
+//				gameCamera.viewportHeight = gameCamera.viewportHeight * scale;
+//				gameCamera.viewportWidth = (gameCamera.viewportWidth * scale) / widthToHeight;
 //			}
 //		}
 //		
-//		camera.update();
 //	}
 	
 	private void setViewport(float maxSquaresX, float factor) {
@@ -212,40 +305,45 @@ public class GameScreen implements Screen {
 		float scale = 0f;
 		float delta = Gdx.graphics.getDeltaTime();
 		
-		newWidth = camera.viewportWidth + (targetWidth - camera.viewportWidth) * delta * factor;
-		scale = camera.viewportWidth / newWidth;
+		newWidth = gameCamera.viewportWidth + (targetWidth - gameCamera.viewportWidth) * delta * factor;
+		scale = gameCamera.viewportWidth / newWidth;
 		newHeight = (newWidth * scale) * widthToHeight;
 		
 		if (widthDiff > 0 && heightDiff > 0) {
 			if (widthDiff <= heightDiff) {
-				newWidth = camera.viewportWidth + (mazeWidth - camera.viewportWidth) * delta * factor;
-				scale = camera.viewportWidth / newWidth;
+				newWidth = gameCamera.viewportWidth + (mazeWidth - gameCamera.viewportWidth) * delta * factor;
+				scale = gameCamera.viewportWidth / newWidth;
 				newHeight = (newWidth * scale) * widthToHeight;
 			} else { // heightDiff < widthDiff
-				newHeight = camera.viewportHeight + (mazeHeight - camera.viewportHeight) * delta * factor;
-				scale = camera.viewportHeight / newHeight;
+				newHeight = gameCamera.viewportHeight + (mazeHeight - gameCamera.viewportHeight) * delta * factor;
+				scale = gameCamera.viewportHeight / newHeight;
 				newWidth = (newHeight * scale) / widthToHeight;
 			}
 		}
 		
-		camera.viewportWidth = newWidth;
-		camera.viewportHeight = newHeight;
-		
-		camera.update();
+		gameCamera.viewportWidth = newWidth;
+		gameCamera.viewportHeight = newHeight;
 	}
 	
 //	private Vector2[] getViewportBoundaries() {
-//		float viewportWidthHalf = (camera.viewportWidth / 2);
-//		float viewportHeightHalf = (camera.viewportHeight / 2);
+//		float viewportWidthHalf = (gameCamera.viewportWidth / 2);
+//		float viewportHeightHalf = (gameCamera.viewportHeight / 2);
 //		
-//		Vector2 viewportLL = new Vector2(camera.position.x - viewportWidthHalf, camera.position.y - viewportHeightHalf);
-//		Vector2 viewportUR = new Vector2(camera.position.x - viewportWidthHalf, camera.position.y - viewportHeightHalf);
+//		Vector2 viewportLL = new Vector2(gameCamera.position.x - viewportWidthHalf, gameCamera.position.y - viewportHeightHalf);
+//		Vector2 viewportUR = new Vector2(gameCamera.position.x - viewportWidthHalf, gameCamera.position.y - viewportHeightHalf);
 //		
 //		Vector2[] viewportBoundaries = new Vector2[] {viewportLL, viewportUR};
 //		
 //		return viewportBoundaries;
 //	}
 	
+	
+	private String getFormattedTime() {
+		long minutes = elapsedTime / 60000000000l;
+		long seconds = elapsedTime / 1000000000l;
+		
+		return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
+	}
 	
 	private Vector2[] getWorldMazeBoundaries() {
 		PolygonShape pShape = gameLogic.getGameState().getMaze().getDimensions();
@@ -266,12 +364,12 @@ public class GameScreen implements Screen {
 		float mazeWidth = (mazeUR.x - mazeLL.x);
 		float mazeHeight = (mazeUR.y - mazeLL.y);
 		
-		float widthDiff = camera.viewportWidth - mazeWidth;
-		float heightDiff = camera.viewportHeight - mazeHeight;
+		float widthDiff = gameCamera.viewportWidth - mazeWidth;
+		float heightDiff = gameCamera.viewportHeight - mazeHeight;
 		
 		float delta = Gdx.graphics.getDeltaTime(); // Or 0.1;
-		float viewportWidthHalf = (camera.viewportWidth / 2);
-		float viewportHeightHalf = (camera.viewportHeight / 2);
+		float viewportWidthHalf = (gameCamera.viewportWidth / 2);
+		float viewportHeightHalf = (gameCamera.viewportHeight / 2);
 		
 		Predator firstPredator = gameLogic.getGameState().getPredators().get(0);
 		Vector2 playerVector = physProc.stateToWorld(firstPredator.getPosition());
@@ -284,7 +382,7 @@ public class GameScreen implements Screen {
 			if (jump) {
 				newX = playerVector.x;
 			} else {
-				newX = camera.position.x + (playerVector.x - camera.position.x) * delta * factor;
+				newX = gameCamera.position.x + (playerVector.x - gameCamera.position.x) * delta * factor;
 			}
 			
 			if (newX - viewportWidthHalf < mazeLL.x) newX = mazeLL.x + viewportWidthHalf;
@@ -297,7 +395,7 @@ public class GameScreen implements Screen {
 			if (jump) {
 				newY = playerVector.y;
 			} else {
-				newY = camera.position.y + (playerVector.y - camera.position.y) * delta * factor;
+				newY = gameCamera.position.y + (playerVector.y - gameCamera.position.y) * delta * factor;
 			}
 			
 			if (newY - viewportHeightHalf < mazeLL.y) {
@@ -307,10 +405,8 @@ public class GameScreen implements Screen {
 			}
 		}
 		
-		camera.position.x = (float) newX;
-		camera.position.y = (float) newY;
-		
-		camera.update();
+		gameCamera.position.x = (float) newX;
+		gameCamera.position.y = (float) newY;
 	}
 	
 	
@@ -318,6 +414,8 @@ public class GameScreen implements Screen {
 	public void resize(int width, int height) {
 //		setViewportJump(5);
 //		trackPlayer(1.4f, true);
+		// TODO -> update gameCamera viewport
+		gameStage.getViewport().update(width, height);
 	}
 
 
@@ -369,7 +467,7 @@ public class GameScreen implements Screen {
 	}
 	
 	private void checkForGameOver() {
-		//long elapsedTime = (System.nanoTime() / nanoToSeconds) - startTime;
+		elapsedTime = TimeUtils.timeSinceNanos(startTime);
 		//long gameTime = timeLimit - elapsedTime;
 		GameOver gameOver = gameLogic.isGameOver(1);//(int) gameTime);
 		if (numSimSteps > maxSimSteps) {
@@ -381,9 +479,10 @@ public class GameScreen implements Screen {
 			case Time:
 			case Prey:
 				logResult(gameOver);
-				wait(1000);
-				resetGame();
-				game.switchToScreen("MAIN_MENU");
+				gameIsOver = true;
+//				wait(1000);
+//				resetGame();
+//				game.switchToScreen("MAIN_MENU");
 			case No:
 			default:
 				break;

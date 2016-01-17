@@ -4,6 +4,7 @@ import game.PredatorPreyGame;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -16,11 +17,15 @@ public class SplashScreen implements Screen {
 	private Texture screenTexture;
 	private long startTime;
 	private final long displayTime = 1000000000l; // 1 second;
+	private final AssetManager assetManager;
 	
 	public SplashScreen(PredatorPreyGame game) {
 		this.game = game;
 		batch = new SpriteBatch();
 		screenTexture = new Texture(Gdx.files.internal("splash_screen.png"));
+		
+		assetManager = game.getAssetManager();
+		assetManager.load("splash_screen.png", Texture.class);
 	}
 	
 	@Override
@@ -28,12 +33,18 @@ public class SplashScreen implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
-		batch.begin();
-		batch.draw(screenTexture, 0, 0);
-		batch.end();
+		if (assetManager.isLoaded("splash_screen.png", Texture.class)) {
+			batch.begin();
+			batch.draw(screenTexture, 0, 0);
+			batch.end();
+		}
 		
-		if (TimeUtils.timeSinceNanos(startTime) > displayTime) {
-			game.switchToScreen("MAIN_MENU");
+		if (assetManager.update()) {
+			if (TimeUtils.timeSinceNanos(startTime) > displayTime) {
+				game.switchToScreen("MAIN_MENU");
+			}
+		} else {
+			// TODO draw progress bar using assetManager.getProgress()
 		}
 	}
 

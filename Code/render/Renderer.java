@@ -9,7 +9,6 @@ import physics.PhysicsDataAgent;
 import physics.PhysicsDataPill;
 import physics.PhysicsDataPowerUp;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -107,7 +106,7 @@ public class Renderer {
 	 * size and location conversions between the world and the context of the 
 	 * current screen.
 	 */
-	public void render(World world, Matrix4 projMatrix) {
+	public void render(World world, Matrix4 projMatrix, float deltaTime) {
 
 		if (texturesLoaded) {
 			drawBackground(0, 0, projMatrix);
@@ -131,7 +130,7 @@ public class Renderer {
 			}
 			if (texturesLoaded) {
 //				drawBoundingBox(body, projMatrix);
-				drawTexture(body, projMatrix);
+				drawTexture(body, projMatrix, deltaTime);
 			}
 		}
 	}
@@ -260,7 +259,7 @@ public class Renderer {
 //		spriteBatch.end();
 //	}
 	
-	private void drawTexture(Body body, Matrix4 projMatrix) {
+	private void drawTexture(Body body, Matrix4 projMatrix, float deltaTime) {
 		
 		if (body.getUserData() == null) {
 			return;
@@ -270,7 +269,6 @@ public class Renderer {
 		PhysicsData data = (PhysicsData) body.getUserData();	
 		
 		TextureRegion frame = null;
-		float deltaTime = Gdx.graphics.getDeltaTime();
 		
 		if (data.getType() == PhysicsBodyType.Predator ||
 			data.getType() == PhysicsBodyType.Prey) {
@@ -286,6 +284,11 @@ public class Renderer {
 													  currentDirection,
 													  previousDirection);
 
+			boolean useSingleAnimation = true;// TODO
+			if (useSingleAnimation) {
+				animationName = RendererConfiguration.ANIMATION_DOWN_STOP;
+			}
+			
 			frame = animator.getAnimationFrame(bodyId, 
 												animationGroupName,
 												animationName, 
