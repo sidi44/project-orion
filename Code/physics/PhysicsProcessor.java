@@ -1,10 +1,9 @@
 package physics;
 
+import logic.GameState;
 import geometry.PointXY;
 
 import com.badlogic.gdx.math.Vector2;
-
-import logic.GameState;
 
 /**
  * PhysicsProcessor interface.
@@ -14,18 +13,9 @@ import logic.GameState;
  * GameState snapshot with the post-simulation data.
  * 
  * @author Simon Dicken
- * @version 2015-06-09
+ * @version 2015-12-28
  */
 public interface PhysicsProcessor {
-	
-	/**
-	 * Carry out any work that needs to be done immediately BEFORE the 
-	 * simulation is stepped. This includes extracting the game state data and
-	 * applying it to the world (e.g. each Agent's next move).
-	 * 
-	 * @param state - a snapshot of the current game data.
-	 */
-	void preStep(GameState state);
 	
 	/**
 	 * Advance the physics simulation in its current state by the specified 
@@ -33,16 +23,7 @@ public interface PhysicsProcessor {
 	 * 
 	 * @param timestep - the amount of time to simulate.
 	 */
-	void stepSimulation(float timestep);
-	
-	/**
-	 * Carry out any work that needs to be done immediately AFTER the simulation 
-	 * is stepped. This involves updating the game state with the 
-	 * post-simulation data (e.g. new positions of each Agent).
-	 * 
-	 * @param state - a snapshot of the current game data.
-	 */
-	void postStep(GameState state);
+	int stepSimulation(float timestep, GameState state);
 	
 	/**
 	 * Convert a maze position from the back-end logic into a world coordinate.
@@ -57,7 +38,7 @@ public interface PhysicsProcessor {
 	 * 
 	 * @param pos - the physics world position to convert.
 	 * @return a back-end logic maze position that is equivalent to the provided
-	 * physics world coordiante.
+	 * physics world coordinate.
 	 */
 	PointXY worldToState(Vector2 pos);
 	
@@ -67,5 +48,28 @@ public interface PhysicsProcessor {
 	 * @return squareSize - the size of a maze square
 	 */
 	float getSquareSize();
+	
+	/**
+	 * Gets the (fixed) simulation time step.
+	 * 
+	 * @return the simulation time step.
+	 */
+	float getSimulationStep();
+	
+	/**
+	 * Return the default speed of the given physics body type.
+	 * 
+	 * @param type - the physics body type for which to return the speed.
+	 * @return the speed of the provided physics body type.
+	 */
+	float getBodySpeed(PhysicsBodyType type);
+	
+	/**
+	 * Set what type of debug information to process and display. The default is
+	 * DebugNone.
+	 * 
+	 * @param type - the type of debug information to process and display.
+	 */
+	void setDebugCategory(PhysicsDebugType type);
 	
 }

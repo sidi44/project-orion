@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import logic.powerup.PredatorPowerUp;
+import logic.powerup.PredatorPowerUpTeleport;
+import logic.powerup.PreyPowerUp;
+import logic.powerup.PreyPowerUpTeleport;
+import ai.AILogic;
+import ai.AILogicPartition;
 import utils.NumberUtils;
 
 /**
@@ -16,7 +22,7 @@ import utils.NumberUtils;
  * different game components.
  * 
  * @author Martin Wong
- * @version 2015-07-19
+ * @version 2015-12-28
  */
 public class GameLogic {
 	
@@ -31,8 +37,13 @@ public class GameLogic {
 	 */
 	public GameLogic(GameConfiguration gc) {
 		this.gc = gc;
-		this.aiLogic = new AILogicSimple();
-		
+		//this.aiLogic = new AILogicRandom();
+//		this.aiLogic = new AILogicSimple();
+//		this.aiLogic = new OrionAI(-9.364799524753064, -9.109177244173164, 
+//				-6.344606437765757, -0.3417480479470899, 3.704418398331821, 
+//				0.6885758818912453);
+		this.aiLogic = new AILogicPartition();
+
 		createGs();
 	}
 	
@@ -71,7 +82,6 @@ public class GameLogic {
 		Set<PointXY> usedPoints = new HashSet<PointXY>();
 		AgentConfig aConfig = gc.getAConfig();
 		PowerUpConfig pConfig = gc.getPConfig();
-		PowerUpTypeConfig ptConfig = pConfig.getPowerUpTypeConfig();
 		int nPredPlayer = aConfig.getNumPredPlayer();
 		int nPreyPlayer = aConfig.getNumPreyPlayer();
 		List<Predator> predators = new ArrayList<Predator>();
@@ -94,7 +104,7 @@ public class GameLogic {
 			}
 		}
 		
-		// Populate predator powers (assigned to random positions)
+		// Populate predator power ups (assigned to random positions)
 		PredatorPowerUp predatorPowerUp = null;
 		for (int i = 0; i < pConfig.getNumPredPow(); i++) {
 			if (pConfig.getPredatorPowerUps().size() > 0) {
@@ -105,18 +115,11 @@ public class GameLogic {
 				randomNum = NumberUtils.randomInt(0, pConfig.getPredatorPowerUps().size() - 1);
 				predatorPowerUp = pConfig.getPredatorPowerUps().get(randomNum);
 				
-				switch (predatorPowerUp.getPType()){
-					case SpeedUpPredator:
-						predatorPowerUp = new PredatorPowerUpSpeedUp(predatorPowerUp, ptConfig.getPredatorSpeedUpFactor());
-						break;
-					case SlowDownPrey:
-						predatorPowerUp = new PredatorPowerUpSlowDown(predatorPowerUp, ptConfig.getPreySlowDownFactor());
-						break;
-					case Teleport:
-						predatorPowerUp = new PredatorPowerUpTeleport(predatorPowerUp, maze.getRandomPoint());
-						break;
-					default:
-						break;
+				if (predatorPowerUp instanceof PredatorPowerUpTeleport) {
+					predatorPowerUp = new PredatorPowerUpTeleport();
+					PredatorPowerUpTeleport teleport = 
+							(PredatorPowerUpTeleport) predatorPowerUp;
+					teleport.setNextPoint(maze.getRandomPoint());
 				}
 				
 				predatorPowers.put(point, predatorPowerUp);
@@ -134,18 +137,11 @@ public class GameLogic {
 				randomNum = NumberUtils.randomInt(0, pConfig.getPreyPowerUps().size() - 1);
 				preyPowerUp = pConfig.getPreyPowerUps().get(randomNum);
 				
-				switch (preyPowerUp.getPType()){
-					case SpeedUpPrey:
-						preyPowerUp = new PreyPowerUpSpeedUp(preyPowerUp, ptConfig.getPreySpeedUpFactor());
-						break;
-					case SlowDownPredator:
-						preyPowerUp = new PreyPowerUpSlowDown(preyPowerUp, ptConfig.getPredatorSlowDownFactor());
-						break;
-					case Teleport:
-						preyPowerUp = new PreyPowerUpTeleport(preyPowerUp, maze.getRandomPoint());
-						break;
-					default:
-						break;
+				if (preyPowerUp instanceof PreyPowerUpTeleport) {
+					preyPowerUp = new PreyPowerUpTeleport();
+					PreyPowerUpTeleport teleport = 
+							(PreyPowerUpTeleport) preyPowerUp;
+					teleport.setNextPoint(maze.getRandomPoint());
 				}
 				
 				preyPowers.put(point, preyPowerUp);
@@ -312,6 +308,14 @@ public class GameLogic {
 	 */
 	public void setPreyNextMove(int id, Move move) {
 		this.gs.getPrey().get(id).setNextMove(move);
+	}
+	
+	public void setAILogic(AILogic ai) {
+		this.aiLogic = ai;
+	}
+	
+	public AILogic getAILogic() {
+		return aiLogic;
 	}
 	
 }

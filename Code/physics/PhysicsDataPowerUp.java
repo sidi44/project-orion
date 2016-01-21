@@ -10,16 +10,18 @@ import geometry.PointXY;
  * 
  * The additional information comprises a PointXY position which defines in 
  * which MazeNode the power up is positioned, along with the ID of the agent 
- * which has activated the power up (only set after contact).
+ * which has activated the power up (only set after contact). There is also a 
+ * String representation of the power up name.
  * 
  * @author Simon Dicken
- * @version 2015-07-19
+ * @version 2015-10-18
  */
 public class PhysicsDataPowerUp extends PhysicsData {
 
 	private PointXY position;
 	private int agentID;
-
+	private String powerUpName;
+	
 	/**
 	 * Constructor for PhysicsDataPowerUp.
 	 * 
@@ -29,7 +31,8 @@ public class PhysicsDataPowerUp extends PhysicsData {
 	 * 
 	 * @throws IllegalArgumentException - if the type is not PowerUp.
 	 */
-	public PhysicsDataPowerUp(PhysicsBodyType type, PointXY position) {
+	public PhysicsDataPowerUp(PhysicsBodyType type, PointXY position, 
+			String powerUpName) {
 		super(type);
 		
 		if (type != PhysicsBodyType.PowerUpPredator && 
@@ -41,6 +44,7 @@ public class PhysicsDataPowerUp extends PhysicsData {
 
 		this.position = position;
 		this.agentID = -1;
+		this.powerUpName = powerUpName;
 	}
 
 	/**
@@ -73,4 +77,12 @@ public class PhysicsDataPowerUp extends PhysicsData {
 		this.agentID = agentID;
 	}
 
+	/**
+	 * Get the name of the power up with which this data is associated.
+	 * 
+	 * @return the name of the power up with which this data is associated.
+	 */
+	public String getPowerUpName() {
+		return powerUpName;
+	}
 }

@@ -2,7 +2,7 @@ package xml;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import logic.PredatorPowerUpType;
+import logic.powerup.PredatorPowerUpType;
 
 public class PredatorPowerUpTypeAdapter 
 	extends XmlAdapter<Integer, PredatorPowerUpType> {

@@ -1,5 +1,6 @@
 package render;
 
+import game.GameResult;
 import game.PredatorPreyGame;
 import geometry.PointXY;
 import geometry.PolygonShape;
@@ -25,24 +26,30 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 
+/**
+ * GameScreen class.
+ * 
+ * @author Paulius Balasevicius, Simon Dicken, Martin Wong
+ * @version 2015-12-28
+ */
 public class GameScreen implements Screen {
 
+	private int numSimSteps;
+	private final int maxSimSteps;
+	
 	private final PredatorPreyGame game;
-	private final World world;
+	private World world;
 	private final OrthographicCamera camera;
-	private final GameLogic gameLogic;
+	private GameLogic gameLogic;
 	private final Renderer renderer;
-	private final PhysicsProcessor physProc;
+	private PhysicsProcessor physProc;
 	private final UserInputProcessor inputProc;
 	private Stage gameStage;
-
-	private final float dt = 1.0f / 60.0f;
-	private float accumulator;
 	
 	// Gameplay fields
-	private final static long nanoToSeconds = 1000000000;
-	private long startTime;
-	private long timeLimit;
+//	private final static long nanoToSeconds = 1000000000;
+//	private long startTime;
+//	private long timeLimit;
 	
 	private float widthToHeight;
 	
@@ -53,8 +60,8 @@ public class GameScreen implements Screen {
 		this.gameLogic = game.getGameLogic();
 		this.physProc = game.getPhysicsProcessor();
 		
-		this.startTime = System.nanoTime() / nanoToSeconds;
-		this.timeLimit = 200; // seconds.
+//		this.startTime = System.nanoTime() / nanoToSeconds;
+//		this.timeLimit = 200; // seconds.
 		
 		// Process gameplay inputs
 		this.inputProc = new UserInputProcessor();
@@ -68,7 +75,8 @@ public class GameScreen implements Screen {
 		setInitialViewport(1.5f);
 //		trackPlayer(1.4f, false);
 		
-		accumulator = 0;
+		numSimSteps = 0;
+		maxSimSteps = 5000;
 	}
 	
 	private void setupStage() {
@@ -96,26 +104,11 @@ public class GameScreen implements Screen {
 		inputProc.processCameraInputs(camera);
 
 		GameState state = gameLogic.getGameState();
-		physProc.preStep(state);
 		
-		// Grab the time difference. Limit the maximum amount of time we can 
-		// progress the physics simulation for a given render frame.
-		delta = (float) Math.min(delta, 0.25);
-		
-		// Add this frame's time to the accumulator.
-		accumulator += delta;
-		
-		// Step the simulation at the given fixed rate for as many times as 
-		// required. Any left over time is passed over to the next frame.
-		while (accumulator >= dt) {
-			physProc.stepSimulation(dt);
-			accumulator -= dt;
-		}
-		
-		physProc.postStep(state);
+		numSimSteps += physProc.stepSimulation(delta, state);
 		
 //		setViewportJump(5);
-		setViewport(8, 0.5f);
+		setViewport(12, 0.5f);
 		trackPlayer(1.4f, false);
 		
 		checkForGameOver();
@@ -179,7 +172,9 @@ public class GameScreen implements Screen {
 	private void setViewport(float maxSquaresX, float factor) {
 		widthToHeight = (float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth();
 		
-		float targetWidth = maxSquaresX * physProc.getSquareSize();
+		float squareSize = physProc.getSquareSize();
+		
+		float targetWidth = maxSquaresX * squareSize;
 		float targetHeight = targetWidth * widthToHeight;
 		float newHeight = 0f;
 		float newWidth = 0f;
@@ -244,6 +239,12 @@ public class GameScreen implements Screen {
 	
 	private void trackPlayer(float factor, boolean jump) {
 		
+		GameState state = gameLogic.getGameState();
+		List<Predator> predators = state.getPredators();
+		if (predators.size() == 0) {
+			return;
+		}
+		
 		Vector2[] mazeBoundaries = getWorldMazeBoundaries();
 		Vector2 mazeLL = mazeBoundaries[0];
 		Vector2 mazeUR = mazeBoundaries[1];
@@ -258,7 +259,7 @@ public class GameScreen implements Screen {
 		float viewportWidthHalf = (camera.viewportWidth / 2);
 		float viewportHeightHalf = (camera.viewportHeight / 2);
 		
-		Predator firstPredator = gameLogic.getGameState().getPredators().get(0);
+		Predator firstPredator = predators.get(0);
 		Vector2 playerVector = physProc.stateToWorld(firstPredator.getPosition());
 		double newX = 0;
 		double newY = 0;
@@ -354,20 +355,21 @@ public class GameScreen implements Screen {
 	}
 	
 	private void checkForGameOver() {
-		long elapsedTime = (System.nanoTime() / nanoToSeconds) - startTime;
-		long gameTime = timeLimit - elapsedTime;
-		GameOver gameOver = gameLogic.isGameOver((int) gameTime);
-
+		//long elapsedTime = (System.nanoTime() / nanoToSeconds) - startTime;
+		//long gameTime = timeLimit - elapsedTime;
+		GameOver gameOver = gameLogic.isGameOver(1);//(int) gameTime);
+		if (numSimSteps > maxSimSteps) {
+			gameOver = GameOver.Time;
+		}
+		
 		switch (gameOver) {
 			case Pills:
 			case Time:
-				//System.out.println("Prey won.");
-				break;
-
 			case Prey:
-				//System.out.println("Predators won.");
-				break;
-
+				logResult(gameOver);
+				wait(1000);
+				resetGame();
+				game.switchToScreen("MAIN_MENU");
 			case No:
 			default:
 				break;
@@ -375,4 +377,34 @@ public class GameScreen implements Screen {
 
 	}
 	
+	public void resetGame() {
+		numSimSteps = 0;
+		inputProc.reset();
+		game.resetGame();
+	}
+	
+	public void reset(World world, GameLogic gl, PhysicsProcessor physProc) {
+		this.world = world;
+		this.gameLogic = gl;
+		this.physProc = physProc;
+	}
+	
+	private void logResult(GameOver result) {
+		GameState gs = gameLogic.getGameState();
+		int numPillsRemaining = gs.getPills().size();
+		int numSquares = gs.getMaze().getNodes().keySet().size();
+		GameResult gr = new GameResult(result, numSimSteps, numPillsRemaining,
+				numSquares);
+		game.addResult(gr);
+	}
+	
+	private void wait(int milliseconds) {
+		try {
+			Thread.sleep(milliseconds);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 }
+

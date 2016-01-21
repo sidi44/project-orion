@@ -2,13 +2,14 @@ package logic;
 
 import java.util.List;
 
+import logic.powerup.PowerUp;
 import geometry.PointXY;
 
 /**
  * Represents an agent which has a position and is able to move.
  * 
  * @author Martin Wong, Simon Dicken
- * @version 2015-07-19
+ * @version 2015-12-28
  */
 public abstract class Agent {
 
@@ -18,7 +19,6 @@ public abstract class Agent {
 	private boolean isPlayer;
 	private int maxPowerUp;
 	private boolean stacking;
-	private boolean inTransition;
 	
 	/**
 	 * Creates an instance of Agent.
@@ -37,7 +37,6 @@ public abstract class Agent {
 		this.isPlayer = isPlayer;
 		this.stacking = stacking;
 		this.maxPowerUp  = maxPowerUp;
-		this.inTransition = false;
 	}
 	
 	/**
@@ -112,36 +111,6 @@ public abstract class Agent {
 	 */
 	public void setIsPlayer(boolean isPlayer) {
 		this.isPlayer = isPlayer;
-	}
-	
-	/**
-	 * Get whether the Agent is in transition. 
-	 * 
-	 * Agent's are in transition when they are moving into a new Maze square. 
-	 * The inTransition flag indicates that the Agent is only partially in the 
-	 * new Maze square and part of its area is still in the Maze square it was
-	 * leaving.
-	 * 
-	 * @return inTransition - true if the Agent is transitioning into a new Maze
-	 * square (boolean)
-	 */
-	public boolean isInTransition() {
-		return inTransition;
-	}
-	
-	/**
-	 * Set whether the Agent is in transition.
-	 * 
-	 * Agent's are in transition when they are moving into a new Maze square. 
-	 * The inTransition flag indicates that the Agent is only partially in the 
-	 * new Maze square and part of its area is still in the Maze square it was
-	 * leaving.
-	 * 
-	 * @param inTransition - true if the Agent is transitioning into a new Maze
-	 * square (boolean)
-	 */
-	public void setInTransition(boolean inTransition) {
-		this.inTransition = inTransition;
 	}
 	
 	/**
