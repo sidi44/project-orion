@@ -66,109 +66,109 @@
 	    <BackgroundFilename>background_3.png</BackgroundFilename>
 	    <AnimationGroupDefinition>
 	        <AnimationGroupName>Predator</AnimationGroupName>
-	        <Rows>1</Rows>
-	        <Columns>6</Columns>
-	        <Filename>Predator_Water_Prototype_Sprite.png</Filename>
+	        <Rows>4</Rows>
+	        <Columns>20</Columns>
+	        <Filename>Predator_Shield_Multiple_Lines.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName>DOWN-STOP</AnimationName>
-	            <StartFrame>1</StartFrame>
-	            <EndFrame>6</EndFrame>
-	            <FrameDuration>0.15</FrameDuration>
+	            <StartFrame>41</StartFrame>
+	            <EndFrame>60</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>DOWN</AnimationName>
-	            <StartFrame>1</StartFrame>
-	            <EndFrame>6</EndFrame>
-	            <FrameDuration>0.15</FrameDuration>
+	            <StartFrame>41</StartFrame>
+	            <EndFrame>60</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>UP-STOP</AnimationName>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>6</EndFrame>
-	            <FrameDuration>0.15</FrameDuration>
+	            <EndFrame>20</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>UP</AnimationName>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>6</EndFrame>
-	            <FrameDuration>0.15</FrameDuration>
+	            <EndFrame>20</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>LEFT-STOP</AnimationName>
-	            <StartFrame>1</StartFrame>
-	            <EndFrame>6</EndFrame>
-	            <FrameDuration>0.15</FrameDuration>
+	            <StartFrame>61</StartFrame>
+	            <EndFrame>80</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>LEFT</AnimationName>
-	            <StartFrame>1</StartFrame>
-	            <EndFrame>6</EndFrame>
-	            <FrameDuration>0.15</FrameDuration>
+	            <StartFrame>61</StartFrame>
+	            <EndFrame>80</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>RIGHT-STOP</AnimationName>
-	            <StartFrame>1</StartFrame>
-	            <EndFrame>6</EndFrame>
-	            <FrameDuration>0.15</FrameDuration>
+	            <StartFrame>21</StartFrame>
+	            <EndFrame>40</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>RIGHT</AnimationName>
-	            <StartFrame>1</StartFrame>
-	            <EndFrame>6</EndFrame>
-	            <FrameDuration>0.15</FrameDuration>
+	            <StartFrame>21</StartFrame>
+	            <EndFrame>40</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
 	        </AnimationDefinition>
 	    </AnimationGroupDefinition>
 	    <AnimationGroupDefinition>
 	        <AnimationGroupName>Prey</AnimationGroupName>
 	        <Rows>1</Rows>
-	        <Columns>12</Columns>
-	        <Filename>Prey_Fire_Prototype_Sprite.png</Filename>
+	        <Columns>14</Columns>
+	        <Filename>Prey_Square_Prototype_Sprite.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName>DOWN-STOP</AnimationName>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>12</EndFrame>
+	            <EndFrame>14</EndFrame>
 	            <FrameDuration>0.15</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>DOWN</AnimationName>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>12</EndFrame>
+	            <EndFrame>14</EndFrame>
 	            <FrameDuration>0.15</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>UP-STOP</AnimationName>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>12</EndFrame>
+	            <EndFrame>14</EndFrame>
 	            <FrameDuration>0.15</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>UP</AnimationName>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>12</EndFrame>
+	            <EndFrame>4</EndFrame>
 	            <FrameDuration>0.15</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>LEFT-STOP</AnimationName>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>12</EndFrame>
+	            <EndFrame>14</EndFrame>
 	            <FrameDuration>0.15</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>LEFT</AnimationName>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>12</EndFrame>
+	            <EndFrame>14</EndFrame>
 	            <FrameDuration>0.15</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>RIGHT-STOP</AnimationName>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>12</EndFrame>
+	            <EndFrame>14</EndFrame>
 	            <FrameDuration>0.15</FrameDuration>
 	        </AnimationDefinition>
 	        <AnimationDefinition>
 	            <AnimationName>RIGHT</AnimationName>
 	            <StartFrame>1</StartFrame>
-	            <EndFrame>12</EndFrame>
+	            <EndFrame>14</EndFrame>
 	            <FrameDuration>0.15</FrameDuration>
 	        </AnimationDefinition>
 	    </AnimationGroupDefinition>
