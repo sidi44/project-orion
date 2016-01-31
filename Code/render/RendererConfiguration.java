@@ -269,7 +269,7 @@ public class RendererConfiguration {
 		// Define the Pill Animation Group
 		AnimationGroupDefinition pillDef = new AnimationGroupDefinition();
 		pillDef.setAnimationGroupName("Pill");
-		pillDef.setFilename("coins.png");
+		pillDef.setFilename("Coins.png");
 		pillDef.setColumns(8);
 		pillDef.setRows(3);
 		
