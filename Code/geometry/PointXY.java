@@ -34,6 +34,17 @@ final public class PointXY {
 	}
 	
 	/**
+	 * Default constructor.
+	 * 
+	 * (This is only intended to be used when deserializing .json files.)
+	 */
+	@SuppressWarnings("unused")
+	private PointXY() {
+		this.x = 0;
+		this.y = 0;
+	}
+	
+	/**
 	 * Returns the x co-ordinate.
 	 * 
 	 * @return x (int)

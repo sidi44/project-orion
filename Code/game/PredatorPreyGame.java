@@ -15,6 +15,7 @@ import render.Renderer;
 import render.RendererConfiguration;
 import render.SettingsScreen;
 import render.SplashScreen;
+import sound.SoundConfiguration;
 import xml.ConfigurationXMLParser;
 import ai.AILogic;
 
@@ -32,6 +33,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
+import com.badlogic.gdx.utils.Json;
+
+import data.DataManager;
+import data.JsonDataManager;
 
 public class PredatorPreyGame extends Game	 {
 
@@ -68,10 +73,19 @@ public class PredatorPreyGame extends Game	 {
 		ConfigurationXMLParser xmlParser = 
 				new ConfigurationXMLParser(filename, schemaFilename);
 		xmlParser.parseXML();
+		
+		DataManager dm = new JsonDataManager();
+		SoundConfiguration soundConfig = dm.getSoundConfiguration();
+		
 		gameConfig = xmlParser.getGameConfig();
 		physicsConfig = xmlParser.getPhysicsConfig();
 		rendererConfig = xmlParser.getRendererConfig();
 
+		Json json = new Json();
+		json.setUsePrototypes(false);
+		String string = json.prettyPrint(physicsConfig);
+		System.out.println(string);
+		
 		// Create the world.
 		Vector2 gravity = new Vector2(0f, 0f);
 		boolean doSleep = true;
