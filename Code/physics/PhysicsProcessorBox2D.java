@@ -43,7 +43,7 @@ import logic.powerup.PreyPowerUp;
  * @author Simon Dicken
  * @version 2015-12-28
  */
-public class PhysicsProcessorBox2D implements PhysicsProcessor {
+public class PhysicsProcessorBox2D extends PhysicsProcessor {
 	
 	// The Box2D world.
 	private World world;
@@ -122,7 +122,7 @@ public class PhysicsProcessorBox2D implements PhysicsProcessor {
 		
 		buildPhysics(initialState);
 		
-		PhysicsContact contact = new PhysicsContact();
+		PhysicsContact contact = new PhysicsContact(this);
 		this.world.setContactListener(contact);
 		
 		this.powerUpProc = new PowerUpProcessor(world, this);

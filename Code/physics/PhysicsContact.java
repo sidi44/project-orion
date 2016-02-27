@@ -23,6 +23,12 @@ import com.badlogic.gdx.physics.box2d.Manifold;
  */
 public class PhysicsContact implements ContactListener {
 
+	private PhysicsProcessor physProc;
+	
+	public PhysicsContact(PhysicsProcessor physProc) {
+		this.physProc = physProc;
+	}
+	
 	@Override
 	public void beginContact(Contact contact) {
 		
@@ -111,6 +117,10 @@ public class PhysicsContact implements ContactListener {
 		}
 		
 		contact.setEnabled(false);
+		
+		// Store the contact event info
+		PhysicsEventContact event = new PhysicsEventContact(body1, body2);
+		physProc.sendToAll(event);
 	}
 
 	@Override

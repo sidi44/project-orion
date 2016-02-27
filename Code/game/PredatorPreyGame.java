@@ -20,6 +20,7 @@ import render.Renderer;
 import render.RendererConfiguration;
 import ui.ScreenManager;
 import ui.ScreenName;
+import sound.SoundManager;
 import xml.ConfigurationXMLParser;
 import ai.AILogic;
 
@@ -35,6 +36,7 @@ public class PredatorPreyGame extends Game	 {
 	private GameLogic gameLogic;
 	private Renderer renderer;
 	private PhysicsProcessor physProc;
+	private SoundManager soundManager;
 	
 	private GameConfiguration gameConfig;
 	private PhysicsConfiguration physicsConfig;
@@ -80,6 +82,9 @@ public class PredatorPreyGame extends Game	 {
 		screenManager.changeScreen(ScreenName.Splash);
 		
 		logger = new ResultLogger();
+		
+		soundManager = new SoundManager();
+		physProc.addReceiver(soundManager);
 	}
 
 	public void setAI(AILogic ai) {
@@ -138,6 +143,7 @@ public class PredatorPreyGame extends Game	 {
 		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
 				physicsConfig);
 		physProc.setDebugCategory(debugType);
+		physProc.addReceiver(soundManager);
 	}
 	
 	public Vector2[] getWorldMazeBoundaries() {

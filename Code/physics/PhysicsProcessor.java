@@ -2,6 +2,7 @@ package physics;
 
 import logic.GameState;
 import geometry.PointXY;
+import callback.Sender;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -15,7 +16,7 @@ import com.badlogic.gdx.math.Vector2;
  * @author Simon Dicken
  * @version 2015-12-28
  */
-public interface PhysicsProcessor {
+public abstract class PhysicsProcessor extends Sender {
 	
 	/**
 	 * Advance the physics simulation in its current state by the specified 
@@ -23,7 +24,7 @@ public interface PhysicsProcessor {
 	 * 
 	 * @param timestep - the amount of time to simulate.
 	 */
-	int stepSimulation(float timestep, GameState state);
+	public abstract int stepSimulation(float timestep, GameState state);
 	
 	/**
 	 * Convert a maze position from the back-end logic into a world coordinate.
@@ -31,7 +32,7 @@ public interface PhysicsProcessor {
 	 * @param pos - the back-end logic maze position.
 	 * @return a physics world coordinate equivalent to the provided position.
 	 */
-	Vector2 stateToWorld(PointXY pos);
+	public abstract Vector2 stateToWorld(PointXY pos);
 	
 	/**
 	 * Convert a physics world position into a back-end logic maze coordinate.
@@ -40,21 +41,21 @@ public interface PhysicsProcessor {
 	 * @return a back-end logic maze position that is equivalent to the provided
 	 * physics world coordinate.
 	 */
-	PointXY worldToState(Vector2 pos);
+	public abstract PointXY worldToState(Vector2 pos);
 	
 	/**
 	 * Gets the size of a maze square.
 	 * 
 	 * @return squareSize - the size of a maze square
 	 */
-	float getSquareSize();
+	public abstract float getSquareSize();
 	
 	/**
 	 * Gets the (fixed) simulation time step.
 	 * 
 	 * @return the simulation time step.
 	 */
-	float getSimulationStep();
+	public abstract float getSimulationStep();
 	
 	/**
 	 * Return the default speed of the given physics body type.
@@ -62,7 +63,7 @@ public interface PhysicsProcessor {
 	 * @param type - the physics body type for which to return the speed.
 	 * @return the speed of the provided physics body type.
 	 */
-	float getBodySpeed(PhysicsBodyType type);
+	public abstract float getBodySpeed(PhysicsBodyType type);
 	
 	/**
 	 * Set what type of debug information to process and display. The default is
@@ -70,6 +71,6 @@ public interface PhysicsProcessor {
 	 * 
 	 * @param type - the type of debug information to process and display.
 	 */
-	void setDebugCategory(PhysicsDebugType type);
+	public abstract void setDebugCategory(PhysicsDebugType type);
 	
 }
