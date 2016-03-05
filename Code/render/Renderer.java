@@ -6,6 +6,7 @@ import logic.Direction;
 import physics.PhysicsBodyType;
 import physics.PhysicsData;
 import physics.PhysicsDataAgent;
+import physics.PhysicsDataDebug;
 import physics.PhysicsDataPill;
 import physics.PhysicsDataPowerUp;
 
@@ -116,9 +117,9 @@ public class Renderer {
 			debugRenderer.render(world, projMatrix);
 		}
 		
-		if (drawFilled) {
+//		if (drawFilled) {
 			shapeRenderer.setProjectionMatrix(projMatrix);
-		}
+//		}
 
 		world.getBodies(bodies);
 		bodies.sort(bodyComparator);
@@ -349,6 +350,47 @@ public class Renderer {
 					PhysicsBodyType.PowerUpPrey.name(),
 					"", 
 					deltaTime);
+		} else if (data.getType() == PhysicsBodyType.Debug) {
+			
+			PhysicsDataDebug debugData = 
+					(PhysicsDataDebug) body.getUserData();
+			int agentID = debugData.getAgentID();
+			
+			Color colour = new Color();
+			if (agentID == 1) {
+				colour = Color.CYAN;
+			} if (agentID == 2) {
+				colour = Color.RED;
+			} else if (agentID == 3) {
+				colour = Color.BLUE;
+			} else if (agentID == 4) {
+				colour = Color.GREEN;
+			} else if (agentID == 5) {
+				colour = Color.ORANGE;
+			} else {
+				colour = Color.WHITE;
+			}
+			
+			
+			Transform transform = body.getTransform();
+			
+			for (Fixture fixture : body.getFixtureList()) {
+				if (fixture.getType() == Type.Polygon) {
+					PolygonShape polygon = (PolygonShape) fixture.getShape();
+					
+					if (fixture.getUserData() instanceof PolygonData) {
+						PolygonData pdata = (PolygonData) fixture.getUserData();
+						
+						drawPolygon(polygon,
+									pdata,
+									transform,
+								    colour);
+					} else {
+						triangulatePolygon(fixture, polygon);
+					}
+				}
+			}
+			return;
 		}
 		else {
 			throw new IllegalArgumentException("Invalid user data type: " + 
@@ -539,7 +581,7 @@ public class Renderer {
 							  float x3, float y3,
 							  Color color){
 		
-		shapeRenderer.begin(ShapeType.Filled);
+		shapeRenderer.begin(ShapeType.Line);
 		shapeRenderer.setColor(color);
 		shapeRenderer.triangle(x1, y1, x2, y2, x3, y3);
 		shapeRenderer.end();

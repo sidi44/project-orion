@@ -8,6 +8,7 @@
             </XmlPoint>
             <XmlPoint>
                 <X>0</X>
+<<<<<<< HEAD
                 <Y>10</Y>
             </XmlPoint>
             <XmlPoint>
@@ -16,6 +17,16 @@
             </XmlPoint>
 			<XmlPoint>
                 <X>10</X>
+=======
+                <Y>9</Y>
+            </XmlPoint>
+            <XmlPoint>
+                <X>9</X>
+                <Y>9</Y>
+            </XmlPoint>
+			<XmlPoint>
+                <X>9</X>
+>>>>>>> refs/remotes/origin/master
                 <Y>0</Y>
             </XmlPoint>
         </PolygonShape>
@@ -30,17 +41,17 @@
             <NumPredator>1</NumPredator>
             <NumPredatorPlayer>1</NumPredatorPlayer>
             <MaxPredatorPowerUp>5</MaxPredatorPowerUp>
-            <NumPrey>4</NumPrey>
+            <NumPrey>5</NumPrey>
             <NumPreyPlayer>0</NumPreyPlayer>
             <MaxPreyPowerUp>5</MaxPreyPowerUp>
         </AgentConfiguration>
         <PowerUpConfiguration>
-            <NumberPredatorPowerUps>3</NumberPredatorPowerUps>
+            <NumberPredatorPowerUps>8</NumberPredatorPowerUps>
             <NumberPreyPowerUps>0</NumberPreyPowerUps>
             <PredatorPowerUps>
                 <PredatorPowerUp>
                     <PredatorPowerUpType>SpeedUpPredator</PredatorPowerUpType>
-                    <TimeLimit>150</TimeLimit>
+                    <TimeLimit>200</TimeLimit>
                     <SpeedUpFactor>2</SpeedUpFactor>
                 </PredatorPowerUp>
                 <PredatorPowerUp>
@@ -90,12 +101,12 @@
         </PowerUpConfiguration>
     </GameConfiguration>
 	<PhysicsConfiguration>
-    	<SquareSize>10</SquareSize>
+    	<SquareSize>8</SquareSize>
 		<WallWidthRatio>0.1</WallWidthRatio>
 		<PillRadiusRatio>0.2</PillRadiusRatio>
 		<PowerUpRadiusRatio>0.5</PowerUpRadiusRatio>
-		<PredatorSpeed>40</PredatorSpeed>
-		<PreySpeed>32</PreySpeed>
+		<PredatorSpeed>20</PredatorSpeed>
+		<PreySpeed>10</PreySpeed>
 	</PhysicsConfiguration>
 	<RendererConfiguration>
 	    <AllowRotations>true</AllowRotations>
