@@ -70,10 +70,19 @@ final public class PointXY {
 	 * @return distance (double)
 	 */
 	public double getDistance(PointXY point) {
-		double a = point.getX() - this.x;
-		double b = point.getY() - this.y;
-		double result = (a * a) + (b * b);
-		return Math.sqrt(result);
+		return Math.sqrt(getSumSquareDifference(point));
+	}
+	
+	/**
+	 * Calculates the sum of squared differences.
+	 * 
+	 * @param point (PointXY)
+	 * @return sum of square difference (long)
+	 */
+	public long getSumSquareDifference(PointXY point) {
+		long a = point.getX() - this.x;
+		long b = point.getY() - this.y;
+		return (a * a) + (b * b);
 	}
 	
 	/**

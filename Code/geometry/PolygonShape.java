@@ -1,9 +1,8 @@
 package geometry;
 
-import java.awt.geom.Line2D;
-import java.awt.geom.PathIterator;
-import java.util.ArrayList;
 import java.util.List;
+
+import utils.NumberUtils;
 
 /**
  * Represents a shape with more than two sides.
@@ -11,13 +10,11 @@ import java.util.List;
  * This class is immutable.
  * 
  * @author Martin Wong
- * @version 2015-06-19
+ * @version 2016-03-06
  */
-public class PolygonShape extends java.awt.Polygon {
+public class PolygonShape extends com.badlogic.gdx.math.Polygon {
 	
-	// Serial ID
-	private static final long serialVersionUID = 1L;
-	//private final double offset = 0.0000000001;
+	private final List<PointXY> coordinates;
 	
 	/**
 	 * Creates an instance of PolygonShape from a list of coordinates
@@ -25,8 +22,38 @@ public class PolygonShape extends java.awt.Polygon {
 	 * 
 	 * @param coordinates (List<PointXY>)
 	 */
-	public PolygonShape(List<PointXY> coordinates) {		
-		super(setupX(coordinates), setupY(coordinates), coordinates.size());
+	public PolygonShape(List<PointXY> coordinates) {
+		super(setUpXY(coordinates));
+		this.coordinates = coordinates;
+	}
+	
+	/**
+	 * Return List<PointXY> as float[].
+	 *  
+	 * @param coordinates (List<PointXY>)
+	 * @return vertices (float[])
+	 */
+	private static float[] setUpXY(List<PointXY> coordinates) {
+		if (coordinates == null) return new float[0];
+		
+		float[] vertices = new float[coordinates.size() * 2];
+		
+		int i = 0;
+		for (PointXY p : coordinates) {
+			vertices[i++] = p.getX();
+			vertices[i++] = p.getY();
+		}
+		
+		return vertices;
+	}
+	
+	/**
+	 * Gets the points which form the polygon.
+	 * 
+	 * @return allPoints (List<PointXY)
+	 */
+	public List<PointXY> getCoordinates() {
+		return coordinates;
 	}
 	
 	/**
@@ -35,7 +62,7 @@ public class PolygonShape extends java.awt.Polygon {
 	 * @return minX (int)
 	 */
 	public int getMinX() {
-		return (int) (getBounds().getMinX());
+		return (int) getBoundingRectangle().getX();
 	}
 	
 	/**
@@ -44,7 +71,7 @@ public class PolygonShape extends java.awt.Polygon {
 	 * @return minY (int)
 	 */
 	public int getMinY() {
-		return (int) (getBounds().getMinY());
+		return (int) getBoundingRectangle().getY();
 	}
 	
 	/**
@@ -53,7 +80,7 @@ public class PolygonShape extends java.awt.Polygon {
 	 * @return maxX (int)
 	 */
 	public int getMaxX() {
-		return (int) (getBounds().getMaxX());
+		return getMinX() + (int) getBoundingRectangle().getWidth();
 	}
 	
 	/**
@@ -62,41 +89,28 @@ public class PolygonShape extends java.awt.Polygon {
 	 * @return maxY (int)
 	 */
 	public int getMaxY() {
-		return (int) (getBounds().getMaxY());
+		return getMinX() + (int) getBoundingRectangle().getHeight();
 	}
 	
-//	// More efficient but has error margin of: offset * 2.
-//	/**
-//	 * Checks whether the given point is within the shape.
-//	 * 
-//	 * @param p (PointXY)
-//	 * @return isInside (boolean)
-//	 */
-//	public boolean contains(PointXY p) {
-//		boolean isInside = contains((int) p.getX(), (int) p.getY());
-//		
-//		if (!isInside) {
-//			/*
-//			 * Contains method is outline exclusive, to make this inclusive:
-//			 * form a small square with size: offset * 2 and check if
-//			 * intersect with outline, if does then assume 
-//			 * (error margin = offset * 2) p is part of boundary.
-//			 */
-//			isInside = intersects(p.getX() - offset, p.getY() - offset,
-//					offset * 2, offset * 2);
-//		}
-//		
-//		return isInside;
-//	}
+	/**
+	 * Checks whether point is within the bounding box.
+	 * 
+	 * @param p (PointXY)
+	 * @return inBoundingBox (boolean)
+	 */
+	public boolean withinBoundingBox(PointXY p) {
+		return (p.getX() >= getMinX() && p.getX() <= getMaxX() 
+				&& p.getY() >= getMinY() || p.getY() <= getMaxY());
+	}
 	
-	// Has no error margin but less efficient.
+	
 	/**
 	 * Checks whether the given point is within the shape (outline inclusive).
 	 * 
 	 * @param p (PointXY)
 	 * @return isInside (boolean)
 	 */
-	public boolean contains(PointXY p) {
+	public boolean containsInclusive(PointXY p) {
 		boolean isInside = containsExclusive(p);
 
 		if (!isInside) {
@@ -113,7 +127,9 @@ public class PolygonShape extends java.awt.Polygon {
 	 * @return isInside (boolean)
 	 */
 	public boolean containsExclusive(PointXY p) {
-		return contains((int) p.getX(), (int) p.getY());
+		if (!withinBoundingBox(p)) return false;
+		
+		return contains((float) p.getX(), (float) p.getY());
 	}
 	
 	/**
@@ -123,90 +139,28 @@ public class PolygonShape extends java.awt.Polygon {
 	 * @return isOutline (boolean)
 	 */
 	public boolean onOutline(PointXY p) {
-		boolean isOutline = false;
-		List<PointXY> allPoints = getAllPoints();
+		if (!withinBoundingBox(p)) return false;
 		
+		PointXY p1 = coordinates.get(coordinates.size() - 1);
+		double d1;
+		double d2;
+		double d3;
 		
-		if (allPoints.size() > 0) {
-			int j = 0;
-			PointXY point1;
-			PointXY point2;
-			Line2D.Double line;
+		for (PointXY p2 : coordinates) {
+			// Check within mini-bounding box
+			if (NumberUtils.inRange(p.getX(), p1.getX(), p2.getX()) 
+					&& NumberUtils.inRange(p.getY(), p1.getY(), p2.getY())) {
 			
-			for (int i = 0; i < allPoints.size(); i++) {
-				j = (i == allPoints.size() - 1) ? 0 : i + 1;
-				point1 = allPoints.get(i);
-				point2 = allPoints.get(j);
+				d1 = p2.getDistance(p1);
+				d2 = p.getDistance(p1);
+				d3 = p2.getDistance(p);
 				
-				line = new Line2D.Double(point1.getX(), point1.getY(), 
-						point2.getX(), point2.getY());
-				
-				if (line.intersectsLine(p.getX(), p.getY(), p.getX(), p.getY())) {
-					isOutline = true;
-					break;
-				}
+				if (NumberUtils.compareDouble(d1, d2 + d3, 0.001)) return true;
 			}
+			p1 = p2;
 		}
-		return isOutline;
-	}
-	
-	/**
-	 * Gets the points which form the polygon.
-	 * 
-	 * @return allPoints (List<PointXY)
-	 */
-	public List<PointXY> getAllPoints() {
-		PathIterator pathIt = getPathIterator(null);
-		List<PointXY> allPoints = new ArrayList<PointXY>();
-		double[] dArray = new double[6]; // Stores the segment details
-		PointXY previousPoint = null;
-		PointXY currentPoint = null;
 		
-		while (!pathIt.isDone()) {
-			pathIt.currentSegment(dArray); // Gets part of polygon
-			currentPoint = new PointXY((int)dArray[0], (int)dArray[1]);
-			
-			// Do not include successive repeated points
-			if (!currentPoint.equals(previousPoint)) {
-				allPoints.add(currentPoint);
-			}
-			previousPoint = currentPoint;
-			pathIt.next(); // Move on to next segment
-		}
-		return allPoints;
+		return false;
 	}
-	
-	/**
-	 * Extracts all x coordinates in a list of PointXY and put them
-	 * in an integer array.
-	 * 
-	 * @param coordinates (List<PointXY>)
-	 * @return x (int[])
-	 */
-	private static int[] setupX(List<PointXY> coordinates) {
-		int size = coordinates.size();
-		int[] x = new int[size];
-		for (int i = 0; i < size; i++) {
-			x[i] = (int) coordinates.get(i).getX();
-		}
-		return x;
-	}
-	
-	/**
-	 * Extracts all y coordinates in a list of PointXY and put them
-	 * in an integer array.
-	 * 
-	 * @param coordinates (List<PointXY>)
-	 * @return y (int[])
-	 */
-	private static int[] setupY(List<PointXY> coordinates) {
-		int size = coordinates.size();
-		int[] y = new int[size];
-		for (int i = 0; i < size; i++) {
-			y[i] = (int) coordinates.get(i).getY();
-		}
-		return y;
-	}
-	
 	
 }
