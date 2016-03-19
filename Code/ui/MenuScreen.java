@@ -1,7 +1,11 @@
 package ui;
 
+import java.util.function.IntConsumer;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
@@ -46,8 +50,27 @@ abstract class MenuScreen extends AbstractScreen {
 		return checkbox;
 	}
 	
-	protected Slider createSlider(float min, float max, float step) {
-		Slider slider = new Slider(min, max, step, false, getSkin());
+	protected Slider createIntSlider(int min, int max, int step, 
+			int initialValue, final IntConsumer func) {
+		
+		// Create the slider
+		final Slider slider = new Slider(min, max, step, false, getSkin());
+		
+		// Set the initial value
+		slider.setValue(initialValue);
+		
+		// Add a listener which calls the provided function when the sliders
+		// value is changed
+		slider.addListener(new EventListener() {
+			@Override
+			public boolean handle(Event event) {
+				int value = (int) slider.getValue();
+				func.accept(value);
+				return true;
+			}
+		});
+		
+		// That's it
 		return slider;
 	}
 	

@@ -21,9 +21,8 @@
 				}
 			]
 			numPrey: 1
-			preySpeed: 10
+			preySpeedIndex: 2
 			numPowerUps: 0
-			squareSize: 8
 			starScores : {
 				class: java.util.HashMap
 				1: 100
@@ -51,9 +50,8 @@
 				}
 			]
 			numPrey: 2
-			preySpeed: 10
+			preySpeedIndex: 2
 			numPowerUps: 0
-			squareSize: 8
 			starScores : {
 				class: java.util.HashMap
 				1: 150

@@ -9,9 +9,8 @@ class Level {
 
 	private List<PointXY> mazeDimensions;
 	private int numPrey;
-	private int preySpeed;
+	private int preySpeedIndex;
 	private int numPowerUps;
-	private int squareSize;
 	// maze generation parameters...
 	private Map<Integer, Integer> starScores;
 	
@@ -27,16 +26,12 @@ class Level {
 		return numPrey;
 	}
 
-	public int getPreySpeed() {
-		return preySpeed;
+	public int getPreySpeedIndex() {
+		return preySpeedIndex;
 	}
 
 	public int getNumPowerUps() {
 		return numPowerUps;
-	}
-
-	public int getSquareSize() {
-		return squareSize;
 	}
 
 	public Map<Integer, Integer> getStarScores() {

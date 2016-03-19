@@ -17,8 +17,9 @@ public interface DataManager {
 	
 	GameConfiguration getGameConfigSandbox();
 	
-	void saveSandboxData(PhysicsConfiguration physicsConfig, 
-			GameConfiguration gameConfig);
+	SandboxConfiguration getSandboxConfig();
+	
+	void saveSandboxData(SandboxConfiguration sandboxConfig);
 	
 	SoundConfiguration getSoundConfiguration();
 	

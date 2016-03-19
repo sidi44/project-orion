@@ -1,16 +1,25 @@
 package data;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import geometry.PointXY;
+import geometry.PolygonShape;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
 
+import logic.AgentConfig;
 import logic.GameConfiguration;
+import logic.MazeConfig;
+import logic.PowerUpConfig;
 import physics.PhysicsConfiguration;
 import render.RendererConfiguration;
 import sound.SoundConfiguration;
 
-public class JsonDataManager implements DataManager {
+public class GameDataManager implements DataManager {
 
 	// Variables used to store data that has been read in
 	private SoundConfiguration defaultSoundConfig;
@@ -30,9 +39,10 @@ public class JsonDataManager implements DataManager {
 	private final String SANDBOX_PREFS = "sandbox";
 	
 	
-	public JsonDataManager() {
+	public GameDataManager() {
 		
 		json = new Json();
+		json.setUsePrototypes(false);
 		
 		readSoundConfig();
 		readSandboxConfig();
@@ -179,11 +189,10 @@ public class JsonDataManager implements DataManager {
 		// Now set the prey speed and square size from the level data, depending
 		// on the provided level number
 		Level level = levelsData.getLevel(levelNumber);
-		config.setPreySpeed(level.getPreySpeed());
-		config.setSquareSize(level.getSquareSize());
+		config.setPreySpeedIndex(level.getPreySpeedIndex());
 		
 		// Finally set the predator speed from the player data
-		config.setPredatorSpeed(playerProgress.getPredatorSpeed());
+		config.setPredatorSpeedIndex(playerProgress.getPredatorSpeedIndex());
 		
 		return config;
 	}
@@ -199,17 +208,14 @@ public class JsonDataManager implements DataManager {
 		
 		// Now set the other values from the sandbox configuration, using the 
 		// default value if none exists in the preferences
-		int defaultPredatorSpeed = defaultSandboxConfig.getPredatorSpeed();
+		int defaultPredatorSpeed = defaultSandboxConfig.getPredatorSpeedIndex();
 		int predatorSpeed = prefs.getInteger("predatorspeed", defaultPredatorSpeed);
 		
-		int defaultPreySpeed = defaultSandboxConfig.getPreySpeed();
+		int defaultPreySpeed = defaultSandboxConfig.getPreySpeedIndex();
 		int preySpeed = prefs.getInteger("preyspeed", defaultPreySpeed);
 		
-		config.setPredatorSpeed(predatorSpeed);
-		config.setPreySpeed(preySpeed);
-		config.setSquareSize(8.0f);
-		// NOTE: NEED TO SORT OUT predator/prey speed conversions and square 
-		// sizes
+		config.setPredatorSpeedIndex(predatorSpeed);
+		config.setPreySpeedIndex(preySpeed);
 		
 		return config;
 	}
@@ -217,22 +223,127 @@ public class JsonDataManager implements DataManager {
 	@Override
 	public GameConfiguration getGameConfig(int levelNumber) {
 		
+		// Get the maze shape for this level
+		Level level = levelsData.getLevel(levelNumber);
+		List<PointXY> mazePoints = level.getMazeDimensions();
+		PolygonShape mazeShape = new PolygonShape(mazePoints);
 		
-		// TODO Auto-generated method stub
-		return null;
+		// We always want pills for levels
+		boolean hasPills = true;
+		
+		// Use the default maze config for now
+		// TODO Replace this with data read from the levels config
+		MazeConfig mazeConfig = new MazeConfig();
+		
+		// Create the agent config (using mostly default values)
+		// TODO Replace max power up values with data read from the levels config
+		AgentConfig agentConfig = new AgentConfig();
+		int numPrey = level.getNumPrey();
+		agentConfig.setNumPrey(numPrey);
+		
+		// Use the default power up config for now
+		// TODO Read in the correct power up strengths from the player progress data
+		PowerUpConfig powerUpConfig = new PowerUpConfig();
+		
+		// Create our game configuration
+		GameConfiguration gameConfig = new GameConfiguration(mazeShape, 
+				hasPills, mazeConfig, agentConfig, powerUpConfig);
+		
+		// We're done
+		return gameConfig;
 	}
 
 	@Override
 	public GameConfiguration getGameConfigSandbox() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		// Get the saved preferences
+		Preferences prefs = getSandboxPrefs();
+		
+		// Now get the required values from the sandbox configuration, using the 
+		// default value if none exists in the preferences
+		int defaultMazeWidth = defaultSandboxConfig.getMazeWidth();
+		int mazeWidth = prefs.getInteger("mazewidth", defaultMazeWidth);
+		
+		int defaultMazeHeight = defaultSandboxConfig.getMazeHeight();
+		int mazeHeight = prefs.getInteger("mazeheight", defaultMazeHeight);
+		
+		List<PointXY> mazePoints = new ArrayList<PointXY>();
+		mazePoints.add(new PointXY(0, 0));
+		mazePoints.add(new PointXY(0, mazeHeight));
+		mazePoints.add(new PointXY(mazeWidth, mazeHeight));
+		mazePoints.add(new PointXY(mazeWidth, 0));
+		
+		PolygonShape mazeShape = new PolygonShape(mazePoints);
+		
+		// We always want pills for sandbox
+		boolean hasPills = true;
+		
+		// Use the default maze config for now
+		// TODO Replace this with data read from the default sandbox config
+		MazeConfig mazeConfig = new MazeConfig();
+		
+		// Create the agent config (using mostly default values)
+		// TODO Replace max power up values with data read from the sandbox config
+		AgentConfig agentConfig = new AgentConfig();
+		int defaultNumPrey = defaultSandboxConfig.getNumPrey();
+		int numPrey = prefs.getInteger("numprey", defaultNumPrey);
+		agentConfig.setNumPrey(numPrey);
+		
+		// Use the default power up config for now
+		// TODO Read in the correct power up strengths from the sandbox config
+		PowerUpConfig powerUpConfig = new PowerUpConfig();
+		
+		// Create our game configuration
+		GameConfiguration gameConfig = new GameConfiguration(mazeShape, 
+				hasPills, mazeConfig, agentConfig, powerUpConfig);
+		
+		// We're done
+		return gameConfig;
 	}
 
 	@Override
-	public void saveSandboxData(PhysicsConfiguration physicsConfig,
-			GameConfiguration gameConfig) {
-		// TODO Auto-generated method stub
-
+	public SandboxConfiguration getSandboxConfig() {
+		
+		// Get the saved preferences
+		Preferences prefs = getSandboxPrefs();
+		
+		int defaultPredatorSpeed = defaultSandboxConfig.getPredatorSpeedIndex();
+		int predatorSpeed = prefs.getInteger("predatorspeed", defaultPredatorSpeed);
+		
+		int defaultPreySpeed = defaultSandboxConfig.getPreySpeedIndex();
+		int preySpeed = prefs.getInteger("preyspeed", defaultPreySpeed);
+		
+		int defaultMazeWidth = defaultSandboxConfig.getMazeWidth();
+		int mazeWidth = prefs.getInteger("mazewidth", defaultMazeWidth);
+		
+		int defaultMazeHeight = defaultSandboxConfig.getMazeHeight();
+		int mazeHeight = prefs.getInteger("mazeheight", defaultMazeHeight);
+		
+		int defaultNumPrey = defaultSandboxConfig.getNumPrey();
+		int numPrey = prefs.getInteger("numprey", defaultNumPrey);
+		
+		
+		SandboxConfiguration sandboxConfig = 
+				new SandboxConfiguration(predatorSpeed, preySpeed, mazeWidth, 
+						mazeHeight, numPrey);
+		
+		return sandboxConfig;
+	}
+	
+	@Override
+	public void saveSandboxData(SandboxConfiguration sandboxConfig) {
+		
+		// We use Preferences to store the sandbox data
+		Preferences prefs = getSandboxPrefs();
+		prefs.putInteger("predatorspeed", sandboxConfig.getPredatorSpeedIndex());
+		prefs.putInteger("preyspeed", sandboxConfig.getPreySpeedIndex());
+		prefs.putInteger("mazewidth", sandboxConfig.getMazeWidth());
+		prefs.putInteger("mazeheight", sandboxConfig.getMazeHeight());
+		prefs.putInteger("numprey", sandboxConfig.getNumPrey());
+		
+		prefs.flush();
+		
+		// TODO save other data (see above method)
 	}
 
 	@Override
@@ -278,20 +389,13 @@ public class JsonDataManager implements DataManager {
 	public void savePlayerProgress(PlayerProgress progress) {
 		
 		// Get a handle to the player progress data file
-		FileHandle handle = Gdx.files.internal("data/config/player_progress.json");
-		
-		// Check whether there's a problem with the file...
-		if (!handle.exists()) {
-			System.err.println("Couldn't get the player progress file.");
-			return;
-		}
+		FileHandle handle = Gdx.files.internal("data/config/game_data.json");
 		
 		// Convert the progress to a Json string
 		String progressString = getJson().toJson(progress);
 		
 		// Write the string to the file
 		handle.writeString(progressString, false);
-		
 	}
 
 }

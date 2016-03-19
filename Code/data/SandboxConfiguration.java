@@ -1,43 +1,68 @@
 package data;
 
-import geometry.PointXY;
+public class SandboxConfiguration {
 
-import java.util.ArrayList;
-import java.util.List;
-
-class SandboxConfiguration {
-
-	private int predatorSpeed;
-	private int preySpeed;
-	private List<PointXY> mazeDimensions;
+	private int predatorSpeedIndex;
+	private int preySpeedIndex;
+	private int mazeWidth;
+	private int mazeHeight;
 	private int numPrey;
 	// maze generation parameters...
 	
 	public SandboxConfiguration() {
-		predatorSpeed = 2;
-		preySpeed = 1;
-		mazeDimensions = new ArrayList<PointXY>();
-		mazeDimensions.add(new PointXY(0, 0));
-		mazeDimensions.add(new PointXY(0, 4));
-		mazeDimensions.add(new PointXY(4, 4));
-		mazeDimensions.add(new PointXY(4, 0));
+		predatorSpeedIndex = 2;
+		preySpeedIndex = 1;
+		mazeWidth = 8;
+		mazeHeight = 8;
 		numPrey = 2;
 	}
-
-	public int getPredatorSpeed() {
-		return predatorSpeed;
+	
+	public SandboxConfiguration(int predatorSpeedIndex, int preySpeedIndex, 
+			int mazeWidth, int mazeHeight, int numPrey) {
+		this.predatorSpeedIndex = predatorSpeedIndex;
+		this.preySpeedIndex = preySpeedIndex;
+		this.mazeWidth = mazeWidth;
+		this.mazeHeight = mazeHeight;
+		this.numPrey = numPrey;
 	}
 
-	public int getPreySpeed() {
-		return preySpeed;
+	public int getPredatorSpeedIndex() {
+		return predatorSpeedIndex;
 	}
 
-	public List<PointXY> getMazeDimensions() {
-		return mazeDimensions;
+	public int getPreySpeedIndex() {
+		return preySpeedIndex;
 	}
-
+	
+	public int getMazeWidth() {
+		return mazeWidth;
+	}
+	
+	public int getMazeHeight() {
+		return mazeHeight;
+	}
+	
 	public int getNumPrey() {
 		return numPrey;
 	}
-	
+
+	public void setPredatorSpeedIndex(int predatorSpeedIndex) {
+		this.predatorSpeedIndex = predatorSpeedIndex;
+	}
+
+	public void setPreySpeedIndex(int preySpeedIndex) {
+		this.preySpeedIndex = preySpeedIndex;
+	}
+
+	public void setMazeWidth(int mazeWidth) {
+		this.mazeWidth = mazeWidth;
+	}
+
+	public void setMazeHeight(int mazeHeight) {
+		this.mazeHeight = mazeHeight;
+	}
+
+	public void setNumPrey(int numPrey) {
+		this.numPrey = numPrey;
+	}
 }
