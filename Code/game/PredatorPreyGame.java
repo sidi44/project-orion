@@ -2,6 +2,10 @@ package game;
 
 import java.util.List;
 
+import ai.AILogic;
+import data.DataManager;
+import data.GameDataManager;
+import data.PlayerProgress;
 import geometry.PointXY;
 import geometry.PolygonShape;
 import logic.Agent;
@@ -22,16 +26,10 @@ import ui.ScreenManager;
 import ui.ScreenName;
 import sound.SoundConfiguration;
 import sound.SoundManager;
-import xml.ConfigurationXMLParser;
-import ai.AILogic;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Json;
-import data.DataManager;
-import data.JsonDataManager;
 
 public class PredatorPreyGame extends Game	 {
 
@@ -49,6 +47,10 @@ public class PredatorPreyGame extends Game	 {
 	private ResultLogger logger;
 	
 	private ScreenManager screenManager;
+	private DataManager dataManager;
+	
+	private GameType gameType;
+	private int currentLevel;
 	
 	// Physics debug information
 	private final PhysicsDebugType debugType = PhysicsDebugType.DebugNone;
@@ -56,23 +58,20 @@ public class PredatorPreyGame extends Game	 {
 	@Override
 	public void create() {
 
-		String filename = "Configuration.xml";
-		String schemaFilename = "Configuration.xsd";
-		ConfigurationXMLParser xmlParser = 
-				new ConfigurationXMLParser(filename, schemaFilename);
-		xmlParser.parseXML();
+//		String filename = "Configuration.xml";
+//		String schemaFilename = "Configuration.xsd";
+//		ConfigurationXMLParser xmlParser = 
+//				new ConfigurationXMLParser(filename, schemaFilename);
+//		xmlParser.parseXML();
 		
-		DataManager dm = new JsonDataManager();
-		SoundConfiguration soundConfig = dm.getSoundConfiguration();
+		dataManager = new GameDataManager();
+		SoundConfiguration soundConfig = dataManager.getSoundConfiguration();
+		rendererConfig = dataManager.getRendererConfig();
 		
-		gameConfig = xmlParser.getGameConfig();
-		physicsConfig = xmlParser.getPhysicsConfig();
-		rendererConfig = xmlParser.getRendererConfig();
-
-		Json json = new Json();
-		json.setUsePrototypes(false);
-		String string = json.prettyPrint(physicsConfig);
-		System.out.println(string);
+		// Create dummy game and physics configuration class. These will be 
+		// replaced for the actual level / sandbox versions via the UI.
+		gameConfig = new GameConfiguration();
+		physicsConfig = new PhysicsConfiguration();
 		
 		// Create the world.
 		Vector2 gravity = new Vector2(0f, 0f);
@@ -86,11 +85,8 @@ public class PredatorPreyGame extends Game	 {
 		physProc.setDebugCategory(debugType);
 		
 		renderer = new Renderer(false, false);
-		
 		renderer.loadTextures(rendererConfig);
 
-//		Gdx.input.setInputProcessor(inputMultiplexer);
-//		setScreen(getScreenByName("SPLASH"));
 		screenManager = new ScreenManager(this);
 		screenManager.changeScreen(ScreenName.Splash);
 		
@@ -98,6 +94,9 @@ public class PredatorPreyGame extends Game	 {
 		
 		soundManager = new SoundManager();
 		physProc.addReceiver(soundManager);
+		
+		gameType = GameType.Sandbox;
+		currentLevel = -1;
 	}
 
 	public void setAI(AILogic ai) {
@@ -116,24 +115,12 @@ public class PredatorPreyGame extends Game	 {
 		return world;
 	}
 	
-	/**
-	 * Adds an input processer to the input multiplexer if it hasn't been 
-	 * already added. Throws an exception 
-	 * @param inputProc - the input processor.
-	 */
-	public void addInputProcessor(InputProcessor inputProc) {
-		
-//		if (inputProc == null) {
-//			throw new IllegalArgumentException("Input processor can't be null");
-//		}
-//		
-//		if (!inputMultiplexer.getProcessors().contains(inputProc, true)) {
-//			inputMultiplexer.addProcessor(inputProc);
-//		}
-	}
-	
 	public PhysicsProcessor getPhysicsProcessor() {
 		return physProc;
+	}
+	
+	public DataManager getDataManager() {
+		return dataManager;
 	}
 	
 	public ResultLogger getLogger() {
@@ -195,4 +182,41 @@ public class PredatorPreyGame extends Game	 {
 		gameLogic.setNonPlayerMoves();
 	}
 	
+	public void setGameTypeLevel(int levelNumber) {
+		gameType = GameType.Levels;
+		currentLevel = levelNumber;
+		gameConfig = dataManager.getGameConfig(levelNumber);
+		physicsConfig = dataManager.getPhysicsConfig(levelNumber);
+		resetGame();
+	}
+	
+	public void setGameTypeSandbox() {
+		gameType = GameType.Sandbox;
+		currentLevel = -1;
+		gameConfig = dataManager.getGameConfigSandbox();
+		physicsConfig = dataManager.getPhysicsConfigSandbox();
+		resetGame();
+	}
+	
+	public GameType getGameType() {
+		return gameType;
+	}
+	
+	public void gameOver(GameOver reason) {
+		
+		// Check whether the player was playing a in level mode and whether 
+		// they won.
+		if (gameType == GameType.Levels && reason == GameOver.Prey) {
+			
+			// The player completed the level. Update their progress
+			PlayerProgress progress = dataManager.getPlayerProgress();
+			
+			// Unlock the next level
+			progress.setLevelLocked(currentLevel + 1, false);
+			
+			// TODO Save the score here as well
+			
+		}
+		
+	}
 }

@@ -5,13 +5,15 @@ import java.util.Map;
 
 class LevelsData {
 
-	private Map<Integer, Level> levels;
+	private Map<String, Level> levels;
 	
 	public LevelsData() {
-		levels = new HashMap<Integer, Level>();
+		levels = new HashMap<String, Level>();
 	}
 	
 	public Level getLevel(int number) {
-		return levels.get(number);
+		String num = Integer.toString(number);
+		Level level = levels.get(num);
+		return level;
 	}
 }

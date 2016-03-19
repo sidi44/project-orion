@@ -1,23 +1,7 @@
 {
-	predatorSpeed: 2
-	preySpeed: 1
-	mazeDimensions: [
-		{
-			x: 0
-			y: 0
-		}
-		{
-			x: 0
-			y: 5
-		}
-		{
-			x: 5
-			y: 5
-		}
-		{
-			x: 5
-			y: 0
-		}
-	]
+	predatorSpeedIndex: 4
+	preySpeedIndex: 2
+	mazeWidth: 6
+	mazeHeight: 10 
 	numPrey: 3
 }
