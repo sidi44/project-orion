@@ -1,0 +1,65 @@
+{
+	levels: {
+		class: java.util.HashMap
+		1: {
+			mazeDimensions: [
+				{
+					x: 0
+					y: 0
+				}
+				{
+					x: 0
+					y: 4
+				}
+				{
+					x: 4
+					y: 4
+				}
+				{
+					x: 4
+					y: 0
+				}
+			]
+			numPrey: 1
+			preySpeed: 10
+			numPowerUps: 0
+			squareSize: 8
+			starScores : {
+				class: java.util.HashMap
+				1: 100
+				2: 200
+				3: 300
+			}		
+		}
+		2: {
+			mazeDimensions: [
+				{
+					x: 0
+					y: 0
+				}
+				{
+					x: 0
+					y: 5
+				}
+				{
+					x: 5
+					y: 5
+				}
+				{
+					x: 5
+					y: 0
+				}
+			]
+			numPrey: 2
+			preySpeed: 10
+			numPowerUps: 0
+			squareSize: 8
+			starScores : {
+				class: java.util.HashMap
+				1: 150
+				2: 250
+				3: 350
+			}	
+		}
+	}
+}

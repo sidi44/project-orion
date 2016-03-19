@@ -2,6 +2,8 @@ package game;
 
 import java.util.List;
 
+import data.DataManager;
+import data.JsonDataManager;
 import geometry.PointXY;
 import geometry.PolygonShape;
 import logic.Agent;
@@ -21,6 +23,7 @@ import render.RendererConfiguration;
 import ui.ScreenManager;
 import ui.ScreenName;
 import sound.SoundManager;
+import sound.SoundConfiguration;
 import xml.ConfigurationXMLParser;
 import ai.AILogic;
 
@@ -28,6 +31,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Json;
 
 public class PredatorPreyGame extends Game	 {
 
@@ -57,10 +61,19 @@ public class PredatorPreyGame extends Game	 {
 		ConfigurationXMLParser xmlParser = 
 				new ConfigurationXMLParser(filename, schemaFilename);
 		xmlParser.parseXML();
+		
+		DataManager dm = new JsonDataManager();
+		SoundConfiguration soundConfig = dm.getSoundConfiguration();
+		
 		gameConfig = xmlParser.getGameConfig();
 		physicsConfig = xmlParser.getPhysicsConfig();
 		rendererConfig = xmlParser.getRendererConfig();
 
+		Json json = new Json();
+		json.setUsePrototypes(false);
+		String string = json.prettyPrint(physicsConfig);
+		System.out.println(string);
+		
 		// Create the world.
 		Vector2 gravity = new Vector2(0f, 0f);
 		boolean doSleep = true;

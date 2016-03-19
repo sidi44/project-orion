@@ -28,12 +28,12 @@ public class PhysicsConfiguration {
 	 * Sets parameters to their default values.
 	 */
 	public PhysicsConfiguration() {
-		squareSize = 10.0f;
+		squareSize = 8.0f;
 		wallWidthRatio = 0.1f;
 		pillRadiusRatio = 0.2f;
 		powerUpRadiusRatio = 0.3f;
-		predatorSpeed = 35f;
-		preySpeed = 25f;
+		predatorSpeed = 20f;
+		preySpeed = 10f;
 	}
 	
 	/**
@@ -82,6 +82,15 @@ public class PhysicsConfiguration {
 		this.powerUpRadiusRatio = powerUpRadiusRatio;
 		this.predatorSpeed = predatorSpeed;
 		this.preySpeed = preySpeed;
+	}
+	
+	public PhysicsConfiguration(PhysicsConfiguration other) {
+		this.squareSize = other.squareSize;
+		this.wallWidthRatio = other.wallWidthRatio;
+		this.pillRadiusRatio = other.pillRadiusRatio;
+		this.powerUpRadiusRatio = other.powerUpRadiusRatio;
+		this.predatorSpeed = other.predatorSpeed;
+		this.preySpeed = other.preySpeed;
 	}
 
 	/**
