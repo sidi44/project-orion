@@ -15,6 +15,7 @@ public enum PhysicsBodyType {
 	PowerUpPredator,
 	PowerUpPrey,
 	Pill,
-	Walls
+	Walls,
+	Debug
 	
 }
