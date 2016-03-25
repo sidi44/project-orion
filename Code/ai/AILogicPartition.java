@@ -3,6 +3,7 @@ package ai;
 import geometry.PointXY;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -133,7 +134,7 @@ public class AILogicPartition implements AILogic {
 		}
 		
 		// Sort the prey into Agent ID order
-		allPrey.sort(new AgentComparator());
+		Collections.sort(allPrey, new AgentComparator());
 		
 		// Reset the partition field
 		resetPartition(allPrey);

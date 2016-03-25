@@ -84,7 +84,7 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 	private final short MASK_DEBUG = CATEGORY_WALL;
 	
 	// Physics simulation step variables
-	private final float dt = 1.0f / 60.0f;
+	private final float dt;
 	private float accumulator;
 	
 	// The type of debug information to process and display
@@ -115,6 +115,7 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 		this.predatorSpeed = config.getPredatorSpeed();
 		this.preySpeed = config.getPreySpeed();
 		
+		this.dt = config.getTimestep();
 		this.accumulator = 0;
 		
 		this.debugType = PhysicsDebugType.DebugNone;

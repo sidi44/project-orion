@@ -1,8 +1,8 @@
 package ui;
 
+import game.GameType;
 import game.PredatorPreyGame;
 import input.UserInputProcessor;
-
 import logic.GameOver;
 
 import com.badlogic.gdx.InputMultiplexer;
@@ -12,29 +12,18 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
-public class GameScreen extends MenuScreen {
-	
-	private PredatorPreyGame game;
+class GameScreen extends MenuScreen {
 	
 	private final CameraManager cameraManager;
-	
 	private final UserInputProcessor inputProc;
 	
-	private GameType gameType;
-	private int levelNumber;
-	
-	public GameScreen(ScreenManager manager, PredatorPreyGame game) {
+	public GameScreen(ScreenManager manager) {
 		super(manager);
 		
-		this.game = game;
-		
-		this.inputProc = new UserInputProcessor();
-		
 		Camera gameCamera = new OrthographicCamera();
-		cameraManager = new CameraManager(gameCamera, game);
+		cameraManager = new CameraManager(gameCamera, manager.getGame());
 		
-		gameType = GameType.Sandbox;
-		levelNumber = 1;
+		this.inputProc = new UserInputProcessor(cameraManager);
 	}
 	
 	@Override
@@ -71,14 +60,6 @@ public class GameScreen extends MenuScreen {
 		getStage().addActor(table);
 	}
 	
-	public void setGameType(GameType type) {
-		gameType = type;
-	}
-	
-	public void setLevelNumber(int number) {
-		levelNumber = number;
-	}
-	
 	@Override
 	protected void doShow() {
 		// Set up the intial view
@@ -88,18 +69,41 @@ public class GameScreen extends MenuScreen {
 	@Override
 	protected void doRender(float delta) {
 
+		PredatorPreyGame game = getManager().getGame();
+		
 		Camera gameCamera = cameraManager.getCamera();
 		game.getRenderer().render(game.getWorld(), gameCamera.combined);
 		inputProc.processCameraInputs(gameCamera);
 
 		GameOver gameOver = game.update(delta, inputProc.getNextMove());
-		
+		if (gameOver != GameOver.No) {
+			gameFinished(gameOver);
+		}
 		cameraManager.update();
 		
-		if (gameOver != GameOver.No) {
-			getManager().changeScreen(ScreenName.MainMenu);
-			game.resetGame();
+
+	}
+	
+	private void gameFinished(GameOver reason) {
+		
+		// Grab the game from the screen manager
+		PredatorPreyGame game = getManager().getGame();
+		
+		// Work out which screen we should change to depending on the game type
+		GameType type = game.getGameType();
+		ScreenName name = ScreenName.MainMenu;
+		switch (type) {
+			case Levels:
+				name = ScreenName.Levels;
+				break;
+			case Sandbox:
+				name = ScreenName.Sandbox;
+				break;			
 		}
+		getManager().changeScreen(name);
+		
+		// Tell the game its finished and why
+		game.gameOver(reason);
 	}
 
 }

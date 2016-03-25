@@ -100,10 +100,13 @@ abstract class AbstractScreen implements Screen {
 
 	@Override
 	public final void hide() {
-		// TODO Auto-generated method stub
-
+		doHide();
 	}
 
+	protected void doHide() {
+		// Base class does nothing
+	}
+	
 	@Override
 	public final void dispose() {
 		// TODO Auto-generated method stub

@@ -82,4 +82,39 @@ public class NumberUtils {
 		}
 	}
 	
+	/**
+	 * Checks whether an integer is in the range or 2 integers (inclusive).
+	 * 
+	 * @param val (int)
+	 * @param r1 (int)
+	 * @param r2 (int)
+	 * @return inRange (boolean)
+	 */
+	public static boolean inRange(int val, int r1, int r2) {
+		int min;
+		int max;
+		
+		if (r1 < r2) {
+			min = r1;
+			max = r2;
+		} else {
+			min = r2;
+			max = r1;
+		}
+		
+		return (min <= val && max >= val);
+	}
+	
+	/**
+	 * Compares 2 double values up to a specified precision.
+	 * 
+	 * @param val1 (double)
+	 * @param val2 (double)
+	 * @param delta (double)
+	 * @return equal (boolean)
+	 */
+	public static boolean compareDouble(double val1, double val2, double delta) {
+		return (Math.abs(val1 - val2) < delta);
+	}
+	
 }

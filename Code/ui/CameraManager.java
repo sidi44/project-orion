@@ -1,6 +1,7 @@
 package ui;
 
 import game.PredatorPreyGame;
+import input.CameraAccessor;
 
 import java.util.List;
 
@@ -10,8 +11,9 @@ import logic.Predator;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
-public class CameraManager {
+class CameraManager implements CameraAccessor {
 
 	private Camera camera;
 	private final PredatorPreyGame game;
@@ -160,6 +162,16 @@ public class CameraManager {
 		
 		camera.position.x = (float) newX;
 		camera.position.y = (float) newY;
+	}
+
+	@Override
+	public Vector3 screenToWorld(Vector3 screenCoords) {
+		return camera.unproject(screenCoords);
+	}
+
+	@Override
+	public Vector3 cameraPosition() {
+		return camera.position;
 	}
 	
 }

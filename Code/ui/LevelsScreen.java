@@ -1,14 +1,20 @@
 package ui;
 
+import game.PredatorPreyGame;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+
+import data.DataManager;
+import data.PlayerProgress;
 
 class LevelsScreen extends MenuScreen {
 
@@ -65,14 +71,24 @@ class LevelsScreen extends MenuScreen {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				ScreenManager manager = getManager();
-				GameScreen screen = (GameScreen) manager.getScreen(ScreenName.Game);
-				screen.setGameType(GameType.Levels);
-				screen.setLevelNumber(levelNumber);
+				manager.getGame().setGameTypeLevel(levelNumber);
 				manager.changeScreen(ScreenName.Game);
 			}
 		});
 		
+		PredatorPreyGame game = getManager().getGame();
+		DataManager dataManager = game.getDataManager();
+		PlayerProgress progress = dataManager.getPlayerProgress();
+		if (progress.isLevelLocked(levelNumber)) {
+			button.setTouchable(Touchable.disabled);
+		}
+		
 		return button;
+	}
+	
+	@Override
+	protected void doShow() {
+		
 	}
 	
 }

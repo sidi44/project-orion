@@ -24,7 +24,7 @@ public class ScreenManager {
 		screens.put(ScreenName.Settings, new SettingsScreen(this));
 		screens.put(ScreenName.Levels, new LevelsScreen(this));
 		screens.put(ScreenName.Sandbox, new SandboxScreen(this));
-		screens.put(ScreenName.Game, new GameScreen(this, game));
+		screens.put(ScreenName.Game, new GameScreen(this));
 	}
 	
 	public void changeScreen(ScreenName name) {
@@ -34,5 +34,9 @@ public class ScreenManager {
 	
 	Screen getScreen(ScreenName name) {
 		return screens.get(name);
+	}
+	
+	PredatorPreyGame getGame() {
+		return game;
 	}
 }
