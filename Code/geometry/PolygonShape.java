@@ -2,6 +2,8 @@ package geometry;
 
 import java.util.List;
 
+import com.badlogic.gdx.math.Polygon;
+
 import utils.NumberUtils;
 
 /**
@@ -10,9 +12,9 @@ import utils.NumberUtils;
  * This class is immutable.
  * 
  * @author Martin Wong
- * @version 2016-03-06
+ * @version 2016-03-25
  */
-public class PolygonShape extends com.badlogic.gdx.math.Polygon {
+public class PolygonShape extends Polygon {
 	
 	private final List<PointXY> coordinates;
 	
@@ -100,7 +102,7 @@ public class PolygonShape extends com.badlogic.gdx.math.Polygon {
 	 */
 	public boolean withinBoundingBox(PointXY p) {
 		return (p.getX() >= getMinX() && p.getX() <= getMaxX() 
-				&& p.getY() >= getMinY() || p.getY() <= getMaxY());
+				&& p.getY() >= getMinY() && p.getY() <= getMaxY());
 	}
 	
 	
@@ -127,7 +129,9 @@ public class PolygonShape extends com.badlogic.gdx.math.Polygon {
 	 * @return isInside (boolean)
 	 */
 	public boolean containsExclusive(PointXY p) {
-		if (!withinBoundingBox(p)) return false;
+		if (!withinBoundingBox(p)) {
+			return false;
+		}
 		
 		return contains((float) p.getX(), (float) p.getY());
 	}
@@ -139,7 +143,10 @@ public class PolygonShape extends com.badlogic.gdx.math.Polygon {
 	 * @return isOutline (boolean)
 	 */
 	public boolean onOutline(PointXY p) {
-		if (!withinBoundingBox(p)) return false;
+		
+		if (!withinBoundingBox(p)) {
+			return false;
+		}
 		
 		PointXY p1 = coordinates.get(coordinates.size() - 1);
 		double d1;
@@ -149,13 +156,15 @@ public class PolygonShape extends com.badlogic.gdx.math.Polygon {
 		for (PointXY p2 : coordinates) {
 			// Check within mini-bounding box
 			if (NumberUtils.inRange(p.getX(), p1.getX(), p2.getX()) 
-					&& NumberUtils.inRange(p.getY(), p1.getY(), p2.getY())) {
+				&& NumberUtils.inRange(p.getY(), p1.getY(), p2.getY())) {
 			
 				d1 = p2.getDistance(p1);
 				d2 = p.getDistance(p1);
 				d3 = p2.getDistance(p);
 				
-				if (NumberUtils.compareDouble(d1, d2 + d3, 0.001)) return true;
+				if (NumberUtils.compareDouble(d1, d2 + d3, 0.001)) {
+					return true;
+				}
 			}
 			p1 = p2;
 		}

@@ -214,7 +214,7 @@
 	        <AnimationGroupName>Pill</AnimationGroupName>
 	        <Rows>3</Rows>
 	        <Columns>8</Columns>
-	        <Filename>coins.png</Filename>
+	        <Filename>Coins.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName></AnimationName>
 	            <StartFrame>1</StartFrame>
