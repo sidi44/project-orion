@@ -8,6 +8,7 @@ import logic.GameOver;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -29,6 +30,7 @@ class GameScreen extends MenuScreen {
 	@Override
 	protected void addInputProcessor(InputMultiplexer multiplexer) {
 		multiplexer.addProcessor(inputProc);
+		multiplexer.addProcessor(new GestureDetector(inputProc));
 	}
 	
 	@Override
@@ -89,6 +91,11 @@ class GameScreen extends MenuScreen {
 		// Grab the game from the screen manager
 		PredatorPreyGame game = getManager().getGame();
 		
+		// Tell the game its finished and why. (This should happen before 
+		// changing the screen in case we need to update any data, e.g. level 
+		// unlocked, first)
+		game.gameOver(reason);
+		
 		// Work out which screen we should change to depending on the game type
 		GameType type = game.getGameType();
 		ScreenName name = ScreenName.MainMenu;
@@ -101,9 +108,6 @@ class GameScreen extends MenuScreen {
 				break;			
 		}
 		getManager().changeScreen(name);
-		
-		// Tell the game its finished and why
-		game.gameOver(reason);
 	}
 
 }

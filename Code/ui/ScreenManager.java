@@ -4,10 +4,15 @@ import game.PredatorPreyGame;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+
+import callback.Event;
+import callback.Sender;
 
 import com.badlogic.gdx.Screen;
 
-public class ScreenManager {
+public class ScreenManager extends Sender {
 
 	private PredatorPreyGame game;
 	private final Map<ScreenName, Screen> screens;
@@ -28,8 +33,18 @@ public class ScreenManager {
 	}
 	
 	public void changeScreen(ScreenName name) {
+		
+		// Prepare the screen change event
+		ScreenName from = currentScreen();
+		ScreenName to = name;
+		Event event = new UIEventScreenChange("ScreenChange", from, to);
+		
+		// Do the screen change
 		Screen screen = screens.get(name);
 		game.setScreen(screen);
+		
+		// Broadcast the screen change event to receivers
+		sendToAll(event);
 	}
 	
 	Screen getScreen(ScreenName name) {
@@ -38,5 +53,15 @@ public class ScreenManager {
 	
 	PredatorPreyGame getGame() {
 		return game;
+	}
+	
+	private ScreenName currentScreen() {
+		Screen screen = game.getScreen();
+		for (Entry<ScreenName, Screen> entry : screens.entrySet()) {
+			if (Objects.equals(screen, entry.getValue())) {
+				return entry.getKey();
+	        }
+	    }
+		return null;
 	}
 }

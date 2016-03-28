@@ -3,6 +3,8 @@ package logic;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import utils.NumberUtils;
+
 /**
  * Represents the configurations used to build a maze.
  * 
@@ -121,6 +123,12 @@ public class MazeConfig {
 	@XmlElement (name = "RanPathMaxProp")
 	public void setRanPathMaxProp(double ranPathMaxProp) {
 		this.ranPathMaxProp = ranPathMaxProp;
+	}
+	
+	public void randomiseValues() {
+		maxLength = NumberUtils.randomInt(1, 30);
+		deadEndMinProp = NumberUtils.randomDouble(0.0, 1.0);
+		ranPathMaxProp = NumberUtils.randomDouble(0.0, 1.0);
 	}
 	
 }

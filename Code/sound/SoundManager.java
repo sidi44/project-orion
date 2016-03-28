@@ -1,9 +1,13 @@
 package sound;
 
+import game.GameStatus;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import physics.PhysicsEvent;
+import ui.UIEvent;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
@@ -14,59 +18,181 @@ import callback.Receiver;
 
 public class SoundManager implements Receiver {
 
-	private Map<SoundType, Sound> sounds;
-	private Map<MusicType, Music> music;
+	private Map<SoundType, Sound> allSounds;
+	private Map<MusicType, Music> allMusic;
 	
-	private EventSoundProcessor eventProcessor;
+	private boolean soundOn;
+	private boolean musicOn;
 	
-	public SoundManager() {
-		eventProcessor = new EventSoundProcessor();
+	private int soundVolume;
+	private int musicVolume;
+	
+	private EventSoundProcessor eventSoundProcessor;
+	private EventMusicProcessor eventMusicProcessor;
+	
+	private GameStatus gameStatus;
+	
+	public SoundManager(SoundConfiguration config, GameStatus status) {
+		eventSoundProcessor = new EventSoundProcessor();
+		eventMusicProcessor = new EventMusicProcessor(status);
+		
+		this.gameStatus = status;
 		
 		loadSounds();
 		loadMusic();
+		
+		update(config);
+	}
+	
+	public void update(SoundConfiguration config) {
+		
+		boolean oldMusicOn = musicOn;
+		
+		soundOn = config.playSounds();
+		musicOn = config.playMusic();
+		soundVolume = config.getSoundLevel();
+		musicVolume = config.getMusicLevel();
+		
+		if (oldMusicOn != musicOn) {
+			if (musicOn) {
+				playMusic(SoundUtils.musicFromStatus(gameStatus));
+			} else {
+				stopMusicPlaying();
+			}
+		}
+		
+		updateMusicVolume();
 	}
 	
 	private void loadSounds() {
-		sounds = new HashMap<SoundType, Sound>();
+		allSounds = new HashMap<SoundType, Sound>();
 		
-		sounds.put(
+		allSounds.put(
 			SoundType.Collision, 
 			Gdx.audio.newSound(Gdx.files.internal("data/sound/slurp.mp3"))
 		);
 	}
 	
 	private void loadMusic() {
-		music = new HashMap<MusicType, Music>();
+		allMusic = new HashMap<MusicType, Music>();
 		
-		music.put(
-			MusicType.Default, 
+		allMusic.put(
+			MusicType.Game, 
 			Gdx.audio.newMusic(Gdx.files.internal("data/music/undisturbed.mp3"))
 		);
+		allMusic.put(
+			MusicType.Menu, 
+			Gdx.audio.newMusic(Gdx.files.internal("data/music/solitude.mp3"))
+		);
+		
+		// We want all our music to loop
+		for (Music music : allMusic.values()) {
+			music.setLooping(true);
+		}
 	}
 	
 	@Override
 	public void receive(Event event) {
 		
-		SoundType type = convertToType(event);
-		Sound sound = sounds.get(type);
-		if (sound != null) {
-			sound.play();
+		if (event instanceof PhysicsEvent) {
+			PhysicsEvent physicsEvent = (PhysicsEvent) event;
+			processPhysicsEvent(physicsEvent);
+		} else if (event instanceof UIEvent) {
+			UIEvent uiEvent = (UIEvent) event;
+			processUIEvent(uiEvent);
 		}
 		
 	}
 	
-	public SoundType convertToType(Event event) {
-		
-		SoundType type = SoundType.None;
-		
-		if (event instanceof PhysicsEvent) {
-			PhysicsEvent physicsEvent = (PhysicsEvent) event;
-			physicsEvent.accept(eventProcessor);
-			type = eventProcessor.getSoundType();
+	private void processPhysicsEvent(PhysicsEvent event) {
+		SoundType type = convertToSoundType(event);
+		Sound sound = allSounds.get(type);
+		if (sound != null && soundOn()) {
+			sound.play(convertSoundVolume());
 		}
+	}
+	
+	private SoundType convertToSoundType(PhysicsEvent event) {
+		event.accept(eventSoundProcessor);
+		SoundType type = eventSoundProcessor.getSoundType();
 		
 		return type;
 	}
 	
+	private void processUIEvent(UIEvent event) {
+		MusicType type = convertToMusicType(event);
+		playMusic(type);
+	}
+	
+	private MusicType convertToMusicType(UIEvent event) {
+		event.accept(eventMusicProcessor);
+		MusicType type = eventMusicProcessor.getMusicType();
+		
+		return type;
+	}
+	
+	private float convertSoundVolume() {
+		float maxSoundVolume = 11f;
+		return 1.0f - (maxSoundVolume - soundVolume) / maxSoundVolume;
+	}
+	
+	private float convertMusicVolume() {
+		float maxMusicVolume = 11f;
+		return 1.0f - (maxMusicVolume - musicVolume) / maxMusicVolume;
+	}
+	
+	private boolean soundOn() {
+		return soundOn;
+	}
+	
+	private boolean musicOn() {
+		return musicOn;
+	}
+	
+	private MusicType musicPlaying() {
+		
+		for (Entry<MusicType, Music> entry : allMusic.entrySet()) {
+			if (entry.getValue().isPlaying()) {
+				return entry.getKey();
+			}
+		}
+		
+		return MusicType.None;
+	}
+	
+	private void stopMusicPlaying() {
+		for (Entry<MusicType, Music> entry : allMusic.entrySet()) {
+			Music music = entry.getValue();
+			if (music.isPlaying()) {
+				music.stop();
+			}
+		}
+	}
+	
+	private void updateMusicVolume() {
+		MusicType type = musicPlaying();
+		if (allMusic.containsKey(type)) {
+			Music music = allMusic.get(type);
+			music.setVolume(convertMusicVolume());
+		}
+	}
+	
+	private void playMusic(MusicType type) {
+		
+		MusicType current = musicPlaying();
+		if (current == type) {
+			updateMusicVolume();
+			return;
+		}
+		
+		stopMusicPlaying();
+		
+		if (musicOn() && allMusic.containsKey(type)) {
+			Music music = allMusic.get(type);	
+			music.setVolume(convertMusicVolume());
+			music.play();
+		}
 
+	}
+	
 }

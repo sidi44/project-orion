@@ -12,8 +12,17 @@ class LevelsData {
 	}
 	
 	public Level getLevel(int number) {
-		String num = Integer.toString(number);
+		String num = intToString(number);
 		Level level = levels.get(num);
 		return level;
+	}
+	
+	public boolean levelExists(int number) {
+		String num = intToString(number);
+		return levels.containsKey(num);
+	}
+	
+	private String intToString(int number) {
+		return Integer.toString(number);
 	}
 }

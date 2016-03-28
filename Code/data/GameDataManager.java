@@ -186,6 +186,12 @@ public class GameDataManager implements DataManager {
 		// Copy the fixed values from our physics configuration
 		PhysicsConfiguration config = new PhysicsConfiguration(physicsConfig);
 		
+		// Check that the level exists
+		if (!levelsData.levelExists(levelNumber)) {
+			System.err.println("No data for requested level number.");
+			return config;
+		}
+		
 		// Now set the prey speed and square size from the level data, depending
 		// on the provided level number
 		Level level = levelsData.getLevel(levelNumber);
@@ -223,6 +229,12 @@ public class GameDataManager implements DataManager {
 	@Override
 	public GameConfiguration getGameConfig(int levelNumber) {
 		
+		// Check that the level exists
+		if (!levelsData.levelExists(levelNumber)) {
+			System.err.println("No data for requested level number.");
+			return new GameConfiguration();
+		}
+		
 		// Get the maze shape for this level
 		Level level = levelsData.getLevel(levelNumber);
 		List<PointXY> mazePoints = level.getMazeDimensions();
@@ -232,8 +244,7 @@ public class GameDataManager implements DataManager {
 		boolean hasPills = true;
 		
 		// Use the default maze config for now
-		// TODO Replace this with data read from the levels config
-		MazeConfig mazeConfig = new MazeConfig();
+		MazeConfig mazeConfig = level.getMazeConfig();
 		
 		// Create the agent config (using mostly default values)
 		// TODO Replace max power up values with data read from the levels config
@@ -278,9 +289,11 @@ public class GameDataManager implements DataManager {
 		// We always want pills for sandbox
 		boolean hasPills = true;
 		
-		// Use the default maze config for now
-		// TODO Replace this with data read from the default sandbox config
+		// Create a default maze config, then ask for the parameters to be 
+		// randomised. We don't allow these parameters to be set by the GUI, so
+		// use random values to get some varied mazes.
 		MazeConfig mazeConfig = new MazeConfig();
+		mazeConfig.randomiseValues();
 		
 		// Create the agent config (using mostly default values)
 		// TODO Replace max power up values with data read from the sandbox config
