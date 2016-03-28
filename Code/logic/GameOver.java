@@ -11,5 +11,6 @@ public enum GameOver {
 	No,
 	Time,
 	Prey,
-	Pills
+	Pills,
+	Exit
 }

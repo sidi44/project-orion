@@ -215,9 +215,29 @@ public class PredatorPreyGame extends Game implements GameStatus {
 			
 		}
 		
+		// Work out which screen we should change to depending on the game type
+		GameType type = getGameType();
+		ScreenName name = ScreenName.MainMenu;
+		switch (type) {
+			case Levels:
+				name = ScreenName.Levels;
+				break;
+			case Sandbox:
+				name = ScreenName.Sandbox;
+				break;
+			case NotPlaying:
+			default:
+				// We're leaving a game but not in a game mode. This is strange.
+				System.err.println("How did we get here?");
+				break;			
+		}
+		
 		// We're no longer playing a game (i.e. back in the menu screens)
 		gameType = GameType.NotPlaying;
 		currentLevel = -1;
+		
+		// Change the screen now
+		screenManager.changeScreen(name);
 	}
 	
 	public void updateSoundManager() {
