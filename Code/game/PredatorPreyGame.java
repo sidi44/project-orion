@@ -31,7 +31,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 
-public class PredatorPreyGame extends Game	 {
+public class PredatorPreyGame extends Game implements GameStatus {
 
 	private World world;
 
@@ -57,15 +57,17 @@ public class PredatorPreyGame extends Game	 {
 	
 	@Override
 	public void create() {
-
+		
 //		String filename = "Configuration.xml";
 //		String schemaFilename = "Configuration.xsd";
 //		ConfigurationXMLParser xmlParser = 
 //				new ConfigurationXMLParser(filename, schemaFilename);
 //		xmlParser.parseXML();
 		
+		gameType = GameType.NotPlaying;
+		currentLevel = -1;
+		
 		dataManager = new GameDataManager();
-		SoundConfiguration soundConfig = dataManager.getSoundConfiguration();
 		rendererConfig = dataManager.getRendererConfig();
 		
 		// Create dummy game and physics configuration class. These will be 
@@ -87,16 +89,15 @@ public class PredatorPreyGame extends Game	 {
 		renderer = new Renderer(false, false);
 		renderer.loadTextures(rendererConfig);
 
-		screenManager = new ScreenManager(this);
-		screenManager.changeScreen(ScreenName.Splash);
-		
-		logger = new ResultLogger();
-		
-		soundManager = new SoundManager();
+		SoundConfiguration soundConfig = dataManager.getSoundConfiguration();
+		soundManager = new SoundManager(soundConfig, this);
 		physProc.addReceiver(soundManager);
 		
-		gameType = GameType.Sandbox;
-		currentLevel = -1;
+		screenManager = new ScreenManager(this);
+		screenManager.changeScreen(ScreenName.Splash);
+		screenManager.addReceiver(soundManager);
+		
+		logger = new ResultLogger();
 	}
 
 	public void setAI(AILogic ai) {
@@ -198,10 +199,6 @@ public class PredatorPreyGame extends Game	 {
 		resetGame();
 	}
 	
-	public GameType getGameType() {
-		return gameType;
-	}
-	
 	public void gameOver(GameOver reason) {
 		
 		// Check whether the player was playing a in level mode and whether 
@@ -218,5 +215,43 @@ public class PredatorPreyGame extends Game	 {
 			
 		}
 		
+		// Work out which screen we should change to depending on the game type
+		GameType type = getGameType();
+		ScreenName name = ScreenName.MainMenu;
+		switch (type) {
+			case Levels:
+				name = ScreenName.Levels;
+				break;
+			case Sandbox:
+				name = ScreenName.Sandbox;
+				break;
+			case NotPlaying:
+			default:
+				// We're leaving a game but not in a game mode. This is strange.
+				System.err.println("How did we get here?");
+				break;			
+		}
+		
+		// We're no longer playing a game (i.e. back in the menu screens)
+		gameType = GameType.NotPlaying;
+		currentLevel = -1;
+		
+		// Change the screen now
+		screenManager.changeScreen(name);
+	}
+	
+	public void updateSoundManager() {
+		SoundConfiguration config = getDataManager().getSoundConfiguration();
+		soundManager.update(config);
+	}
+
+	@Override
+	public GameType getGameType() {
+		return gameType;
+	}
+	
+	@Override
+	public int getLevelNumber() {
+		return currentLevel;
 	}
 }

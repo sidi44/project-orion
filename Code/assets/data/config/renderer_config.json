@@ -16,7 +16,7 @@
 			animationGroupName: Predator
 			rows: 4
 			columns: 11
-			filename: Predator.png
+			filename: predator.png
 			animationDefinitions: [
 				{
 					animationName: DOWN-STOP
@@ -128,7 +128,7 @@
 			animationGroupName: Pill
 			rows: 3
 			columns: 8
-			filename: coins.png
+			filename: Coins.png
 			animationDefinitions: [
 				{
 					animationName: ""

@@ -1,8 +1,6 @@
 package ui;
 
-import java.util.function.IntConsumer;
-
-import game.PredatorPreyGame;
+import functional.IntConsumer;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -13,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import data.DataManager;
@@ -98,13 +97,14 @@ class SandboxScreen extends MenuScreen {
 		Slider numPreySlider = createIntSlider(1, 10, 1, numPrey, numPreyFunc);
 		
 		// Create the game button
-		Button gameButton = createScreenChangeButton("Play", ScreenName.Game);
+		Button gameButton = new TextButton("Play", getSkin());
 		gameButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				saveData();
-				PredatorPreyGame game = getManager().getGame();
-				game.setGameTypeSandbox();
+				ScreenManager manager = getManager();
+				manager.getGame().setGameTypeSandbox();
+				manager.changeScreen(ScreenName.Game);
 			}
 		});
 		

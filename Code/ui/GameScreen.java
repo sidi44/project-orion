@@ -1,6 +1,5 @@
 package ui;
 
-import game.GameType;
 import game.PredatorPreyGame;
 import input.UserInputProcessor;
 import logic.GameOver;
@@ -8,9 +7,13 @@ import logic.GameOver;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 class GameScreen extends MenuScreen {
 	
@@ -29,14 +32,20 @@ class GameScreen extends MenuScreen {
 	@Override
 	protected void addInputProcessor(InputMultiplexer multiplexer) {
 		multiplexer.addProcessor(inputProc);
+		multiplexer.addProcessor(new GestureDetector(inputProc));
 	}
 	
 	@Override
 	protected void addActors() {
 		
 		// Create our main menu button
-		Button menuButton = createScreenChangeButton(
-				"Main menu", ScreenName.MainMenu);
+		Button menuButton = new TextButton("Main menu", getSkin());
+		menuButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				gameFinished(GameOver.Exit);
+			}
+		});
 		
 		// Create the Score and Time remaining text fields
 		Label timeLabel = new Label("Time remaining: ", getSkin());
@@ -80,27 +89,12 @@ class GameScreen extends MenuScreen {
 			gameFinished(gameOver);
 		}
 		cameraManager.update();
-		
-
 	}
 	
 	private void gameFinished(GameOver reason) {
 		
 		// Grab the game from the screen manager
 		PredatorPreyGame game = getManager().getGame();
-		
-		// Work out which screen we should change to depending on the game type
-		GameType type = game.getGameType();
-		ScreenName name = ScreenName.MainMenu;
-		switch (type) {
-			case Levels:
-				name = ScreenName.Levels;
-				break;
-			case Sandbox:
-				name = ScreenName.Sandbox;
-				break;			
-		}
-		getManager().changeScreen(name);
 		
 		// Tell the game its finished and why
 		game.gameOver(reason);

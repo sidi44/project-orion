@@ -1,5 +1,8 @@
 package ui;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import game.PredatorPreyGame;
 
 import com.badlogic.gdx.Gdx;
@@ -18,8 +21,16 @@ import data.PlayerProgress;
 
 class LevelsScreen extends MenuScreen {
 
+	Map<Integer, Button> levelButtons;
+	
 	public LevelsScreen(ScreenManager manager) {
 		super(manager);
+	}
+	
+	@Override
+	protected void initialise() {
+		levelButtons = new HashMap<Integer, Button>();
+		super.initialise();
 	}
 
 	@Override
@@ -76,18 +87,31 @@ class LevelsScreen extends MenuScreen {
 			}
 		});
 		
-		PredatorPreyGame game = getManager().getGame();
-		DataManager dataManager = game.getDataManager();
-		PlayerProgress progress = dataManager.getPlayerProgress();
-		if (progress.isLevelLocked(levelNumber)) {
-			button.setTouchable(Touchable.disabled);
-		}
+		levelButtons.put(levelNumber, button);
 		
 		return button;
 	}
 	
 	@Override
 	protected void doShow() {
+		updateLevelsLocked();
+	}
+	
+	void updateLevelsLocked() {
+		
+		PredatorPreyGame game = getManager().getGame();
+		DataManager dataManager = game.getDataManager();
+		PlayerProgress progress = dataManager.getPlayerProgress();
+		
+		for (Integer levelNumber : levelButtons.keySet()) {
+			Button button = levelButtons.get(levelNumber);
+			boolean locked = progress.isLevelLocked(levelNumber);
+			if (locked) {
+				button.setTouchable(Touchable.disabled);
+			} else {
+				button.setTouchable(Touchable.enabled);
+			}
+		}
 		
 	}
 	
