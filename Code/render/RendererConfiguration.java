@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Vector2;
  * all the values have been set, an instance of this class should then be 
  * passed on to the renderer.
  * 
- * @version 2015-08-09
+ * @version 2016-03-25
  */
 @XmlRootElement(name = "RendererConfiguration")
 public class RendererConfiguration {
@@ -269,7 +269,7 @@ public class RendererConfiguration {
 		// Define the Pill Animation Group
 		AnimationGroupDefinition pillDef = new AnimationGroupDefinition();
 		pillDef.setAnimationGroupName("Pill");
-		pillDef.setFilename("coins.png");
+		pillDef.setFilename("Coins.png");
 		pillDef.setColumns(8);
 		pillDef.setRows(3);
 		
@@ -286,17 +286,45 @@ public class RendererConfiguration {
 		AnimationGroupDefinition predatorPowerUpDef = 
 				new AnimationGroupDefinition();
 		predatorPowerUpDef.setAnimationGroupName("PowerUpPredator");
-		predatorPowerUpDef.setFilename("icons-pow-up.png");
+		predatorPowerUpDef.setFilename("power_ups.png");
 		predatorPowerUpDef.setColumns(3);
 		predatorPowerUpDef.setRows(4);
-		
+
 		// Define the Predator Power Up animations
 		AnimationDefinition def18 = new AnimationDefinition();
-		def18.setAnimationName("");
-		def18.setStartFrame(12);
-		def18.setEndFrame(12);
+		def18.setAnimationName("SlowDownPrey");
+		def18.setStartFrame(7);
+		def18.setEndFrame(7);
 		def18.setFrameDuration(1.0f);
 		predatorPowerUpDef.addAnimation(def18);
+		
+		AnimationDefinition def19 = new AnimationDefinition();
+		def19.setAnimationName("Teleport");
+		def19.setStartFrame(8);
+		def19.setEndFrame(8);
+		def19.setFrameDuration(1.0f);
+		predatorPowerUpDef.addAnimation(def19);
+		
+		AnimationDefinition def20 = new AnimationDefinition();
+		def20.setAnimationName("Magnet");
+		def20.setStartFrame(10);
+		def20.setEndFrame(10);
+		def20.setFrameDuration(1.0f);
+		predatorPowerUpDef.addAnimation(def20);
+		
+		AnimationDefinition def21 = new AnimationDefinition();
+		def21.setAnimationName("Freeze");
+		def21.setStartFrame(11);
+		def21.setEndFrame(11);
+		def21.setFrameDuration(1.0f);
+		predatorPowerUpDef.addAnimation(def21);
+		
+		AnimationDefinition def22 = new AnimationDefinition();
+		def22.setAnimationName("SpeedUpPredator");
+		def22.setStartFrame(12);
+		def22.setEndFrame(12);
+		def22.setFrameDuration(1.0f);
+		predatorPowerUpDef.addAnimation(def22);
 		
 		
 		// Define the Predator Power Up Animation Group
@@ -307,13 +335,13 @@ public class RendererConfiguration {
 		preyPowerUpDef.setColumns(3);
 		preyPowerUpDef.setRows(4);
 		
-		// Define the Predator Power Up animations
-		AnimationDefinition def19 = new AnimationDefinition();
-		def19.setAnimationName("");
-		def19.setStartFrame(9);
-		def19.setEndFrame(9);
-		def19.setFrameDuration(1.0f);
-		preyPowerUpDef.addAnimation(def19);
+		// Define the Prey Power Up animations
+		AnimationDefinition def23 = new AnimationDefinition();
+		def23.setAnimationName("");
+		def23.setStartFrame(9);
+		def23.setEndFrame(9);
+		def23.setFrameDuration(1.0f);
+		preyPowerUpDef.addAnimation(def23);
 		
 		
 		// Finally, add the animations groups.

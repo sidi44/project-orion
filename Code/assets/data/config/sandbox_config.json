@@ -1,0 +1,7 @@
+{
+	predatorSpeedIndex: 4
+	preySpeedIndex: 2
+	mazeWidth: 6
+	mazeHeight: 10 
+	numPrey: 3
+}

@@ -1,19 +1,36 @@
 package ui;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import game.PredatorPreyGame;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
+import data.DataManager;
+import data.PlayerProgress;
+
 class LevelsScreen extends MenuScreen {
 
+	Map<Integer, Button> levelButtons;
+	
 	public LevelsScreen(ScreenManager manager) {
 		super(manager);
+	}
+	
+	@Override
+	protected void initialise() {
+		levelButtons = new HashMap<Integer, Button>();
+		super.initialise();
 	}
 
 	@Override
@@ -65,14 +82,37 @@ class LevelsScreen extends MenuScreen {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				ScreenManager manager = getManager();
-				GameScreen screen = (GameScreen) manager.getScreen(ScreenName.Game);
-				screen.setGameType(GameType.Levels);
-				screen.setLevelNumber(levelNumber);
+				manager.getGame().setGameTypeLevel(levelNumber);
 				manager.changeScreen(ScreenName.Game);
 			}
 		});
 		
+		levelButtons.put(levelNumber, button);
+		
 		return button;
+	}
+	
+	@Override
+	protected void doShow() {
+		updateLevelsLocked();
+	}
+	
+	void updateLevelsLocked() {
+		
+		PredatorPreyGame game = getManager().getGame();
+		DataManager dataManager = game.getDataManager();
+		PlayerProgress progress = dataManager.getPlayerProgress();
+		
+		for (Integer levelNumber : levelButtons.keySet()) {
+			Button button = levelButtons.get(levelNumber);
+			boolean locked = progress.isLevelLocked(levelNumber);
+			if (locked) {
+				button.setTouchable(Touchable.disabled);
+			} else {
+				button.setTouchable(Touchable.enabled);
+			}
+		}
+		
 	}
 	
 }

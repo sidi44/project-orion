@@ -1,0 +1,194 @@
+{
+	allowRotations: true
+	wallTextureFilename: wall.png
+	wallTextureScale: 1
+	backgroundBottomLeft: {
+		x: 0
+		y: 0
+	}
+	backgroundTopRight: {
+		x: 80
+		y: 80
+	}
+	backroundFilename: background_1.png
+	animationGroupDefinitions: [
+		{
+			animationGroupName: Predator
+			rows: 4
+			columns: 11
+			filename: predator.png
+			animationDefinitions: [
+				{
+					animationName: DOWN-STOP
+					startFrame: 1
+					endFrame: 1
+					frameDuration: 1
+				}
+				{
+					animationName: DOWN
+					startFrame: 2
+					endFrame: 7
+					frameDuration: 0.1667
+				}
+				{
+					animationName: UP-STOP
+					startFrame: 12
+					endFrame: 12
+					frameDuration: 1
+				}
+				{
+					animationName: UP
+					startFrame: 13
+					endFrame: 18
+					frameDuration: 0.1667
+				}
+				{
+					animationName: LEFT-STOP
+					startFrame: 23
+					endFrame: 23
+					frameDuration: 1
+				}
+				{
+					animationName: LEFT
+					startFrame: 24
+					endFrame: 29
+					frameDuration: 0.1667
+				}
+				{
+					animationName: RIGHT-STOP
+					startFrame: 34
+					endFrame: 34
+					frameDuration: 1
+				}
+				{
+					animationName: RIGHT
+					startFrame: 35
+					endFrame: 40
+					frameDuration: 0.1667
+				}
+			]
+		}
+		{
+			animationGroupName: Prey
+			rows: 4
+			columns: 11
+			filename: prey.png
+			animationDefinitions: [
+				{
+					animationName: DOWN-STOP
+					startFrame: 1
+					endFrame: 1
+					frameDuration: 1
+				}
+				{
+					animationName: DOWN
+					startFrame: 2
+					endFrame: 7
+					frameDuration: 0.1667
+				}
+				{
+					animationName: UP-STOP
+					startFrame: 12
+					endFrame: 12
+					frameDuration: 1
+				}
+				{
+					animationName: UP
+					startFrame: 13
+					endFrame: 18
+					frameDuration: 0.1667
+				}
+				{
+					animationName: LEFT-STOP
+					startFrame: 23
+					endFrame: 23
+					frameDuration: 1
+				}
+				{
+					animationName: LEFT
+					startFrame: 24
+					endFrame: 29
+					frameDuration: 0.1667
+				}
+				{
+					animationName: RIGHT-STOP
+					startFrame: 34
+					endFrame: 34
+					frameDuration: 1
+				}
+				{
+					animationName: RIGHT
+					startFrame: 35
+					endFrame: 40
+					frameDuration: 0.1667
+				}
+			]
+		}
+		{
+			animationGroupName: Pill
+			rows: 3
+			columns: 8
+			filename: Coins.png
+			animationDefinitions: [
+				{
+					animationName: ""
+					startFrame: 1
+					endFrame: 24
+					frameDuration: 0.04167
+				}
+			]
+		}
+		{
+			animationGroupName: PowerUpPredator
+			rows: 4
+			columns: 3
+			filename: power_ups.png
+			animationDefinitions: [
+				{
+					animationName: SlowDownPrey
+					startFrame: 7
+					endFrame: 7
+					frameDuration: 1
+				}
+				{
+					animationName: Teleport
+					startFrame: 8
+					endFrame: 8
+					frameDuration: 1
+				}
+				{
+					animationName: Magnet
+					startFrame: 10
+					endFrame: 10
+					frameDuration: 1
+				}
+				{
+					animationName: Freeze
+					startFrame: 11
+					endFrame: 11
+					frameDuration: 1
+				}
+				{
+					animationName: SpeedUpPredator
+					startFrame: 12
+					endFrame: 12
+					frameDuration: 1
+				}
+			]
+		}
+		{
+			animationGroupName: PowerUpPrey
+			rows: 4
+			columns: 3
+			filename: icons-pow-up.png
+			animationDefinitions: [
+				{
+					animationName: ""
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+			]
+		}
+	]
+}
