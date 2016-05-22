@@ -1,21 +1,12 @@
 package logic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import logic.powerup.PredatorPowerUp;
-import logic.powerup.PredatorPowerUpFreezePrey;
-import logic.powerup.PredatorPowerUpMagnet;
-import logic.powerup.PredatorPowerUpSlowDownPrey;
-import logic.powerup.PredatorPowerUpSpeedUp;
-import logic.powerup.PredatorPowerUpTeleport;
-import logic.powerup.PreyPowerUp;
-import xml.PredatorPowerUpAdapter;
-import xml.PreyPowerUpAdapter;
+import logic.powerup.PowerUp;
+import logic.powerup.PowerUpType;
 
 /**
  * The configuration for the powerups.
@@ -23,13 +14,12 @@ import xml.PreyPowerUpAdapter;
  * @author Martin Wong
  * @version 2016-03-25
  */
-@XmlRootElement(name = "PowerUpConfiguration")
 public class PowerUpConfig {
 	
 	private int numPredPow;
-	private List<PredatorPowerUp> predatorPowerUps;
+	private Map<PowerUpType, Integer> predatorPowerUps;
 	private int numPreyPow;
-	private List<PreyPowerUp> preyPowerUps;
+	private List<PowerUp> preyPowerUps;
 	
 	/**
 	 * Default constructor for PowerConfig.
@@ -39,33 +29,17 @@ public class PowerUpConfig {
 	public PowerUpConfig() {
 		this.numPredPow = 0;
 		this.numPreyPow = 0;
-		this.predatorPowerUps = new ArrayList<PredatorPowerUp>();
-		this.preyPowerUps = new ArrayList<PreyPowerUp>();
+		this.predatorPowerUps = new HashMap<PowerUpType, Integer>();
+		this.preyPowerUps = new ArrayList<PowerUp>();
 		
 		initialisePowerUps();
 	}
 	
 	private void initialisePowerUps() {
-		int duration = 200;
-		float speedUpFactor = 2.0f;
-		float slowDownFactor = 2.0f;
-		int magnetForce = 2000;
-		int magnetRange = 3;
-		
-		PredatorPowerUp powerUpSpeedUp = 
-				new PredatorPowerUpSpeedUp(duration, speedUpFactor);
-		PredatorPowerUp powerUpSlowDown = 
-				new PredatorPowerUpSlowDownPrey(duration, slowDownFactor);
-		PredatorPowerUp powerUpFreeze = new PredatorPowerUpFreezePrey(duration);
-		PredatorPowerUp powerUpMagnet = 
-				new PredatorPowerUpMagnet(duration, magnetForce, magnetRange);
-		PredatorPowerUp powerUpTeleport = new PredatorPowerUpTeleport();
-		
-		predatorPowerUps.add(powerUpSpeedUp);
-		predatorPowerUps.add(powerUpSlowDown);
-		predatorPowerUps.add(powerUpFreeze);
-		predatorPowerUps.add(powerUpMagnet);
-		predatorPowerUps.add(powerUpTeleport);
+		int strength = 1;
+		for (PowerUpType type : PowerUpType.values()) {
+			predatorPowerUps.put(type, strength);
+		}
 	}
 	
 	/**
@@ -77,8 +51,10 @@ public class PowerUpConfig {
 	 * @param preyPowerUps (List<PreyPowerUp>)
 	 * @param powerUpTypeConfig (PowerUpTypeConfig)
 	 */
-	public PowerUpConfig(int numPredPow, List<PredatorPowerUp> predatorPowerUps, 
-			int numPreyPow, List<PreyPowerUp> preyPowerUps) {
+	public PowerUpConfig(int numPredPow, 
+						 Map<PowerUpType, Integer> predatorPowerUps, 
+						 int numPreyPow, 
+						 List<PowerUp> preyPowerUps) {
 		
 		this.numPredPow = numPredPow;
 		this.numPreyPow = numPreyPow;
@@ -100,7 +76,6 @@ public class PowerUpConfig {
 	 * 
 	 * @param numPredPow (int)
 	 */
-	@XmlElement(name = "NumberPredatorPowerUps")
 	public void setNumPredPow(int numPredPow) {
 		this.numPredPow = numPredPow;
 	}
@@ -119,7 +94,6 @@ public class PowerUpConfig {
 	 * 
 	 * @param numPreyPow (int)
 	 */
-	@XmlElement(name = "NumberPreyPowerUps")
 	public void setNumPreyPow(int numPreyPow) {
 		this.numPreyPow = numPreyPow;
 	}
@@ -129,7 +103,7 @@ public class PowerUpConfig {
 	 * 
 	 * @return predatorPowerUps (List<PredatorPowerUp>)
 	 */
-	public List<PredatorPowerUp> getPredatorPowerUps() {
+	public Map<PowerUpType, Integer> getPredatorPowerUps() {
 		return this.predatorPowerUps;
 	}
 	
@@ -138,9 +112,7 @@ public class PowerUpConfig {
 	 * 
 	 * @param predatorPowerUps (List<PredatorPowerUp>)
 	 */
-	@XmlElement (name = "PredatorPowerUps")
-	@XmlJavaTypeAdapter (PredatorPowerUpAdapter.class)
-	public void setPredatorPowerUps(List<PredatorPowerUp> predatorPowerUps) {
+	public void setPredatorPowerUps(Map<PowerUpType, Integer> predatorPowerUps) {
 		this.predatorPowerUps = predatorPowerUps;
 	}
 	
@@ -149,7 +121,7 @@ public class PowerUpConfig {
 	 * 
 	 * @return preyPowerUps (List<PreyPowerUp>)
 	 */
-	public List<PreyPowerUp> getPreyPowerUps() {
+	public List<PowerUp> getPreyPowerUps() {
 		return this.preyPowerUps;
 	}
 	
@@ -158,9 +130,7 @@ public class PowerUpConfig {
 	 * 
 	 * @param preyPowerUps (List<PreyPowerUp>)
 	 */
-	@XmlElement (name = "PreyPowerUps")
-	@XmlJavaTypeAdapter (PreyPowerUpAdapter.class)
-	public void setPreyPowerUps(List<PreyPowerUp> preyPowerUps) {
+	public void setPreyPowerUps(List<PowerUp> preyPowerUps) {
 		this.preyPowerUps = preyPowerUps;
 	}
 		

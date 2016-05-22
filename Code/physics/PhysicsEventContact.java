@@ -1,13 +1,11 @@
 package physics;
 
-import com.badlogic.gdx.physics.box2d.Body;
-
 public class PhysicsEventContact extends PhysicsEvent {
 
-	private Body first;
-	private Body second;
+	private PhysicsBody first;
+	private PhysicsBody second;
 	
-	protected PhysicsEventContact(Body first, Body second) {
+	protected PhysicsEventContact(PhysicsBody first, PhysicsBody second) {
 		super("PhysicsContact");
 		
 		this.first = first;
@@ -15,25 +13,17 @@ public class PhysicsEventContact extends PhysicsEvent {
 	}
 
 	public PhysicsBodyType getFirstType() {
-		return getPhysicsType(first);
+		return first.getType();
 	}
 	
 	public PhysicsBodyType getSecondType() {
-		return getPhysicsType(second);
-	}
-	
-	private PhysicsBodyType getPhysicsType(Body body) {
-		PhysicsData data = (PhysicsData) body.getUserData();
-		return data.getType();
+		return second.getType();
 	}
 	
 	public boolean isPredatorPreyContact() {
 		
-		PhysicsData dataFirst = (PhysicsData) first.getUserData();
-		PhysicsData dataSecond = (PhysicsData) second.getUserData();
-		
-		PhysicsBodyType typeFirst = dataFirst.getType();
-		PhysicsBodyType typeSecond = dataSecond.getType();
+		PhysicsBodyType typeFirst = first.getType();
+		PhysicsBodyType typeSecond = second.getType();
 		
 		if (typeFirst == PhysicsBodyType.Predator && 
 			typeSecond == PhysicsBodyType.Prey) {

@@ -18,6 +18,7 @@ import logic.Predator;
 import logic.Prey;
 import physics.PhysicsConfiguration;
 import physics.PhysicsDebugType;
+import physics.PhysicsGameWorld;
 import physics.PhysicsProcessor;
 import physics.PhysicsProcessorBox2D;
 import render.Renderer;
@@ -29,11 +30,8 @@ import sound.SoundManager;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.World;
 
 public class PredatorPreyGame extends Game implements GameStatus {
-
-	private World world;
 
 	private GameLogic gameLogic;
 	private Renderer renderer;
@@ -58,12 +56,6 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	@Override
 	public void create() {
 		
-//		String filename = "Configuration.xml";
-//		String schemaFilename = "Configuration.xsd";
-//		ConfigurationXMLParser xmlParser = 
-//				new ConfigurationXMLParser(filename, schemaFilename);
-//		xmlParser.parseXML();
-		
 		gameType = GameType.NotPlaying;
 		currentLevel = -1;
 		
@@ -75,14 +67,9 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		gameConfig = new GameConfiguration();
 		physicsConfig = new PhysicsConfiguration();
 		
-		// Create the world.
-		Vector2 gravity = new Vector2(0f, 0f);
-		boolean doSleep = true;
-		world = new World(gravity, doSleep);
-
 		gameLogic = new GameLogic(gameConfig);
 
-		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
+		physProc = new PhysicsProcessorBox2D(gameLogic.getGameState(), 
 				physicsConfig);
 		physProc.setDebugCategory(debugType);
 		
@@ -112,8 +99,8 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		return gameLogic;
 	}
 	
-	public World getWorld() {
-		return world;
+	public PhysicsGameWorld getWorld() {
+		return physProc.getWorld();
 	}
 	
 	public PhysicsProcessor getPhysicsProcessor() {
@@ -137,11 +124,8 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	}
 	
 	public void resetGame() {
-		Vector2 gravity = new Vector2(0f, 0f);
-		boolean doSleep = true;
-		world = new World(gravity, doSleep);
 		gameLogic = new GameLogic(gameConfig);
-		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
+		physProc = new PhysicsProcessorBox2D(gameLogic.getGameState(), 
 				physicsConfig);
 		physProc.setDebugCategory(debugType);
 		physProc.addReceiver(soundManager);
@@ -213,6 +197,9 @@ public class PredatorPreyGame extends Game implements GameStatus {
 			
 			// TODO Save the score here as well
 			
+			
+			// Save the player progress
+			dataManager.savePlayerProgress();
 		}
 		
 		// Work out which screen we should change to depending on the game type

@@ -18,6 +18,9 @@ import com.badlogic.gdx.math.Vector2;
  */
 public abstract class PhysicsProcessor extends Sender {
 	
+	
+	public abstract PhysicsGameWorld getWorld();
+	
 	/**
 	 * Advance the physics simulation in its current state by the specified 
 	 * amount of time. 
@@ -49,21 +52,6 @@ public abstract class PhysicsProcessor extends Sender {
 	 * @return squareSize - the size of a maze square
 	 */
 	public abstract float getSquareSize();
-	
-	/**
-	 * Gets the (fixed) simulation time step.
-	 * 
-	 * @return the simulation time step.
-	 */
-	public abstract float getSimulationStep();
-	
-	/**
-	 * Return the default speed of the given physics body type.
-	 * 
-	 * @param type - the physics body type for which to return the speed.
-	 * @return the speed of the provided physics body type.
-	 */
-	public abstract float getBodySpeed(PhysicsBodyType type);
 	
 	/**
 	 * Set what type of debug information to process and display. The default is

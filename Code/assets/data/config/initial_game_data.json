@@ -12,5 +12,13 @@
 	levelScores: {
 		class: java.util.HashMap
 	}
+	powerUpDefinitions: {
+		class: java.util.HashMap
+		Freeze: 1
+		Magnet: 1
+		SlowDown: 1
+		SpeedUp: 1
+		Teleport: 1
+	}
 		
 }

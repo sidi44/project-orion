@@ -20,15 +20,25 @@
 					y: 0
 				}
 			]
+			mazeConfig: {
+				maxLength: 10
+				loopLimit: 50
+				deadEndMinProp: 0.5
+				ranPathMaxProp: 0.6
+			}
 			numPrey: 1
 			preySpeedIndex: 2
-			numPowerUps: 0
+			numPowerUps: 2
+			powerUpTypes: [
+				Freeze
+				SpeedUp
+			]
 			starScores : {
 				class: java.util.HashMap
 				1: 100
 				2: 200
 				3: 300
-			}		
+			}
 		}
 		2: {
 			mazeDimensions: [
@@ -49,9 +59,18 @@
 					y: 0
 				}
 			]
+			mazeConfig: {
+				maxLength: 10
+				loopLimit: 50
+				deadEndMinProp: 0.5
+				ranPathMaxProp: 0.6
+			}
 			numPrey: 2
 			preySpeedIndex: 2
-			numPowerUps: 0
+			numPowerUps: 1
+			powerUpTypes: [
+				SlowDown
+			]
 			starScores : {
 				class: java.util.HashMap
 				1: 150

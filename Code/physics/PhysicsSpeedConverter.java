@@ -17,6 +17,7 @@ class PhysicsSpeedConverter {
 		// movement of Agents will stop working. So make sure you understand 
 		// what you're doing!
 		indexToSpeed = new HashMap<Integer, Float>();
+		indexToSpeed.put(0, 0.0f);
 		indexToSpeed.put(1, 5.0f);
 		indexToSpeed.put(2, 10.0f);
 		indexToSpeed.put(3, 15.0f);
@@ -38,7 +39,7 @@ class PhysicsSpeedConverter {
 	}
 	
 	public float getSpeed(int index) {
-		if (index <= 0 || index > 10) {
+		if (index < 0 || index > 10) {
 			System.err.println("Invalid speed index");
 			return 0.0f;
 		}
