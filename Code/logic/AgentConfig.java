@@ -1,23 +1,21 @@
 package logic;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  * The configuration for the agents.
  * 
  * @author Martin Wong
  * @version 2015-08-09
  */
-@XmlRootElement(name = "AgentConfiguration")
 public class AgentConfig {
 	
 	private int numPred;
 	private int numPredPlayer;
 	private int maxPredPowerUp;
+	private int predBaseSpeedIndex;
 	private int numPrey;
 	private int numPreyPlayer;
 	private int maxPreyPowerUp;
+	private int preyBaseSpeedIndex;
 	
 	/**
 	 * Default constructor for AgentConfig.
@@ -28,9 +26,11 @@ public class AgentConfig {
 		this.numPred = 1;
 		this.numPredPlayer = 1;
 		this.maxPredPowerUp = 5;
+		this.predBaseSpeedIndex = 4;
 		this.numPrey = 5;
 		this.numPreyPlayer = 0;
 		this.maxPreyPowerUp = 5;
+		this.preyBaseSpeedIndex = 2;
 	}
 	
 	/**
@@ -42,14 +42,17 @@ public class AgentConfig {
 	 * @param numPreyPlayer (int)
 	 */
 	public AgentConfig(int numPred, int numPredPlayer, int maxPredPowerUp,
-			int numPrey, int numPreyPlayer, int maxPreyPowerUp) {
+			int predBaseSpeedIndex, int numPrey, int numPreyPlayer, 
+			int maxPreyPowerUp, int preyBaseSpeedIndex) {
 		
 		this.numPred = numPred;
 		this.numPredPlayer = numPredPlayer;
 		this.maxPredPowerUp = maxPredPowerUp;
+		this.predBaseSpeedIndex = predBaseSpeedIndex;
 		this.numPrey = numPrey;
 		this.numPreyPlayer = numPreyPlayer;
 		this.maxPreyPowerUp = maxPreyPowerUp;
+		this.predBaseSpeedIndex = preyBaseSpeedIndex;
 		
 		try {
 			if ((this.numPred < this.numPredPlayer)
@@ -78,7 +81,6 @@ public class AgentConfig {
 	 * 
 	 * @param numPred (int)
 	 */
-	@XmlElement (name = "NumPredator")
 	public void setNumPred(int numPred) {
 		this.numPred = numPred;
 	}
@@ -97,7 +99,6 @@ public class AgentConfig {
 	 * 
 	 * @param numPredPlayer (int)
 	 */
-	@XmlElement (name = "NumPredatorPlayer")
 	public void setNumPredPlayer(int numPredPlayer) {
 		this.numPredPlayer = numPredPlayer;
 	}
@@ -116,7 +117,6 @@ public class AgentConfig {
 	 * 
 	 * @param maxPredPowerUp (int)
 	 */
-	@XmlElement (name = "MaxPredatorPowerUp")
 	public void setMaxPredPowerUp(int maxPredPowerUp) {
 		this.maxPredPowerUp = maxPredPowerUp;
 	}
@@ -135,7 +135,6 @@ public class AgentConfig {
 	 * 
 	 * @param numPrey (int)
 	 */
-	@XmlElement (name = "NumPrey")
 	public void setNumPrey(int numPrey) {
 		this.numPrey = numPrey;
 	}
@@ -154,7 +153,6 @@ public class AgentConfig {
 	 * 
 	 * @param numPreyPlayer (int)
 	 */
-	@XmlElement (name = "NumPreyPlayer")
 	public void setNumPreyPlayer(int numPreyPlayer) {
 		this.numPreyPlayer = numPreyPlayer;
 	}
@@ -173,10 +171,23 @@ public class AgentConfig {
 	 * 
 	 * @param maxPreyPowerUp (int)
 	 */
-	@XmlElement (name = "MaxPreyPowerUp")
 	public void setMaxPreyPowerUp(int maxPreyPowerUp) {
 		this.maxPreyPowerUp = maxPreyPowerUp;
 	}
+
+	public int getPredBaseSpeedIndex() {
+		return predBaseSpeedIndex;
+	}
+
+	public void setPredBaseSpeedIndex(int predBaseSpeedIndex) {
+		this.predBaseSpeedIndex = predBaseSpeedIndex;
+	}
 	
-	
+	public int getPreyBaseSpeedIndex() {
+		return preyBaseSpeedIndex;
+	}
+
+	public void setPreyBaseSpeedIndex(int preyBaseSpeedIndex) {
+		this.preyBaseSpeedIndex = preyBaseSpeedIndex;
+	}
 }

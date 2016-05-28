@@ -1,7 +1,9 @@
 package data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import geometry.PointXY;
 import geometry.PolygonShape;
@@ -15,6 +17,7 @@ import logic.AgentConfig;
 import logic.GameConfiguration;
 import logic.MazeConfig;
 import logic.PowerUpConfig;
+import logic.powerup.PowerUpType;
 import physics.PhysicsConfiguration;
 import render.RendererConfiguration;
 import sound.SoundConfiguration;
@@ -192,14 +195,6 @@ public class GameDataManager implements DataManager {
 			return config;
 		}
 		
-		// Now set the prey speed and square size from the level data, depending
-		// on the provided level number
-		Level level = levelsData.getLevel(levelNumber);
-		config.setPreySpeedIndex(level.getPreySpeedIndex());
-		
-		// Finally set the predator speed from the player data
-		config.setPredatorSpeedIndex(playerProgress.getPredatorSpeedIndex());
-		
 		return config;
 	}
 
@@ -208,20 +203,6 @@ public class GameDataManager implements DataManager {
 		
 		// Copy the fixed values from our physics configuration
 		PhysicsConfiguration config = new PhysicsConfiguration(physicsConfig);
-		
-		// Get the saved preferences
-		Preferences prefs = getSandboxPrefs();
-		
-		// Now set the other values from the sandbox configuration, using the 
-		// default value if none exists in the preferences
-		int defaultPredatorSpeed = defaultSandboxConfig.getPredatorSpeedIndex();
-		int predatorSpeed = prefs.getInteger("predatorspeed", defaultPredatorSpeed);
-		
-		int defaultPreySpeed = defaultSandboxConfig.getPreySpeedIndex();
-		int preySpeed = prefs.getInteger("preyspeed", defaultPreySpeed);
-		
-		config.setPredatorSpeedIndex(predatorSpeed);
-		config.setPreySpeedIndex(preySpeed);
 		
 		return config;
 	}
@@ -250,11 +231,23 @@ public class GameDataManager implements DataManager {
 		// TODO Replace max power up values with data read from the levels config
 		AgentConfig agentConfig = new AgentConfig();
 		int numPrey = level.getNumPrey();
+		int preySpeedIndex = level.getPreySpeedIndex();
+		int predatorSpeedIndex = playerProgress.getPredatorSpeedIndex();
 		agentConfig.setNumPrey(numPrey);
+		agentConfig.setPredBaseSpeedIndex(predatorSpeedIndex);
+		agentConfig.setPreyBaseSpeedIndex(preySpeedIndex);
 		
 		// Use the default power up config for now
-		// TODO Read in the correct power up strengths from the player progress data
 		PowerUpConfig powerUpConfig = new PowerUpConfig();
+		powerUpConfig.setNumPredPow(level.getNumPowerUps());
+		List<PowerUpType> powerUpTypes = level.getPowerUpTypes();
+		Map<PowerUpType, Integer> powerUpDefs = 
+				new HashMap<PowerUpType, Integer>();
+		for (PowerUpType type : powerUpTypes) {
+			int strength = playerProgress.getPowerUpStrength(type);
+			powerUpDefs.put(type, strength);
+		}
+		powerUpConfig.setPredatorPowerUps(powerUpDefs);
 		
 		// Create our game configuration
 		GameConfiguration gameConfig = new GameConfiguration(mazeShape, 
@@ -301,6 +294,17 @@ public class GameDataManager implements DataManager {
 		int defaultNumPrey = defaultSandboxConfig.getNumPrey();
 		int numPrey = prefs.getInteger("numprey", defaultNumPrey);
 		agentConfig.setNumPrey(numPrey);
+		
+		int defaultPredatorSpeedIndex = 
+				defaultSandboxConfig.getPredatorSpeedIndex();
+		int predatorSpeedIndex = 
+				prefs.getInteger("predatorspeed", defaultPredatorSpeedIndex);
+		agentConfig.setPredBaseSpeedIndex(predatorSpeedIndex);
+		
+		int defaultPreySpeedIndex = defaultSandboxConfig.getPreySpeedIndex();
+		int preySpeedIndex = 
+				prefs.getInteger("preyspeed", defaultPreySpeedIndex);
+		agentConfig.setPreyBaseSpeedIndex(preySpeedIndex);
 		
 		// Use the default power up config for now
 		// TODO Read in the correct power up strengths from the sandbox config
@@ -399,16 +403,17 @@ public class GameDataManager implements DataManager {
 	}
 
 	@Override
-	public void savePlayerProgress(PlayerProgress progress) {
+	public void savePlayerProgress() {
 		
 		// Get a handle to the player progress data file
-		FileHandle handle = Gdx.files.internal("data/config/game_data.json");
+		FileHandle handle = Gdx.files.local("data/config/game_data.json");
 		
 		// Convert the progress to a Json string
-		String progressString = getJson().toJson(progress);
+		String progressString = getJson().toJson(playerProgress);
 		
 		// Write the string to the file
-		handle.writeString(progressString, false);
+		boolean append = false;
+		handle.writeString(progressString, append);
 	}
 
 }

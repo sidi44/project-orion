@@ -145,7 +145,7 @@
 			filename: power_ups.png
 			animationDefinitions: [
 				{
-					animationName: SlowDownPrey
+					animationName: SlowDown
 					startFrame: 7
 					endFrame: 7
 					frameDuration: 1
@@ -169,7 +169,7 @@
 					frameDuration: 1
 				}
 				{
-					animationName: SpeedUpPredator
+					animationName: SpeedUp
 					startFrame: 12
 					endFrame: 12
 					frameDuration: 1

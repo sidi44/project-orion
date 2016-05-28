@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import logic.powerup.PowerUp;
-import logic.powerup.PredatorPowerUp;
-import logic.powerup.PreyPowerUp;
 
 /**
  * Represents the state of the game.
@@ -25,8 +23,8 @@ public class GameState {
 	private Set<PointXY> pills;
 	private List<Predator> predators;
 	private List<Prey> prey;
-	private Map<PointXY, PredatorPowerUp> predatorPowerUps;
-	private Map<PointXY, PreyPowerUp> preyPowerUps;
+	private Map<PointXY, PowerUp> predatorPowerUps;
+	private Map<PointXY, PowerUp> preyPowerUps;
 	private PathFinder pathFinder;
 	
 	private Map<Agent, Set<PointXY>> partition;
@@ -43,8 +41,8 @@ public class GameState {
 	 * @param preyPowerUps (Map<PointXY, PreyPowerUp>)
 	 */
 	public GameState(Maze maze, List<Predator> pred, List<Prey> prey,
-			Set<PointXY> pills, Map<PointXY, PredatorPowerUp> predatorPowerUps,
-			Map<PointXY, PreyPowerUp> preyPowerUps) {
+			Set<PointXY> pills, Map<PointXY, PowerUp> predatorPowerUps,
+			Map<PointXY, PowerUp> preyPowerUps) {
 		this.maze = maze;
 		this.predators = pred;
 		this.prey = prey;
@@ -136,7 +134,7 @@ public class GameState {
 	 * 
 	 * @return predatorPowerUps (Map<PointXY, PredatorPowerUp>)
 	 */
-	public Map<PointXY, PredatorPowerUp> getPredatorPowerUps() {
+	public Map<PointXY, PowerUp> getPredatorPowerUps() {
 		return this.predatorPowerUps;
 	}
 	
@@ -145,7 +143,7 @@ public class GameState {
 	 * 
 	 * @param predatorPowerUps (Map<PointXY, PredatorPowerUp>)
 	 */
-	public void setPredatorPowers(Map<PointXY, PredatorPowerUp> predatorPowerUps) {
+	public void setPredatorPowers(Map<PointXY, PowerUp> predatorPowerUps) {
 		this.predatorPowerUps = predatorPowerUps;
 	}
 	
@@ -154,7 +152,7 @@ public class GameState {
 	 * 
 	 * @return preyPowerUps (Map<PointXY, PreyPowerUp>)
 	 */
-	public Map<PointXY, PreyPowerUp> getPreyPowerUps() {
+	public Map<PointXY, PowerUp> getPreyPowerUps() {
 		return this.preyPowerUps;
 	}
 	
@@ -163,7 +161,7 @@ public class GameState {
 	 * 
 	 * @param preyPowerUps (Map<PointXY, PreyPowerUp>)
 	 */
-	public void setPreyPowers(Map<PointXY, PreyPowerUp> preyPowerUps) {
+	public void setPreyPowers(Map<PointXY, PowerUp> preyPowerUps) {
 		this.preyPowerUps = preyPowerUps;
 	}
 	
@@ -386,7 +384,7 @@ public class GameState {
 	 */
 	public void predatorPowerUpCollected(int agentID, PointXY powerUpPos) {
 		Predator p = getPredator(agentID);
-		PredatorPowerUp powerUp = predatorPowerUps.get(powerUpPos);
+		PowerUp powerUp = predatorPowerUps.get(powerUpPos);
 
 		if (p != null && powerUp != null) {
 			p.addStoredPowerUp(powerUp);
@@ -404,7 +402,7 @@ public class GameState {
 	 */
 	public void preyPowerUpCollected(int agentID, PointXY powerUpPos) {
 		Prey p = getPrey(agentID);
-		PreyPowerUp powerUp = preyPowerUps.get(powerUpPos);
+		PowerUp powerUp = preyPowerUps.get(powerUpPos);
 
 		if (p != null && powerUp != null) {
 			p.addStoredPowerUp(powerUp);
