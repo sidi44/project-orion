@@ -1,6 +1,6 @@
 {
 	allowRotations: true
-	wallTextureFilename: wall.png
+	wallTextureFilename: wall_2.png
 	wallTextureScale: 1
 	backgroundBottomLeft: {
 		x: 0
@@ -10,69 +10,69 @@
 		x: 80
 		y: 80
 	}
-	backroundFilename: background_1.png
+	backroundFilename: background_2.png
 	animationGroupDefinitions: [
 		{
 			animationGroupName: Predator
 			rows: 4
-			columns: 11
-			filename: predator.png
+			columns: 20
+			filename: Predator_Shield_Multiple_Lines.png
 			animationDefinitions: [
 				{
-					animationName: DOWN-STOP
+					animationName: UP-STOP
 					startFrame: 1
 					endFrame: 1
 					frameDuration: 1
 				}
 				{
-					animationName: DOWN
-					startFrame: 2
-					endFrame: 7
-					frameDuration: 0.1667
-				}
-				{
-					animationName: UP-STOP
-					startFrame: 12
-					endFrame: 12
-					frameDuration: 1
-				}
-				{
 					animationName: UP
-					startFrame: 13
-					endFrame: 18
-					frameDuration: 0.1667
-				}
-				{
-					animationName: LEFT-STOP
-					startFrame: 23
-					endFrame: 23
-					frameDuration: 1
-				}
-				{
-					animationName: LEFT
-					startFrame: 24
-					endFrame: 29
-					frameDuration: 0.1667
+					startFrame: 1
+					endFrame: 20
+					frameDuration: 0.05
 				}
 				{
 					animationName: RIGHT-STOP
-					startFrame: 34
-					endFrame: 34
+					startFrame: 21
+					endFrame: 21
 					frameDuration: 1
 				}
 				{
 					animationName: RIGHT
-					startFrame: 35
+					startFrame: 21
 					endFrame: 40
-					frameDuration: 0.1667
+					frameDuration: 0.05
+				}
+				{
+					animationName: DOWN-STOP
+					startFrame: 41
+					endFrame: 41
+					frameDuration: 1
+				}
+				{
+					animationName: DOWN
+					startFrame: 41
+					endFrame: 60
+					frameDuration: 0.05
+				}
+				{
+					animationName: LEFT-STOP
+					startFrame: 61
+					endFrame: 61
+					frameDuration: 1
+				}
+				{
+					animationName: LEFT
+					startFrame: 61
+					endFrame: 80
+					frameDuration: 0.05
 				}
 			]
 		}
 		{
 			animationGroupName: Prey
-			rows: 4
-			columns: 11
-			filename: prey.png
+			rows: 1
+			columns: 20
+			filename: Prey_Square_Single_Line.png
 			animationDefinitions: [
 				{
 					animationName: DOWN-STOP
@@ -82,56 +82,70 @@
 				}
 				{
 					animationName: DOWN
-					startFrame: 2
-					endFrame: 7
-					frameDuration: 0.1667
+					startFrame: 1
+					endFrame: 20
+					frameDuration: 0.05
 				}
 				{
 					animationName: UP-STOP
-					startFrame: 12
-					endFrame: 12
+					startFrame: 1
+					endFrame: 1
 					frameDuration: 1
 				}
 				{
 					animationName: UP
-					startFrame: 13
-					endFrame: 18
-					frameDuration: 0.1667
+					startFrame: 1
+					endFrame: 20
+					frameDuration: 0.05
 				}
 				{
 					animationName: LEFT-STOP
-					startFrame: 23
-					endFrame: 23
+					startFrame: 1
+					endFrame: 1
 					frameDuration: 1
 				}
 				{
 					animationName: LEFT
-					startFrame: 24
-					endFrame: 29
-					frameDuration: 0.1667
+					startFrame: 1
+					endFrame: 20
+					frameDuration: 0.05
 				}
 				{
 					animationName: RIGHT-STOP
-					startFrame: 34
-					endFrame: 34
+					startFrame: 1
+					endFrame: 1
 					frameDuration: 1
 				}
 				{
 					animationName: RIGHT
-					startFrame: 35
-					endFrame: 40
-					frameDuration: 0.1667
+					startFrame: 1
+					endFrame: 20
+					frameDuration: 0.05
 				}
 			]
 		}
 		{
 			animationGroupName: Pill
-			rows: 3
-			columns: 8
-			filename: Coins.png
+			rows: 1
+			columns: 10
+			filename: Pill_Star_Single_Line.png
 			animationDefinitions: [
 				{
 					animationName: ""
+					startFrame: 1
+					endFrame: 10
+					frameDuration: 0.1
+				}
+			]
+		}
+		{
+			animationGroupName: PowerUp
+			rows: 1
+			columns: 24
+			filename: Powerup_SlowDown_Single_Line.png
+			animationDefinitions: [
+				{
+					animationName: "SlowDown"
 					startFrame: 1
 					endFrame: 24
 					frameDuration: 0.04167
@@ -139,39 +153,57 @@
 			]
 		}
 		{
-			animationGroupName: PowerUpPredator
+			animationGroupName: PowerUp
+			rows: 1
+			columns: 24
+			filename: Powerup_SpeedUp_Single_Line.png
+			animationDefinitions: [
+				{
+					animationName: "SpeedUp"
+					startFrame: 1
+					endFrame: 24
+					frameDuration: 0.04167
+				}
+			]
+		}
+		{
+			animationGroupName: PowerUp
 			rows: 4
 			columns: 3
 			filename: power_ups.png
 			animationDefinitions: [
 				{
-					animationName: SlowDown
-					startFrame: 7
-					endFrame: 7
-					frameDuration: 1
-				}
-				{
-					animationName: Teleport
+					animationName: "Teleport"
 					startFrame: 8
 					endFrame: 8
 					frameDuration: 1
 				}
+			]
+		}
+		{
+			animationGroupName: PowerUp
+			rows: 4
+			columns: 3
+			filename: power_ups.png
+			animationDefinitions: [
 				{
-					animationName: Magnet
+					animationName: "Magnet"
 					startFrame: 10
 					endFrame: 10
 					frameDuration: 1
 				}
+			]
+		}
+		{
+			animationGroupName: PowerUp
+			rows: 4
+			columns: 3
+			filename: power_ups.png
+			animationDefinitions: [
 				{
-					animationName: Freeze
+					animationName: "Freeze"
 					startFrame: 11
 					endFrame: 11
-					frameDuration: 1
-				}
-				{
-					animationName: SpeedUp
-					startFrame: 12
-					endFrame: 12
 					frameDuration: 1
 				}
 			]

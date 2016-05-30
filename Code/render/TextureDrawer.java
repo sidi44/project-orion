@@ -179,15 +179,14 @@ public class TextureDrawer {
 			String bodyId = String.valueOf(powerUpBody.getBody().getPosition());
 			
 			frame = animator.getAnimationFrame(bodyId, 
-					PhysicsBodyType.PowerUpPredator.name(),
+					"PowerUp",
 					powerUpBody.getPowerUp().getName(), 
 					deltaTime);
 			
 		} else if (type == PhysicsBodyType.PowerUpPrey) {
-			frame = animator.getAnimationFrame("", 
-					PhysicsBodyType.PowerUpPrey.name(),
-					"", 
-					deltaTime);
+			
+			frame = animator.getAnimationFrame("", "PowerUp", "", deltaTime);
+			
 		} else if (type == PhysicsBodyType.Debug) {
 			
 			PhysicsBodyDebug debugBody = (PhysicsBodyDebug) physicsBody;
