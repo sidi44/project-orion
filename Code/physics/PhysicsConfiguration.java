@@ -15,8 +15,7 @@ public class PhysicsConfiguration {
 	private float wallWidthRatio;
 	private float pillRadiusRatio;
 	private float powerUpRadiusRatio;
-	private int predatorSpeedIndex;
-	private int preySpeedIndex;
+	private float agentRadiusRatio;
 	
 	private PhysicsSpeedConverter speedConverter;
 	
@@ -29,8 +28,7 @@ public class PhysicsConfiguration {
 		wallWidthRatio = 0.1f;
 		pillRadiusRatio = 0.2f;
 		powerUpRadiusRatio = 0.3f;
-		predatorSpeedIndex = 10;
-		preySpeedIndex = 8;
+		agentRadiusRatio = 0.95f;
 		speedConverter = new PhysicsSpeedConverter();
 	}
 	
@@ -54,8 +52,8 @@ public class PhysicsConfiguration {
 	 * are not within their valid ranges.
 	 */
 	public PhysicsConfiguration(float wallWidthRatio, float pillRadiusRatio, 
-			float powerUpRadiusRatio, int predatorSpeedIndex, 
-			int preySpeedIndex) {
+			float powerUpRadiusRatio, float agentRadiusRatio,
+			int predatorSpeedIndex, int preySpeedIndex) {
 		
 		if (wallWidthRatio <= 0.0f || wallWidthRatio > 0.4f) {
 			throw new IllegalArgumentException(
@@ -75,11 +73,16 @@ public class PhysicsConfiguration {
 			);
 		}
 		
+		if (agentRadiusRatio <= 0.0f || agentRadiusRatio > 1.0f) {
+			throw new IllegalArgumentException(
+				"Agent radius ratio should be in the range 0 < x <= 1."
+			);
+		}
+		
 		this.wallWidthRatio = wallWidthRatio;
 		this.pillRadiusRatio = pillRadiusRatio;
 		this.powerUpRadiusRatio = powerUpRadiusRatio;
-		this.predatorSpeedIndex = predatorSpeedIndex;
-		this.preySpeedIndex = preySpeedIndex;
+		this.agentRadiusRatio = agentRadiusRatio;
 		
 		this.speedConverter = new PhysicsSpeedConverter();
 	}
@@ -88,8 +91,7 @@ public class PhysicsConfiguration {
 		this.wallWidthRatio = other.wallWidthRatio;
 		this.pillRadiusRatio = other.pillRadiusRatio;
 		this.powerUpRadiusRatio = other.powerUpRadiusRatio;
-		this.predatorSpeedIndex = other.predatorSpeedIndex;
-		this.preySpeedIndex = other.preySpeedIndex;
+		this.agentRadiusRatio = other.agentRadiusRatio;
 		
 		this.speedConverter = new PhysicsSpeedConverter();
 	}
@@ -131,43 +133,25 @@ public class PhysicsConfiguration {
 	public float getPowerUpRadiusRatio() {
 		return powerUpRadiusRatio;
 	}
-
-//	/**
-//	 * Get the predatorSpeedIndex.
-//	 * 
-//	 * @return predatorSpeedIndex - The index indicating the speed of all 
-//	 * predator agents.
-//	 */
-//	public int getPredatorSpeedIndex() {
-//		return predatorSpeedIndex;
-//	}
-//	
-//	/**
-//	 * Get the preySpeedIndex.
-//	 * 
-//	 * @return preySpeedIndex - The index indicating the speed of all prey 
-//	 * agents.
-//	 */
-//	public int getPreySpeedIndex() {
-//		return preySpeedIndex;
-//	}
 	
 	/**
-	 * Get the predatorSpeed.
+	 * Get the agentRadiusRatio.
 	 * 
-	 * @return predatorSpeed - The speed of all predator agents.
+	 * @return agentRadiusRatio - How much of the space between the square's 
+	 * walls is occupied by an agent.
 	 */
-	public float getPredatorSpeed() {
-		return speedConverter.getSpeed(predatorSpeedIndex);
+	public float getAgentRadiusRatio() {
+		return agentRadiusRatio;
 	}
 
 	/**
-	 * Get the preySpeed.
+	 * Convert the provided index into the appropriate speed for the physics
+	 * simulation.
 	 * 
-	 * @return preySpeed - The speed of all prey agents.
+	 * @return speed - The speed of an agent equivalent to the provided index.
 	 */
-	public float getPreySpeed() {
-		return speedConverter.getSpeed(preySpeedIndex);
+	public float getSpeed(int speedIndex) {
+		return speedConverter.getSpeed(speedIndex);
 	}
 
 	public float getTimestep() {
@@ -204,22 +188,16 @@ public class PhysicsConfiguration {
 	}
 	
 	/**
-	 * Set the predatorSpeedIndex.
+	 * Set the agentRadiusRatio.
 	 * 
-	 * @param predatorSpeedIndex - The index indicating the speed of all 
-	 * predator agents.
+	 * @param agentRadiusRatio - How much of the space between the square's 
+	 * walls is occupied by an agent.
 	 */
-	public void setPredatorSpeedIndex(int predatorSpeedIndex) {
-		this.predatorSpeedIndex = predatorSpeedIndex;
+	public void setAgentRadiusRatio(float agentRadiusRatio) {
+		this.agentRadiusRatio = agentRadiusRatio;
 	}
-
-	/**
-	 * Set the preySpeedIndex.
-	 * 
-	 * @param preySpeedIndex - The index indicating the speed of all prey 
-	 * agents.
-	 */
-	public void setPreySpeedIndex(int preySpeedIndex) {
-		this.preySpeedIndex = preySpeedIndex;
+	
+	public PhysicsSpeedConverter getSpeedConverter() {
+		return speedConverter;
 	}
 }

@@ -87,10 +87,10 @@ public class Animator {
 	}
 	
 	public TextureRegion getAnimationFrame(String bodyId,
-										   String animationGruopId,	
+										   String animationGroupId,	
 										   String animationId,
 										   float stateTimeDelta) {
-		String compositeId = animationGruopId + bodyId;
+		String compositeId = animationGroupId + bodyId;
 		
 		if (animationStates.get(compositeId) == null) {
 			AnimationState state = new AnimationState();
@@ -101,10 +101,10 @@ public class Animator {
 		float stateTime = state.getStateTime(animationId, stateTimeDelta);
 				
 		Animation animation = null;
-		Map<String, Animation> group = animationGroups.get(animationGruopId);
+		Map<String, Animation> group = animationGroups.get(animationGroupId);
 		
 		if (group == null || (animation = group.get(animationId)) == null) {
-			throw new IllegalStateException("Animation \"" + animationGruopId +
+			throw new IllegalStateException("Animation \"" + animationGroupId +
 								   		 animationId + "\" hasn't been loaded");
 		} 
 		

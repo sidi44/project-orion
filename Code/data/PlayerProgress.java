@@ -3,18 +3,22 @@ package data;
 import java.util.HashMap;
 import java.util.Map;
 
+import logic.powerup.PowerUpType;
+
 public class PlayerProgress {
 
 	private int predatorSpeedIndex;
 	private Map<String, Boolean> levelsLocked;
 	private Map<String, Integer> levelScores;
+	private Map<String, Integer> powerUpDefinitions;
 	
-	// numPowerUps, powerUpStrengths
+	// numPowerUps?
 	
 	public PlayerProgress() {
 		predatorSpeedIndex = 1;
 		levelsLocked = new HashMap<String, Boolean>();
 		levelScores = new HashMap<String, Integer>();
+		powerUpDefinitions = new HashMap<String, Integer>();
 	}
 
 	public int getPredatorSpeedIndex() {
@@ -50,6 +54,17 @@ public class PlayerProgress {
 		} else {
 			levelScores.put(num, score);
 		}	
+	}
+
+	public int getPowerUpStrength(PowerUpType type) {
+		String typeName = type.toString();
+		int strength = powerUpDefinitions.get(typeName);
+		return strength;
+	}
+
+	public void setPowerUpStrength(PowerUpType type, int strength) {
+		String typeName = type.toString();
+		powerUpDefinitions.put(typeName, strength);
 	}
 	
 }

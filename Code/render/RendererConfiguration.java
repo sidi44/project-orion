@@ -292,7 +292,7 @@ public class RendererConfiguration {
 
 		// Define the Predator Power Up animations
 		AnimationDefinition def18 = new AnimationDefinition();
-		def18.setAnimationName("SlowDownPrey");
+		def18.setAnimationName("SlowDown");
 		def18.setStartFrame(7);
 		def18.setEndFrame(7);
 		def18.setFrameDuration(1.0f);
@@ -320,7 +320,7 @@ public class RendererConfiguration {
 		predatorPowerUpDef.addAnimation(def21);
 		
 		AnimationDefinition def22 = new AnimationDefinition();
-		def22.setAnimationName("SpeedUpPredator");
+		def22.setAnimationName("SpeedUp");
 		def22.setStartFrame(12);
 		def22.setEndFrame(12);
 		def22.setFrameDuration(1.0f);

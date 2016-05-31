@@ -153,7 +153,7 @@ public class AILogicPartition implements AILogic {
 				PointXY preyPos = prey.getPosition();
 				Path path = state.getPath(node, preyPos);
 				if (path == null) {
-					System.out.println("");
+					continue;
 				}
 				int length = path.getLength();
 				if (length < shortestPath) {

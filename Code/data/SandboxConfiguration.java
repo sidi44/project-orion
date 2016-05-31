@@ -10,8 +10,8 @@ public class SandboxConfiguration {
 	// maze generation parameters...
 	
 	public SandboxConfiguration() {
-		predatorSpeedIndex = 2;
-		preySpeedIndex = 1;
+		predatorSpeedIndex = 4;
+		preySpeedIndex = 2;
 		mazeWidth = 8;
 		mazeHeight = 8;
 		numPrey = 2;

@@ -27,6 +27,6 @@ public interface DataManager {
 	
 	PlayerProgress getPlayerProgress();
 	
-	void savePlayerProgress(PlayerProgress progress);
+	void savePlayerProgress();
 	
 }

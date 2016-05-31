@@ -16,31 +16,19 @@ package logic.powerup;
  * up is created which doesn't implement the accept() method (avoiding the 
  * chance of forgetting to add a new case to the if..else block).
  * 
- * (See physics.PowerUpProcessor for an example).
- * 
  * @author Simon Dicken
  * @version 2015-10-18
  */
 public interface PowerUpVisitor {
 
-	void visit(PredatorPowerUpSpeedUp powerUp);	
+	void visit(PowerUpSpeedUp powerUp);	
 	
-	void visit(PredatorPowerUpSlowDownPrey powerUp);
+	void visit(PowerUpSlowDown powerUp);
 	
-	void visit(PredatorPowerUpFreezePrey powerUp);
+	void visit(PowerUpFreeze powerUp);
 	
-	void visit(PredatorPowerUpMagnet powerUp);
+	void visit(PowerUpMagnet powerUp);
 	
-	void visit(PredatorPowerUpTeleport powerUp);
-	
-	void visit(PreyPowerUpSpeedUp powerUp);
-	
-	void visit(PreyPowerUpSlowDownPredator powerUp);
-	
-	void visit(PreyPowerUpFreezePredator powerUp);
-	
-	void visit(PreyPowerUpMagnet powerUp);
-	
-	void visit(PreyPowerUpTeleport powerUp);
+	void visit(PowerUpTeleport powerUp);
 	
 }
