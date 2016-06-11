@@ -1,7 +1,6 @@
 package logic;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import utils.NumberUtils;
 
 /**
  * Represents the configurations used to build a maze.
@@ -9,7 +8,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Martin Wong
  * @version 2015-08-09
  */
-@XmlRootElement(name = "MazeConfiguration")
 public class MazeConfig {
 	
 	private int maxLength; // Length to extend paths before terminating
@@ -58,7 +56,6 @@ public class MazeConfig {
 	 * Sets the maximum allowed path length for path generation.
 	 * 
 	 */
-	@XmlElement (name = "MaxLength")
 	public void setMaxLength(int maxLength) {
 		this.maxLength = maxLength;
 	}
@@ -77,7 +74,6 @@ public class MazeConfig {
 	 * 
 	 * @param loopLimit (int)
 	 */
-	@XmlElement (name = "LoopLimit")
 	public void setLoopLimit(int loopLimit) {
 		this.loopLimit = loopLimit;
 	}
@@ -98,7 +94,6 @@ public class MazeConfig {
 	 * 
 	 * @return deadEndMinProp (double)
 	 */
-	@XmlElement (name = "DeadEndMinProp")
 	public void setDeadEndMinProp(double deadEndMinProp) {
 		this.deadEndMinProp = deadEndMinProp;
 	}
@@ -118,9 +113,14 @@ public class MazeConfig {
 	 * 
 	 * @return deadEndMinProp (double)
 	 */
-	@XmlElement (name = "RanPathMaxProp")
 	public void setRanPathMaxProp(double ranPathMaxProp) {
 		this.ranPathMaxProp = ranPathMaxProp;
+	}
+	
+	public void randomiseValues() {
+		maxLength = NumberUtils.randomInt(1, 30);
+		deadEndMinProp = NumberUtils.randomDouble(0.0, 1.0);
+		ranPathMaxProp = NumberUtils.randomDouble(0.0, 1.0);
 	}
 	
 }

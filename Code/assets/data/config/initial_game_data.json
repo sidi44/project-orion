@@ -1,0 +1,24 @@
+{
+	predatorSpeedIndex: 3
+	levelsLocked: {
+		class: java.util.HashMap
+		1: false
+		2: true
+		3: true
+		4: true
+		5: true
+		6: true
+	}
+	levelScores: {
+		class: java.util.HashMap
+	}
+	powerUpDefinitions: {
+		class: java.util.HashMap
+		Freeze: 1
+		Magnet: 1
+		SlowDown: 1
+		SpeedUp: 1
+		Teleport: 1
+	}
+		
+}

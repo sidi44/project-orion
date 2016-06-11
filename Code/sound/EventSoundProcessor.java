@@ -3,7 +3,7 @@ package sound;
 import physics.PhysicsEventContact;
 import physics.PhysicsEventVisitor;
 
-public class EventSoundProcessor implements PhysicsEventVisitor {
+class EventSoundProcessor implements PhysicsEventVisitor {
 
 	private SoundType type;
 	

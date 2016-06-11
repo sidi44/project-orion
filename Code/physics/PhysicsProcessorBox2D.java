@@ -2,6 +2,7 @@ package physics;
 
 import geometry.PointXY;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -9,13 +10,7 @@ import java.util.Set;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
 
 import logic.Agent;
 import logic.GameState;
@@ -23,11 +18,7 @@ import logic.Maze;
 import logic.MazeNode;
 import logic.Move;
 import logic.Direction;
-import logic.Predator;
-import logic.Prey;
-import logic.powerup.PowerUp;
-import logic.powerup.PredatorPowerUp;
-import logic.powerup.PreyPowerUp;
+import logic.powerup.Magnet;
 
 /**
  * PhysicsProcessorBox2D class.
@@ -45,51 +36,19 @@ import logic.powerup.PreyPowerUp;
  */
 public class PhysicsProcessorBox2D extends PhysicsProcessor {
 	
-	// The Box2D world.
-	private World world;
+	// The game world
+	private final PhysicsGameWorld world;
 	
-	// The class used to handle the game's power ups, including changing the 
-	// physics properties of the world as appropriate.
-	private PowerUpProcessor powerUpProc;
-	
-	// Physics world geometry and kinematics.
-	private float squareSize;
-	private float wallWidth;
-	private float pillRadius;
-	private float powerUpRadius;
-	private float predatorSpeed;
-	private float preySpeed;
-	
-	// Defines the different physics body categories. These are used for 
-	// collision filtering.
-	private final short CATEGORY_WALL = 0x0001;
-	private final short CATEGORY_PREDATOR = 0x0002;
-	private final short CATEGORY_PREY = 0x0004;
-	private final short CATEGORY_PILL = 0x0008;
-	private final short CATEGORY_POWERUP_PREDATOR = 0x0016;
-	private final short CATEGORY_POWERUP_PREY = 0x0032;
-	private final short CATEGORY_DEBUG = 0x0064;
-	
-	// Masks are used in collision filtering. Define which physics bodies 
-	// collide. E.g. Predators will collide with walls and prey, but not other 
-	// predators or pills.
-	private final short MASK_PREDATOR = CATEGORY_WALL | CATEGORY_PREY | 
-			CATEGORY_POWERUP_PREDATOR;
-	private final short MASK_PREY = CATEGORY_WALL | CATEGORY_PILL | 
-			CATEGORY_PREDATOR | CATEGORY_POWERUP_PREY;
-	private final short MASK_PILL = CATEGORY_WALL | CATEGORY_PREY;
-	private final short MASK_POWERUP_PREDATOR = CATEGORY_WALL | 
-			CATEGORY_PREDATOR;
-	private final short MASK_POWERUP_PREY = CATEGORY_WALL | CATEGORY_PREY;
-	private final short MASK_DEBUG = CATEGORY_WALL;
+	// Used to convert speed from an index value to an actual speed.
+	private final PhysicsSpeedConverter speedConverter;
 	
 	// Physics simulation step variables
-	private final float dt = 1.0f / 60.0f;
+	private final float dt;
 	private float accumulator;
 	
-	// The type of debug information to process and display
-	PhysicsDebugType debugType;
-	boolean debugBodiesCreated;
+	// The type of debug information to display
+	private PhysicsDebugType debugType;
+	private boolean debugBodiesCreated;
 	
 	/**
 	 * Constructor for PhysicsProcessorBox2D.
@@ -100,413 +59,29 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 	 * @param config - the configuration data used to set up the Physics
 	 * simulation.
 	 */
-	public PhysicsProcessorBox2D(World world, GameState initialState, 
-		PhysicsConfiguration config) {
+	public PhysicsProcessorBox2D(GameState initialState, 
+			PhysicsConfiguration config) {
 		
-		this.world = world;
+		Vector2 gravity = new Vector2(0f, 0f);
+		boolean doSleep = true;
+		World box2DWorld = new World(gravity, doSleep);
+		this.world = new PhysicsGameWorld(box2DWorld, initialState, config);
 		
-		this.squareSize = config.getSquareSize();
-		this.wallWidth = (config.getWallWidthRatio() / 2) * squareSize;
-		this.pillRadius = 
-				(squareSize / 2 - wallWidth) * config.getPillRadiusRatio();
-		this.powerUpRadius = 
-				(squareSize / 2 - wallWidth) * config.getPowerUpRadiusRatio();
-		
-		this.predatorSpeed = config.getPredatorSpeed();
-		this.preySpeed = config.getPreySpeed();
-		
+		this.dt = config.getTimestep();
 		this.accumulator = 0;
+		
+		PhysicsContact contact = new PhysicsContact(this);
+		this.world.addContactListener(contact);
+		
+		this.speedConverter = config.getSpeedConverter();
 		
 		this.debugType = PhysicsDebugType.DebugNone;
 		this.debugBodiesCreated = false;
-		
-		buildPhysics(initialState);
-		
-		PhysicsContact contact = new PhysicsContact(this);
-		this.world.setContactListener(contact);
-		
-		this.powerUpProc = new PowerUpProcessor(world, this);
 	}
 	
-	/**
-	 * Use the provided GameState snapshot to create all the Physics bodies and
-	 * fixtures (Walls, pills, predators, prey).
-	 * 
-	 * @param state - the initial snapshot of the game data containing a fully 
-	 * formed maze and all Agents.
-	 */
-	private void buildPhysics(GameState state) {
-		
-		// Create each maze square physics body (walls) and pill physics body 
-		// from the corresponding maze node.
-		Maze maze = state.getMaze();
-		Map<PointXY, MazeNode> nodes = maze.getNodes();
-		Set<PointXY> keys = nodes.keySet();
-		
-		for (PointXY pos : keys) {
-			MazeNode node = nodes.get(pos);
-			createNode(pos, node, maze);
-			if (state.hasPill(pos)) {
-				createPill(pos, node);
-			}
-		}
-		
-		// Create each Predator and Prey physics body.
-		List<Predator> predators = state.getPredators();
-		List<Prey> prey = state.getPrey();
-		
-		for (Predator pred : predators) {
-			createPredator(pred);
-		}
-		
-		for (Prey p : prey) {
-			createPrey(p);
-		}
-		
-		Map<PointXY, PredatorPowerUp> predatorPowerUps = 
-				state.getPredatorPowerUps();
-		for (PointXY pos : predatorPowerUps.keySet()) {
-			createPredatorPowerUp(predatorPowerUps.get(pos), pos);
-		}
-
-		Map<PointXY, PreyPowerUp> preyPowerUps = state.getPreyPowerUps();
-		for (PointXY pos : preyPowerUps.keySet()) {
-			createPreyPowerUp(preyPowerUps.get(pos), pos);
-		}
-		
-		// Create the debugging bodies if required
-		if (debugType != PhysicsDebugType.DebugNone) {
-			createDebugBodies(keys);
-		}
-	}
-	
-	/**
-	 * Creates the physics body for the walls from the given MazeNode and its 
-	 * position in the maze.
-	 * 
-	 * @param pos - the position of the MazeNode in the maze.
-	 * @param node - the MazeNode from which to create the walls.
-	 * @param maze - the maze that is being built. This is used to check whether
-	 * the node is a perimeter node and therefore draw the boundary wall in the 
-	 * right position.
-	 */
-	private void createNode(PointXY pos, MazeNode node, Maze maze) {
-		
-		// Create the node body and add it to the world at the given location.
-		Body nodeBody;
-		
-		BodyDef bodyDef = new BodyDef();
-		bodyDef.type = BodyType.StaticBody;
-		
-		Vector2 worldPos = stateToWorld(pos);
-		bodyDef.position.set(worldPos);
-		
-		nodeBody = world.createBody(bodyDef);
-		
-		// Add the user data which tells us this body is of type Walls.
-		PhysicsData data = new PhysicsData(PhysicsBodyType.Walls);
-		nodeBody.setUserData(data);
-		
-		// Check the node positions to the four sides of the current node.
-		// If the node does not have a neighbouring node in that position, 
-		// add a wall fixture to the nodeBody.
-		// A wall is also added to the 'outside' if the node is a perimeter 
-		// node.
-		PointXY northPos = new PointXY(pos.getX(), pos.getY() + 1);
-		float northCentreX = 0;
-		float northCentreY = (squareSize/2 - wallWidth/2);
-		if (!node.isNeighbour(northPos)) {
-			Vector2 centre = new Vector2(northCentreX, northCentreY);
-			float hx = squareSize/2 + wallWidth;
-			float hy = wallWidth/2;
-			createWall(nodeBody, centre, hx, hy);
-		}
-		if (!maze.containsNodeAtPosition(northPos)) {
-			Vector2 centre = new Vector2(northCentreX, northCentreY + wallWidth);
-			float hx = squareSize/2 + wallWidth;
-			float hy = wallWidth/2;
-			createWall(nodeBody, centre, hx, hy);
-		}
-		
-		PointXY eastPos = new PointXY(pos.getX() + 1, pos.getY());
-		float eastCentreX = (squareSize/2 - wallWidth/2);
-		float eastCentreY = 0;
-		if (!node.isNeighbour(eastPos)) {
-			Vector2 centre = new Vector2(eastCentreX, eastCentreY);
-			float hx = wallWidth/2;
-			float hy = squareSize/2 + wallWidth;
-			createWall(nodeBody, centre, hx, hy);
-		}
-		if (!maze.containsNodeAtPosition(eastPos)) {
-			Vector2 centre = new Vector2(eastCentreX + wallWidth, eastCentreY);
-			float hx = wallWidth/2;
-			float hy = squareSize/2 + wallWidth;
-			createWall(nodeBody, centre, hx, hy);
-		}
-		
-		PointXY southPos = new PointXY(pos.getX(), pos.getY() - 1);
-		float southCentreX = 0;
-		float southCentreY = (-squareSize/2 + wallWidth/2);
-		if (!node.isNeighbour(southPos)) {
-			Vector2 centre = new Vector2(southCentreX, southCentreY);
-			float hx = squareSize/2 + wallWidth;
-			float hy = wallWidth/2;
-			createWall(nodeBody, centre, hx, hy);
-		}
-		if (!maze.containsNodeAtPosition(southPos)) {
-			Vector2 centre = new Vector2(southCentreX, southCentreY - wallWidth);
-			float hx = squareSize/2 + wallWidth;
-			float hy = wallWidth/2;
-			createWall(nodeBody, centre, hx, hy);
-		}
-		
-		PointXY westPos = new PointXY(pos.getX() - 1, pos.getY());
-		float westCentreX = (-squareSize/2 + wallWidth/2);
-		float westCentreY = 0;
-		if (!node.isNeighbour(westPos)) {
-			Vector2 centre = new Vector2(westCentreX, westCentreY);
-			float hx = wallWidth/2;
-			float hy = squareSize/2 + wallWidth;
-			createWall(nodeBody, centre, hx, hy);
-		}
-		if (!maze.containsNodeAtPosition(westPos)) {
-			Vector2 centre = new Vector2(westCentreX - wallWidth, westCentreY);
-			float hx = wallWidth/2;
-			float hy = squareSize/2 + wallWidth;
-			createWall(nodeBody, centre, hx, hy);
-		}
-		
-	}
-	
-	/**
-	 * Create a wall fixture at the given location (in the mazeBody's coordinate
-	 * system) and add the fixture to the mazeBody.
-	 * 
-	 * @param mazeBody - the body to which to add the wall fixture.
-	 * @param centre - the centre position of the wall in the mazeBody's 
-	 * coordinate system.
-	 * @param hx - the half-length of the wall in the x direction.
-	 * @param hy - the half-length of the wall in the y direction.
-	 */
-	private void createWall(Body mazeBody, Vector2 centre, float hx, float hy) {
-		FixtureDef fixtureDef = new FixtureDef();
-	
-		PolygonShape rect = new PolygonShape();
-		rect.setAsBox(hx, hy, centre, 0);
-		
-		fixtureDef.shape = rect;
-		
-		mazeBody.createFixture(fixtureDef);
-	}
-	
-	/**
-	 * Creates the physics body for the pill from the given MazeNode and its 
-	 * position in the maze.
-	 * 
-	 * @param pos - the position of the MazeNode in the maze.
-	 * @param node - the MazeNode from which to create the pill.
-	 */
-	private void createPill(PointXY pos, MazeNode node) {
-		
-		Body pillBody;
-		
-		BodyDef bodyDef = new BodyDef();
-		bodyDef.type = BodyType.StaticBody;
-		
-		Vector2 worldPos = stateToWorld(pos);
-		bodyDef.position.set(worldPos);
-		
-		pillBody = world.createBody(bodyDef);
-		
-		FixtureDef fixturePill = new FixtureDef();
-		CircleShape circle = new CircleShape();
-		circle.setRadius(pillRadius);
-		fixturePill.shape = circle;
-		fixturePill.filter.categoryBits = CATEGORY_PILL;
-		fixturePill.filter.maskBits = MASK_PILL;
-		
-		pillBody.createFixture(fixturePill);
-		
-		PhysicsData data = new PhysicsDataPill(PhysicsBodyType.Pill, pos);
-		pillBody.setUserData(data);
-	}
-
-	/**
-	 * Creates the physics body for the Predator.
-	 * 
-	 * @param p - the Predator from which to create the Predator physics body.
-	 */
-	private void createPredator(Predator p) {
-		createAgent(p, CATEGORY_PREDATOR, MASK_PREDATOR, 
-				PhysicsBodyType.Predator);
-	}
-	
-	/**
-	 * Creates the physics body for the Prey.
-	 * 
-	 * @param p - the Prey from which to create the Prey physics body.
-	 */
-	private void createPrey(Prey p) {
-		createAgent(p, CATEGORY_PREY, MASK_PREY, PhysicsBodyType.Prey);
-	}
-	
-	/**
-	 * Create an Agent physics body of the given physics body type and with the 
-	 * given collision filtering information.
-	 * 
-	 * @param agent - the Agent from which to create the physics body.
-	 * @param categoryBits - the category to use for this physics body (used for 
-	 * collision filtering).
-	 * @param maskBits - the mask to use for this physics body. Indicates with 
-	 * which other bodies this body will collide.
-	 * @param bodyType - the Agent's physics body type identifier.
-	 */
-	private void createAgent(Agent agent, short categoryBits, short maskBits, 
-			PhysicsBodyType bodyType) {
-		
-		Body agentBody;
-		
-		BodyDef bodyDef = new BodyDef();
-		bodyDef.type = BodyType.DynamicBody;
-		
-		Vector2 worldPos = stateToWorld(agent.getPosition());
-		bodyDef.position.set(worldPos);
-		
-		agentBody = world.createBody(bodyDef);
-		
-		FixtureDef fixtureDef = new FixtureDef();
-		
-		CircleShape circle = new CircleShape();
-		float radius = (squareSize - wallWidth*2) / 2 * 0.95f;
-		circle.setRadius(radius);
-		
-//		PolygonShape square = new PolygonShape();
-//		square.setAsBox(radius, radius);
-		
-		fixtureDef.shape = circle;
-//		fixtureDef.shape = square;
-		
-		fixtureDef.filter.categoryBits = categoryBits;
-		fixtureDef.filter.maskBits = maskBits;
-		
-		agentBody.createFixture(fixtureDef);
-		
-		PhysicsData data = new PhysicsDataAgent(bodyType, agent.getID());
-		agentBody.setUserData(data);
-	}
-	
-	/**
-	 * Creates the physics body for a Power Up used by Predators.
-	 * 
-	 * @param powerUp - the Predator Power Up from which to create the power up 
-	 * physics body.
-	 * @param pos - the position of the power up in the maze.
-	 */
-	private void createPredatorPowerUp(PredatorPowerUp powerUp, PointXY pos) {
-		createPowerUp(powerUp, pos, CATEGORY_POWERUP_PREDATOR, 
-				MASK_POWERUP_PREDATOR, PhysicsBodyType.PowerUpPredator);
-	}
-
-	/**
-	 * Creates the physics body for a Power Up used by Prey.
-	 * 
-	 * @param powerUp - the Prey Power Up from which to create the power up 
-	 * physics body.
-	 * @param pos - the position of the power up in the maze.
-	 */
-	private void createPreyPowerUp(PreyPowerUp powerUp, PointXY pos) {
-		createPowerUp(powerUp, pos, CATEGORY_POWERUP_PREY, 
-				MASK_POWERUP_PREY, PhysicsBodyType.PowerUpPrey);
-	}
-
-	/**
-	 * Creates the physics body for the power up from the given PowerUp and its 
-	 * position in the maze.
-	 * 
-	 * @param powerUp - the Power Up from which to create the power up body.
-	 * @param pos - the position of the power up in the maze.
-	 * @param categoryBits - the category to use for this physics body (used for 
-	 * collision filtering).
-	 * @param maskBits - the mask to use for this physics body. Indicates with 
-	 * which other bodies this body will collide.
-	 * @param bodyType - the Power Up's physics body type identifier.
-	 */
-	private void createPowerUp(PowerUp powerUp, PointXY pos, short categoryBits, 
-			short maskBits, PhysicsBodyType bodyType) {
-
-		Body powerUpBody;
-
-		BodyDef bodyDef = new BodyDef();
-		bodyDef.type = BodyType.DynamicBody;
-
-		Vector2 worldPos = stateToWorld(pos);
-		bodyDef.position.set(worldPos);
-
-		powerUpBody = world.createBody(bodyDef);
-
-		FixtureDef fixtureDef = new FixtureDef();
-		CircleShape circle = new CircleShape();
-		circle.setRadius(powerUpRadius);
-		fixtureDef.shape = circle;
-
-		fixtureDef.filter.categoryBits = categoryBits;
-		fixtureDef.filter.maskBits = maskBits;
-		
-		powerUpBody.createFixture(fixtureDef);
-
-		String powerUpName = powerUp.getName();
-		
-		PhysicsData data = new PhysicsDataPowerUp(bodyType, pos, powerUpName);
-		powerUpBody.setUserData(data);
-	}
-	
-	/**
-	 * Carry out any work that needs to be done immediately BEFORE the 
-	 * simulation is stepped. This includes extracting the game state data and
-	 * applying it to the world (e.g. each Agent's next move).
-	 * 
-	 * @param state - a snapshot of the current game data.
-	 */
-	private void preStep(GameState state) {
-
-		List<Predator> predators = state.getPredators();
-		List<Prey> prey = state.getPrey();
-		
-		Array<Body> bodies = new Array<Body>();
-		world.getBodies(bodies);
-		
-		for (Body b : bodies) {
-			preStepProcess(b, predators, prey, state.getMaze());
-		}
-		
-		// The power ups are processed after each of the agent's moves have 
-		// been applied in the pre-step processing.
-		for (Body b : bodies) {
-			processPowerUps(b, state);
-		}
-		
-		// Process any debug information
-		processDebugInfo(state);
-	}
-
-	/**
-	 * Carry out any work that needs to be done immediately AFTER the simulation 
-	 * is stepped. This involves updating the game state with the 
-	 * post-simulation data (e.g. new positions of each Agent).
-	 * 
-	 * @param state - a snapshot of the current game data.
-	 */
-	private void postStep(GameState state) {
-		
-		Array<Body> bodies = new Array<Body>();
-		world.getBodies(bodies);
-		
-		// Remove 'dead' bodies from the game and inform the GameState of the 
-		// changes.
-		for (Body b : bodies) {
-			postStepProcess(b, state);
-		}
-		
+	@Override
+	public PhysicsGameWorld getWorld() {
+		return world;
 	}
 
 	@Override
@@ -527,7 +102,7 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 			
 			// Run the simulation for one timestep.
 			preStep(state);		
-			world.step(dt, 8, 3);			
+			world.getBox2DWorld().step(dt, 8, 3);			
 			postStep(state);
 			
 			accumulator -= dt;
@@ -538,40 +113,58 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 	}
 	
 	/**
-	 * Carries out actions that should be done before the simulation step.
+	 * Carry out any work that needs to be done immediately BEFORE the 
+	 * simulation is stepped. This includes extracting the game state data and
+	 * applying it to the world (e.g. each Agent's next move).
 	 * 
-	 * More specifically, updates the velocity of each body which represents 
-	 * a Predator or Prey based on the next move of the equivalent Predator or
-	 * Prey object. 
-	 * 
-	 * @param body - the body to process.
-	 * @param predators - the list of predators for the current game state.
-	 * @param prey - the list of prey for the current game state.
+	 * @param state - a snapshot of the current game data.
 	 */
-	private void preStepProcess(Body body, List<Predator> predators, 
-			List<Prey> prey, Maze maze) {
+	private void preStep(GameState state) {
 		
-		PhysicsData data = (PhysicsData) body.getUserData();
-		PhysicsBodyType type = data.getType();
+		Maze maze = state.getMaze();
 		
-		switch (type) {
-			case PowerUpPredator:
-			case PowerUpPrey:
-			case Pill:
-			case Walls:
-				return;
-		
-			case Prey:
-				processAgent(body, prey, preySpeed, maze);
-				break;
-				
-			case Predator:
-				processAgent(body, predators, predatorSpeed, maze);
-				break;
-			
-			default:
-				break;
+		List<PhysicsBodyAgent> allAgents = world.getAgents();
+		for (PhysicsBodyAgent agent : allAgents) {
+			preProcessAgentPowerUps(agent, state);
 		}
+		
+		for (PhysicsBodyAgent agent : allAgents) {
+			preProcessAgent(agent, maze);
+		}
+				
+		// Process any debug information
+		preProcessDebugInfo(state);
+	}
+
+	/**
+	 * Carry out any work that needs to be done immediately AFTER the simulation 
+	 * is stepped. This involves updating the game state with the 
+	 * post-simulation data (e.g. new positions of each Agent).
+	 * 
+	 * @param state - a snapshot of the current game data.
+	 */
+	private void postStep(GameState state) {
+		
+		List<PhysicsBody> bodiesToProcess = new ArrayList<PhysicsBody>();
+		bodiesToProcess.addAll(world.getPredators());
+		bodiesToProcess.addAll(world.getPrey());
+		bodiesToProcess.addAll(world.getPills());
+		bodiesToProcess.addAll(world.getPredatorPowerUps());
+		
+		// Remove 'dead' bodies from the game and inform the GameState of the 
+		// changes.
+		for (PhysicsBody body : bodiesToProcess) {
+			if (body.isFlaggedForDelete()) {
+				world.removeBody(body);
+				deleteFromGameState(body, state);
+			}
+		}
+		
+		List<PhysicsBodyAgent> allAgents = world.getAgents();
+		for (PhysicsBodyAgent agent : allAgents) {
+			postProcessAgent(agent, state);
+		}
+		
 	}
 	
 	/**
@@ -584,25 +177,22 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 	 * @param speed - the magnitude of the velocity that will be applied to 
 	 * the body.
 	 */
-	private void processAgent(Body body, List<? extends Agent> agents, 
-			float speed, Maze maze) {
+	private void preProcessAgent(PhysicsBodyAgent physicsBody, Maze maze) {
+		
+		// Grab the actual body
+		Body body = physicsBody.getBody();
 		
 		// Find the agent associated with this body.
-		Agent agent = findAgent(body, agents);
-		
-		// There should be an agent. If not, something's gone wrong.
-		if (agent == null) {
-			System.err.println("Couldn't find agent associated with the body.");
-			return;
-		}
-		
-		PhysicsDataAgent data = (PhysicsDataAgent) body.getUserData();
+		Agent agent = physicsBody.getAgent();
+		int speedIndex = agent.getSpeedIndex();
+		float speed = speedConverter.getSpeed(speedIndex);
+		//float speed = physicsBody.getBaseSpeed();
 		
 		// Round the position of the body so that we don't lose accuracy due to
 		// floating point arithmetic. (This will only change the position if the
 		// current position is within a small tolerance of a multiple of half 
 		// the square size.)
-		roundPosition(body);
+		roundPosition(body, speed);
 		Vector2 bodyWorldPos = body.getPosition();
 		
 		Move move = agent.getNextMove();
@@ -617,11 +207,7 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 			updateVelocity(velocity, move.getDirection(), speed);
 			body.setLinearVelocity(velocity);
 			
-			// We store the previous move as long as it's not 'None'.
-			if (data.getCurrentMove() != Direction.None) {
-				data.setPreviousMove(data.getCurrentMove());
-			}
-			data.setCurrentMove(move.getDirection());
+			agent.setCurrentDirection(move.getDirection());
 			
 		} else {
 			// The proposed move isn't ok. Note that we might be coming out of a
@@ -647,34 +233,11 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 			
 			if (!node.isNeighbour(targetPos)) {
 				body.setLinearVelocity(new Vector2(0, 0));
-				data.setCurrentMove(Direction.None);
+				agent.setCurrentDirection(Direction.None);
 			}
 		}
 	}
-	
-	/**
-	 * Find the Agent which in the provided list of Agents which is equivalent 
-	 * to the provided body. If there is no match, this method returns null.
-	 * 
-	 * @param body - the body for which to find the matching agent.
-	 * @param agents - the list of agents to search through.
-	 * @return the equivalent agent to the body in agents, or null if there is 
-	 * no match.
-	 */
-	private Agent findAgent(Body body, List<? extends Agent> agents) {
-		
-		PhysicsDataAgent data = (PhysicsDataAgent) body.getUserData();
-		int bodyID = data.getID();
-		
-		for (Agent agent : agents) {
-			if (agent.getID() == bodyID) {
-				return agent;
-			}
-		}
-		
-		return null;
-	}
-	
+
 	/**
 	 * If the x or y-coordinate of the position of the provided body is within a
 	 * small tolerance of a multiple of half the square size, then the 
@@ -683,25 +246,54 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 	 * 
 	 * @param body - the body which should have its position rounded.
 	 */
-	private void roundPosition(Body body) {
-		
-		float halfSquare = squareSize / 2;
-		Vector2 bodyWorldPos = body.getPosition();
-		float x = bodyWorldPos.x;
-		float y = bodyWorldPos.y;
-		
-		float tol = 0.0001f;
-		if (x % halfSquare < tol || (halfSquare - x % halfSquare) < tol) {
-			int multiple = Math.round(x / halfSquare);
-			x = multiple * halfSquare;
+	private void roundPosition(Body body, float speed) {
+		{
+			float squareSize = world.getSquareSize();
+			float halfSquare = squareSize / 2;
+			Vector2 bodyWorldPos = body.getPosition();
+			float x = bodyWorldPos.x;
+			float y = bodyWorldPos.y;
+			
+			float tol = 0.0001f;
+			if (x % halfSquare < tol || (halfSquare - x % halfSquare) < tol) {
+				int multiple = Math.round(x / halfSquare);
+				x = multiple * halfSquare;
+			}
+			
+			if (y % halfSquare < tol || (halfSquare - y % halfSquare) < tol) {
+				int multiple = Math.round(y / halfSquare);
+				y = multiple * halfSquare;
+			}		
+			
+			body.setTransform(x, y, 0);
 		}
 		
-		if (y % halfSquare < tol || (halfSquare - y % halfSquare) < tol) {
-			int multiple = Math.round(y / halfSquare);
-			y = multiple * halfSquare;
-		}		
+//		int squareSize = speedConverter.getSquareSize();
+//		float timestep = speedConverter.getTimestep();
+//		float interval = speed * timestep;
+//		
+//		Vector2 bodyWorldPos = body.getPosition();
+//		PointXY statePos = worldToState(bodyWorldPos);
+//		Vector2 squarePos = stateToWorld(statePos);
+//		
+//		// Sort out the x position
+//		float xdiff = bodyWorldPos.x - squarePos.x;
+//		float remainder = xdiff % interval;
+//		if (remainder > (interval / 2)) {
+//			remainder = remainder - interval;
+//		}
+//		float x = bodyWorldPos.x - remainder;
+//		
+//		// Sort out the y position
+//		float ydiff = bodyWorldPos.y - squarePos.y;
+//		float remainderY = ydiff % interval;
+//		if (remainderY > (interval / 2)) {
+//			remainderY = remainderY - interval;
+//		}
+//		float y = bodyWorldPos.y - remainderY;
+//		
+//		body.setTransform(x,  y, 0);
 		
-		body.setTransform(x, y, 0);
 	}
 	
 	/**
@@ -863,28 +455,40 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 		return targetPos;
 	}
 	
-	/**
-	 * Find the agent equivalent to the provided body if there is one. If there 
-	 * is then, based on the agent's move, either activate a power up, apply the
-	 * currently activated power up's action, or do nothing.
-	 * 
-	 * @param body - the body to process.
-	 * @param state - the current game state.
-	 */
-	private void processPowerUps(Body body, GameState state) {
+	private void checkForMagnet(PhysicsBodyAgent physicsBody) {
 		
-		PhysicsData data = (PhysicsData) body.getUserData();
-		Agent agent = null;
-		if (data.getType() == PhysicsBodyType.Predator) {
-			agent = findAgent(body, state.getPredators());
-		} else if (data.getType() == PhysicsBodyType.Prey) {
-			agent = findAgent(body, state.getPrey());
+		Agent agent = physicsBody.getAgent();
+		
+		if (agent.magnetApplied()) {
+			
+			Magnet magnet = agent.getMagnet();
+			int strength = magnet.getStrength();
+			PointXY focusState = magnet.getFocalPoint();
+			Vector2 focusWorld = stateToWorld(focusState);
+			
+			int range = 10 + strength;
+			int force = -1000 * strength;
+			
+			Body body = physicsBody.getBody();
+			Vector2 worldPos = body.getPosition();
+			
+			// Check whether this body is within range of the magnet.
+			Vector2 dir = worldPos.sub(focusWorld);
+			if (dir.len() <= range * getSquareSize()) {
+			
+				// Normalise the direction vector
+				Vector2 normDir = dir.nor();
+				
+				// Apply the magnet force
+				body.setLinearVelocity(0, 0);
+				float xForce = normDir.x * force;
+				float yForce = normDir.y * force;
+				body.applyForceToCenter(xForce, yForce, true);
+				
+			}
+			
 		}
 		
-		if (agent != null) {
-			Move move = agent.getNextMove();
-			processAgentPowerUps(agent, move, body, state);
-		}
 	}
 	
 	/**
@@ -894,98 +498,94 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 	 * 
 	 * @param agent - the Agent currently being processed.
 	 * @param move - the current Move of the Agent.
-	 * @param body - the body associated with the agent.
+	 * @param physicsBody - the body associated with the agent.
 	 * @param state - the current game state.
 	 */
-	private void processAgentPowerUps(Agent agent, Move move, Body body, 
+	private void preProcessAgentPowerUps(PhysicsBodyAgent physicsBody, 
 			GameState state) {
 
+		Agent agent = physicsBody.getAgent();
+		Move move = agent.getNextMove();
+		
+		List<Agent> allAgents = state.getAgents();
+		
 		if (move.getUsePowerUp()) {
-			agent.activatePowerUp();
+			move.setUsePowerUp(false);
+			agent.activatePowerUp(allAgents);
+			checkForPositionChange();
+			jogAgents(state);
 		}
 
-		if (agent.hasActivatedPowerUp()) {
-			powerUpProc.setState(state);
-			List<? extends PowerUp> powerUps = agent.getActivatedPowerUps();
-			for (PowerUp powerUp : powerUps) {
-				powerUpProc.setBody(body);
-				powerUp.accept(powerUpProc);
+		checkForMagnet(physicsBody);
+		
+		boolean powerUpRemoved = agent.updateActivatedPowerUps(allAgents);
+		
+		if (powerUpRemoved) {
+			jogAgents(state);
+		}
+	}
+	
+	private void checkForPositionChange() {
+		List<PhysicsBodyAgent> agentBodies = world.getAgents();
+		
+		for (PhysicsBodyAgent agentBody : agentBodies) {
+			Agent agent = agentBody.getAgent();
+			PointXY statePos = agent.getPosition();
+			
+			Body body = agentBody.getBody();
+			Vector2 bodyWorldPos = body.getPosition();
+			PointXY bodyStatePos = worldToState(bodyWorldPos);
+			
+			if (!statePos.equals(bodyStatePos)) {
+				Vector2 statePosWorld = stateToWorld(statePos);
+				body.setTransform(statePosWorld, 0);
 			}
 		}
-		agent.updateActivatedPowerUps();
 	}
-	
-	/**
-	 * Carries out actions that should be done after the simulation step.
-	 * 
-	 * More specifically, remove any physics bodies from the world which have
-	 * been flagged for deletion. Then remove the equivalent Agent for each 
-	 * deleted body from the GameState.
-	 * 
-	 * If a predator or prey body has not been flagged for deletion, update its 
-	 * position in the game state.
-	 * 
-	 * @param body - the body to process.
-	 * @param state - the game state to update.
-	 */
-	private void postStepProcess(Body body, GameState state) {
-		
-		PhysicsData data = (PhysicsData) body.getUserData();
-		if (data.isFlaggedForDelete()) {
-			// Remove body from world.
-			world.destroyBody(body);
-			body.setUserData(null);
-			body = null;
-			
-			// Inform GameState.
-			deleteFromGameState(data, state);
-		} else {
-			updateGameState(body, state);
-		}
-		
-	}
-	
+
 	/**
 	 * Remove the entity defined by the provided data from the game state.
 	 * 
 	 * @param data - the data of the entity to be removed from the game state.
 	 * @param state - the game state to update.
 	 */
-	private void deleteFromGameState(PhysicsData data, GameState state) {
-		PhysicsBodyType type = data.getType();
+	private void deleteFromGameState(PhysicsBody physicsBody, GameState state) {
+		PhysicsBodyType type = physicsBody.getType();
 		
 		switch (type) {
 			case Pill:
-				PhysicsDataPill pillData = (PhysicsDataPill) data;
-				PointXY pos = pillData.getPosition();
-				state.removePill(pos);
+				PointXY pillPos = getPosition(physicsBody);
+				state.removePill(pillPos);
 				return;
 			
 			case Walls:
+				System.err.println("Should not remove walls from game.");
 				return;
 	
 			case Prey:
-				PhysicsDataAgent preyData = (PhysicsDataAgent) data;
-				int preyID = preyData.getID();
+				PhysicsBodyAgent prey = (PhysicsBodyAgent) physicsBody;
+				int preyID = prey.getAgent().getID();
 				state.removePrey(preyID);
 				break;
 			
 			case Predator:
-				PhysicsDataAgent predatorData = (PhysicsDataAgent) data;
-				int predatorID = predatorData.getID();
+				PhysicsBodyAgent predator = (PhysicsBodyAgent) physicsBody;
+				int predatorID = predator.getAgent().getID();
 				state.removePredator(predatorID);
 				break;
 				
 			case PowerUpPrey:
-				PhysicsDataPowerUp preyPowerUpData = (PhysicsDataPowerUp) data;
-				PointXY preyPowerUpPos = preyPowerUpData.getPosition();
-				int preyID2 = preyPowerUpData.getAgentID();
+				PhysicsBodyPowerUp preyPowerUp = 
+					(PhysicsBodyPowerUp) physicsBody;
+				int preyID2 = preyPowerUp.getAgentID();
+				PointXY preyPowerUpPos = getPosition(physicsBody);
 				state.predatorPowerUpCollected(preyID2, preyPowerUpPos);
 
 			case PowerUpPredator:
-				PhysicsDataPowerUp predPowerUpData = (PhysicsDataPowerUp) data;
-				PointXY predPowerUpPos = predPowerUpData.getPosition();
-				int predatorID2 = predPowerUpData.getAgentID();
+				PhysicsBodyPowerUp predPowerUp = 
+					(PhysicsBodyPowerUp) physicsBody;
+				int predatorID2 = predPowerUp.getAgentID();
+				PointXY predPowerUpPos = getPosition(physicsBody);
 				state.predatorPowerUpCollected(predatorID2, predPowerUpPos);
 				
 			default:
@@ -994,60 +594,32 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 		
 	}
 	
-	/**
-	 * Updates the position of the entity in the game state that is equivalent
-	 * to the provided body.
-	 * 
-	 * @param body - the body to process.
-	 * @param state - the game state to update.
-	 */
-	private void updateGameState(Body body, GameState state) {
+	private void postProcessAgent(PhysicsBodyAgent agentBody, GameState state) {
 		
-		PhysicsData data = (PhysicsData) body.getUserData();
-		PhysicsBodyType type = data.getType();
+		int agentID = agentBody.getAgent().getID();
+		PointXY pos = getPosition(agentBody);
 		
-		switch (type) {
-			case PowerUpPredator:
-			case PowerUpPrey:
-			case Pill:
-			case Walls:
-				return;
-	
-			case Prey:
-				PhysicsDataAgent preyData = (PhysicsDataAgent) data;
-				int preyID = preyData.getID();
-				Vector2 preyPos = body.getPosition();
-				
-				state.updatePreyPosition(preyID, worldToState(preyPos));
-				break;
-			
-			case Predator:
-				PhysicsDataAgent predatorData = (PhysicsDataAgent) data;
-				int predatorID = predatorData.getID();
-				Vector2 predPos = body.getPosition();
-
-				state.updatePredatorPosition(predatorID, worldToState(predPos));
-				break;
+		PhysicsBodyType type = agentBody.getType();
 		
-			default:
-				break;
+		if (type == PhysicsBodyType.Predator) {
+			state.updatePredatorPosition(agentID, pos);
+		} else if (type == PhysicsBodyType.Prey) {
+			state.updatePreyPosition(agentID, pos);
+		} else {
+			System.err.println("Unexpected agent body type.");
 		}
 	}
 	
 	@Override
 	public Vector2 stateToWorld(PointXY pos) {
-		// Adding 0.5 offsets us to the centre of the square.
-		float centreX = (float) ((pos.getX() + 0.5) * squareSize); 
-		float centreY = (float) ((pos.getY() + 0.5) * squareSize);
-		return new Vector2(centreX, centreY);
+		float squareSize = world.getSquareSize();
+		return PhysicsUtils.stateToWorld(pos, squareSize);
 	}
 	
 	@Override
 	public PointXY worldToState(Vector2 pos) {
-		// Do the inverse of the stateToWorld calculation.
-		int centreX = (int) Math.round((pos.x / squareSize) - 0.5);
-		int centreY = (int) Math.round((pos.y / squareSize) - 0.5);
-		return new PointXY(centreX, centreY);
+		float squareSize = world.getSquareSize();
+		return PhysicsUtils.worldToState(pos, squareSize);
 	}
 	
 	/**
@@ -1082,32 +654,136 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 		
 	}
 	
-	@Override
-	public float getSquareSize() {
-		return squareSize;
+	private PointXY getPosition(PhysicsBody physicsBody) {
+		Body body = physicsBody.getBody();
+		Vector2 worldPos = body.getPosition();
+		PointXY statePos = worldToState(worldPos);
+		return statePos;
 	}
 	
 	@Override
-	public float getSimulationStep() {
-		return dt;
+	public float getSquareSize() {
+		return world.getSquareSize();
 	}
-
-	@Override
-	public float getBodySpeed(PhysicsBodyType type) {
+	
+	private void jogAgents(GameState state) {
+		Maze maze = state.getMaze();
 		
-		switch (type) {
-			case Predator:
-				return predatorSpeed;
-			case Prey:
-				return preySpeed;
-			case Pill:
-			case PowerUpPredator:
-			case PowerUpPrey:
-			case Walls:
-			default:
-				return 0;
+		List<PhysicsBodyAgent> agentBodies = world.getAgents();
+		for (PhysicsBodyAgent agentBody : agentBodies) {
+			
+			Body body = agentBody.getBody();
+			Agent agent = agentBody.getAgent();
+			MazeNode node = maze.getNode(agent.getPosition());
+			float speed = speedConverter.getSpeed(agent.getSpeedIndex()); 
+			
+			jogBody(body, node, speed);
 		}
 		
+	}
+	
+	/**
+	 * Move the specified body to the nearest position which is compatible with
+	 * its movement mechanism. The speed factor is used to scale the base speed 
+	 * of the body to be the actual speed of the body in the next simulation 
+	 * step.
+	 * 
+	 * @param body - the body to jog.
+	 * @param speedFactor - the factor by which to scale the base speed of the 
+	 * physics body to give the actual speed of the body in the next simulation
+	 * step.
+	 */
+	private void jogBody(Body body, MazeNode node, float speed) {
+		
+		// Work out some useful position information
+		Vector2 bodyPos = body.getPosition();
+		PointXY statePos = worldToState(bodyPos);
+		Vector2 worldPos = stateToWorld(statePos);
+		
+		// Grab the neighbouring positions of the current maze square
+//		MazeNode node = state.getMaze().getNode(statePos);
+		Set<PointXY> neighbours = node.getNeighbours();
+		
+		// Sanity check
+		if (neighbours.size() == 0) {
+			System.err.println("Each node should have at least one neighbour");
+			body.setTransform(worldPos, 0);
+			body.setLinearVelocity(0, 0);
+			return;
+		}
+		
+		// Find which of the neighbouring nodes is closest to this body. This 
+		// tells us along which axis the body is currently transitioning.
+		double shortestDist = Double.MAX_VALUE;
+		PointXY nearestNeighbour = null;
+		
+		for (PointXY neighbour : neighbours) {
+			
+			Vector2 neighbourWorldPos = stateToWorld(neighbour);
+			double dist = bodyPos.dst(neighbourWorldPos);
+			
+			if (dist < shortestDist) {
+				shortestDist = dist;
+				nearestNeighbour = neighbour;
+			}
+		}
+		
+		// Sanity check, there should be a neighbour.
+		if (nearestNeighbour == null) {
+			System.err.println("Couldn't find nearest neighbour.");
+			return;
+		}
+		
+		// Work out what distance (step) the body travels in a single simulation
+		// step.
+		//PhysicsData data = (PhysicsData) body.getUserData();
+//		float speed = physProc.getBodySpeed(data.getType()) * speedFactor;
+		float simStep = speedConverter.getTimestep();
+		float step = speed * simStep;
+		if (step == 0) {
+			return;
+		}
+		
+		// Is the body transitioning vertically or horizontally.
+		if (nearestNeighbour.getX() == statePos.getX()) {
+			// Vertically, so we know exactly what the x-coordinate should be.
+			float posX = worldPos.x;
+			
+			// Find the nearest valid y-coordinate to the body's position for
+			// the calculated step size.
+			float yDist = bodyPos.y - worldPos.y;
+			float remainder = yDist % step;
+			if (Math.abs(remainder - step) < 0.00001 || 
+				Math.abs(remainder) < 0.00001) {
+				remainder = 0;
+			}
+			
+			float posY = worldPos.y + (yDist - remainder);
+			body.setTransform(posX, posY, 0);
+			
+		} else {
+			// Horizontally, so we know exactly what the y-coordinate should be.
+			float posY = worldPos.y;
+
+			// Find the nearest valid x-coordinate to the body's position for
+			// the calculated step size.
+			float xDist = bodyPos.x - worldPos.x;
+			float remainder = xDist % step;
+			if (Math.abs(remainder - step) < 0.00001 || 
+				Math.abs(remainder) < 0.00001) {
+				remainder = 0;
+			}
+			
+			float posX = worldPos.x + (xDist - remainder);
+			body.setTransform(posX, posY, 0);
+			
+		}
+		
+		// Work out what the velocity should be. This is worked out as the 
+		// vector to the nearest square centre (worldPos) from the current body
+		// position, multiplied by the magnitude (speed).
+//		Vector2 vel = getVelocity(body.getPosition(), worldPos, speed);
+//		body.setLinearVelocity(vel);
 	}
 	
 	// *************************************************************************
@@ -1119,48 +795,12 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 		this.debugType = type;
 	}
 	
-	private void createDebugBodies(Set<PointXY> mazeNodes) {
-		
-		for (PointXY pos : mazeNodes) {
-			// Create the node body and add it to the world at the given location.
-			Body debugBody;
-			
-			BodyDef bodyDef = new BodyDef();
-			bodyDef.type = BodyType.StaticBody;
-			
-			Vector2 worldPos = stateToWorld(pos);
-			bodyDef.position.set(worldPos);
-			
-			debugBody = world.createBody(bodyDef);
-			
-			// Add the user data which tells us this body is of type Walls.
-			PhysicsData data = new PhysicsDataDebug(PhysicsBodyType.Debug);
-			debugBody.setUserData(data);
-			
-			FixtureDef fixtureDef = new FixtureDef();
-			
-			PolygonShape rect = new PolygonShape();
-			float hx = squareSize * 0.1f;
-			float hy = hx;
-			rect.setAsBox(hx, hy, new Vector2(0, 0), 0);
-			
-			fixtureDef.shape = rect;
-			fixtureDef.filter.categoryBits = CATEGORY_DEBUG;
-			fixtureDef.filter.maskBits = MASK_DEBUG;
-			
-			debugBody.createFixture(fixtureDef);
-		}
-		
-		debugBodiesCreated = true;
-	}
-	
-	private void processDebugInfo(GameState state) {
+
+	private void preProcessDebugInfo(GameState state) {
 		
 		if (debugType != PhysicsDebugType.DebugNone && !debugBodiesCreated) {
-			Maze maze = state.getMaze();
-			Map<PointXY, MazeNode> nodes = maze.getNodes();
-			Set<PointXY> keys = nodes.keySet();
-			createDebugBodies(keys);
+			world.createDebugBodies(state);
+			debugBodiesCreated = true;
 		}
 		
 		switch (debugType) {
@@ -1188,34 +828,11 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 			Set<PointXY> agentPoints = partition.get(agent);
 			
 			for (PointXY pos : agentPoints) {
-				Body body = findPartitionBody(pos);
-				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
-				data.setAgentID(agent.getID());
+				PhysicsBodyDebug body = findDebugBody(pos);
+				body.setAgentID(agent.getID());
 			}
 			
 		}
-	}
-	
-	private Body findPartitionBody(PointXY pos) {
-		
-		Vector2 worldPos = stateToWorld(pos);
-		
-		Body body = null;
-		
-		Array<Body> bodies = new Array<Body>();
-		world.getBodies(bodies);
-		
-		for (Body b : bodies) {
-			PhysicsData data = (PhysicsData) b.getUserData();
-			if (data.getType() == PhysicsBodyType.Debug) {
-				Vector2 bodyPos = b.getPosition();
-				if (bodyPos.equals(worldPos)) {
-					return b;
-				}
-			}
-		}
-		
-		return body;
 	}
 	
 	private void processSaferPositions(GameState state) {
@@ -1239,9 +856,8 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 			Set<PointXY> agentPoints = saferPositions.get(agent);
 			
 			for (PointXY pos : agentPoints) {
-				Body body = findPartitionBody(pos);
-				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
-				data.setAgentID(agent.getID());
+				PhysicsBodyDebug body = findDebugBody(pos);
+				body.setAgentID(agent.getID());
 				positionsProcessed.add(pos);
 			}
 			
@@ -1251,12 +867,29 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 		
 		for (PointXY pos : allPositions) {
 			if (!positionsProcessed.contains(pos)) {
-				Body body = findPartitionBody(pos);
-				PhysicsDataDebug data = (PhysicsDataDebug) body.getUserData();
-				data.setAgentID(-1);			
+				PhysicsBodyDebug body = findDebugBody(pos);
+				body.setAgentID(-1);			
 			}
 		}
 		
+	}
+	
+	private PhysicsBodyDebug findDebugBody(PointXY pos) {
+		
+		Vector2 worldPos = stateToWorld(pos);
+		
+		List<PhysicsBodyDebug> bodies = world.getDebugBodies();
+		
+		for (PhysicsBodyDebug physicsBody : bodies) {
+			Body body = physicsBody.getBody();
+			Vector2 bodyPos = body.getPosition();
+			if (bodyPos.equals(worldPos)) {
+				return physicsBody;
+			}
+		}
+		
+		throw new IllegalArgumentException(
+				"No debug body at position " + pos.toString());
 	}
 	
 }

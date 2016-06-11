@@ -532,7 +532,7 @@ public class Maze {
 	 * @return withinDimensions (boolean)
 	 */
 	public boolean withinDimensions(PointXY pos) {
-		return dimensions.contains(pos);
+		return dimensions.containsInclusive(pos);
 	}
 	
 	/**

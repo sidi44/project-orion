@@ -3,11 +3,6 @@ package logic;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import xml.PolygonShapeAdapter;
 import geometry.PointXY;
 import geometry.PolygonShape;
 
@@ -17,7 +12,6 @@ import geometry.PolygonShape;
  * @author Martin Wong
  * @version 2015-08-18
  */
-@XmlRootElement(name = "GameConfiguration")
 public class GameConfiguration {
 	
 	private PolygonShape dimensions;
@@ -83,8 +77,6 @@ public class GameConfiguration {
 	 * 
 	 * @param dimensions (Rectangle)
 	 */
-	@XmlElement (name = "PolygonShape")
-	@XmlJavaTypeAdapter(PolygonShapeAdapter.class)
 	public void setDimensions(PolygonShape dimensions) {
 		this.dimensions = dimensions;
 	}
@@ -104,7 +96,6 @@ public class GameConfiguration {
 	 * 
 	 * @param hasPills (boolean)
 	 */
-	@XmlElement (name = "HasPills")
 	public void setHasPills(boolean hasPills) {
 		this.hasPills = hasPills;
 	}
@@ -123,7 +114,6 @@ public class GameConfiguration {
 	 * 
 	 * @param mConfig (MazeConfig)
 	 */
-	@XmlElement (name = "MazeConfiguration")
 	public void setMConfig(MazeConfig mConfig) {
 		this.mConfig = mConfig;
 	}
@@ -142,7 +132,6 @@ public class GameConfiguration {
 	 * 
 	 * @param mConfig (MazeConfig)
 	 */
-	@XmlElement (name = "AgentConfiguration")
 	public void setAConfig(AgentConfig aConfig) {
 		this.aConfig = aConfig;
 	}
@@ -161,7 +150,6 @@ public class GameConfiguration {
 	 * 
 	 * @param pConfig (PowerUpConfig)
 	 */
-	@XmlElement (name = "PowerUpConfiguration")
 	public void setPConfig(PowerUpConfig pConfig) {
 		this.pConfig = pConfig;
 	}

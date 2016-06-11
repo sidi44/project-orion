@@ -1,7 +1,5 @@
 package physics;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * PhysicsConfiguration class.
@@ -12,15 +10,14 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Simon Dicken
  * @version 2015-08-09
  */
-@XmlRootElement(name = "PhysicsConfiguration")
 public class PhysicsConfiguration {
 
-	private float squareSize;
 	private float wallWidthRatio;
 	private float pillRadiusRatio;
 	private float powerUpRadiusRatio;
-	private float predatorSpeed;
-	private float preySpeed;
+	private float agentRadiusRatio;
+	
+	private PhysicsSpeedConverter speedConverter;
 	
 	/**
 	 * Default constructor for PhysicsConfiguration. 
@@ -28,18 +25,16 @@ public class PhysicsConfiguration {
 	 * Sets parameters to their default values.
 	 */
 	public PhysicsConfiguration() {
-		squareSize = 10.0f;
 		wallWidthRatio = 0.1f;
 		pillRadiusRatio = 0.2f;
 		powerUpRadiusRatio = 0.3f;
-		predatorSpeed = 35f;
-		preySpeed = 25f;
+		agentRadiusRatio = 0.95f;
+		speedConverter = new PhysicsSpeedConverter();
 	}
 	
 	/**
 	 * Constructor for PhysicsConfiguration.
 	 * 
-	 * @param squareSize - The size of each maze square.
 	 * @param wallWidthRatio - How much of the square is occupied by the walls. 
 	 * Must be in the range 0 < x <= 0.4 . The upper limit is set to 0.4 for 
 	 * practicality. Increasing the ratio above this limit would lead to 
@@ -48,15 +43,17 @@ public class PhysicsConfiguration {
 	 * is occupied by the pill. Must be in the range 0 < x <= 1. 
 	 * @param powerUpRadiusRatio - How much of the space between the square's
 	 * walls is occupied by the pill. Must be in the range 0 < x <= 1.
-	 * @param predatorSpeed - The speed of all predator agents.
-	 * @param preySpeed - The speed of all prey agents.
+	 * @param predatorSpeedIndex - The index for the speed of all predator 
+	 * agents. Must be in the range 1 <= x <= 10, where 1 is the slowest.
+	 * @param preySpeedIndex - The index for the speed of all prey agents. Must 
+	 * be in the range 1 <= x <= 10, where 1 is the slowest.
 	 * 
 	 * @throws IllegalArgumentExpcetion - if wallWidthRatio or pillRadiusRatio
 	 * are not within their valid ranges.
 	 */
-	public PhysicsConfiguration(float squareSize, float wallWidthRatio, 
-			float pillRadiusRatio, float powerUpRadiusRatio, 
-			float predatorSpeed, float preySpeed) {
+	public PhysicsConfiguration(float wallWidthRatio, float pillRadiusRatio, 
+			float powerUpRadiusRatio, float agentRadiusRatio,
+			int predatorSpeedIndex, int preySpeedIndex) {
 		
 		if (wallWidthRatio <= 0.0f || wallWidthRatio > 0.4f) {
 			throw new IllegalArgumentException(
@@ -76,12 +73,27 @@ public class PhysicsConfiguration {
 			);
 		}
 		
-		this.squareSize = squareSize;
+		if (agentRadiusRatio <= 0.0f || agentRadiusRatio > 1.0f) {
+			throw new IllegalArgumentException(
+				"Agent radius ratio should be in the range 0 < x <= 1."
+			);
+		}
+		
 		this.wallWidthRatio = wallWidthRatio;
 		this.pillRadiusRatio = pillRadiusRatio;
 		this.powerUpRadiusRatio = powerUpRadiusRatio;
-		this.predatorSpeed = predatorSpeed;
-		this.preySpeed = preySpeed;
+		this.agentRadiusRatio = agentRadiusRatio;
+		
+		this.speedConverter = new PhysicsSpeedConverter();
+	}
+	
+	public PhysicsConfiguration(PhysicsConfiguration other) {
+		this.wallWidthRatio = other.wallWidthRatio;
+		this.pillRadiusRatio = other.pillRadiusRatio;
+		this.powerUpRadiusRatio = other.powerUpRadiusRatio;
+		this.agentRadiusRatio = other.agentRadiusRatio;
+		
+		this.speedConverter = new PhysicsSpeedConverter();
 	}
 
 	/**
@@ -90,7 +102,7 @@ public class PhysicsConfiguration {
 	 * @return squareSize - The size of each maze square.
 	 */
 	public float getSquareSize() {
-		return squareSize;
+		return speedConverter.getSquareSize();
 	}
 
 	/**
@@ -121,41 +133,36 @@ public class PhysicsConfiguration {
 	public float getPowerUpRadiusRatio() {
 		return powerUpRadiusRatio;
 	}
-
-	/**
-	 * Get the predatorSpeed.
-	 * 
-	 * @return predatorSpeed - The speed of all predator agents.
-	 */
-	public float getPredatorSpeed() {
-		return predatorSpeed;
-	}
-
-	/**
-	 * Get the preySpeed.
-	 * 
-	 * @return preySpeed - The speed of all prey agents.
-	 */
-	public float getPreySpeed() {
-		return preySpeed;
-	}
 	
 	/**
-	 * Set the squareSize.
+	 * Get the agentRadiusRatio.
 	 * 
-	 * @param squareSize - The size of each maze square.
+	 * @return agentRadiusRatio - How much of the space between the square's 
+	 * walls is occupied by an agent.
 	 */
-	@XmlElement (name = "SquareSize")
-	public void setSquareSize(float squareSize) {
-		this.squareSize = squareSize;
+	public float getAgentRadiusRatio() {
+		return agentRadiusRatio;
 	}
 
+	/**
+	 * Convert the provided index into the appropriate speed for the physics
+	 * simulation.
+	 * 
+	 * @return speed - The speed of an agent equivalent to the provided index.
+	 */
+	public float getSpeed(int speedIndex) {
+		return speedConverter.getSpeed(speedIndex);
+	}
+
+	public float getTimestep() {
+		return speedConverter.getTimestep();
+	}
+	
 	/**
 	 * Set the wallWidthRatio.
 	 * 
 	 * @param wallWidthRatio - How much of the square is occupied by the walls.
 	 */
-	@XmlElement (name = "WallWidthRatio")
 	public void setWallWidthRatio(float wallWidthRatio) {
 		this.wallWidthRatio = wallWidthRatio;
 	}
@@ -166,7 +173,6 @@ public class PhysicsConfiguration {
 	 * @param pillRadiusRatio - How much of the space between the square's 
 	 * walls is occupied by the pill.
 	 */
-	@XmlElement (name = "PillRadiusRatio")
 	public void setPillRadiusRatio(float pillRadiusRatio) {
 		this.pillRadiusRatio = pillRadiusRatio;
 	}
@@ -177,28 +183,21 @@ public class PhysicsConfiguration {
 	 * @param powerUpRadiusRatio - How much of the space between the square's 
 	 * walls is occupied by the power up.
 	 */
-	@XmlElement (name = "PowerUpRadiusRatio")
 	public void setPowerUpRadiusRatio(float powerUpRadiusRatio) {
 		this.powerUpRadiusRatio = powerUpRadiusRatio;
 	}
 	
 	/**
-	 * Set the predatorSpeed.
+	 * Set the agentRadiusRatio.
 	 * 
-	 * @param predatorSpeed - The speed of all predator agents.
+	 * @param agentRadiusRatio - How much of the space between the square's 
+	 * walls is occupied by an agent.
 	 */
-	@XmlElement (name = "PredatorSpeed")
-	public void setPredatorSpeed(float predatorSpeed) {
-		this.predatorSpeed = predatorSpeed;
+	public void setAgentRadiusRatio(float agentRadiusRatio) {
+		this.agentRadiusRatio = agentRadiusRatio;
 	}
-
-	/**
-	 * Set the preySpeed.
-	 * 
-	 * @param preySpeed - The speed of all prey agents.
-	 */
-	@XmlElement (name = "PreySpeed")
-	public void setPreySpeed(float preySpeed) {
-		this.preySpeed = preySpeed;
+	
+	public PhysicsSpeedConverter getSpeedConverter() {
+		return speedConverter;
 	}
 }

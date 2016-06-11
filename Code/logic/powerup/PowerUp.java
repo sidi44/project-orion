@@ -1,5 +1,12 @@
 package logic.powerup;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import logic.Agent;
+import logic.Predator;
+import logic.Prey;
+
 /**
  * Abstract class for power-ups for both prey and predators.
  * 
@@ -11,38 +18,17 @@ public abstract class PowerUp {
 	private final int timeLimit;
 	private int timeRemaining;
 	
+	private PowerUpTarget target;
+	
 	/**
 	 * Constructor for PowerUp.
 	 * 
 	 * @param timeLimit - the duration of the power up.
 	 */
-	public PowerUp(int timeLimit) {
+	public PowerUp(int timeLimit, PowerUpTarget target) {
 		this.timeLimit = timeLimit;
-	}
-	
-	/**
-	 * Gets the numerical value representing the powerup.
-	 * 
-	 * @return powerVal (int)
-	 */
-	public abstract int getPowerVal();
-	
-	/**
-	 * Gets the time limit for the powerup, i.e. duration.
-	 * 
-	 * @return timeLimit (int)
-	 */
-	public int getTimeLimit() {
-		return timeLimit;
-	}
-	
-	/**
-	 * Obtain the amount of time remaining for this power up.
-	 * 
-	 * @return the amount of time remaining for this power up.
-	 */
-	public int getTimeRemaining() {
-		return timeRemaining;
+		this.timeRemaining = -1;
+		this.target = target;
 	}
 	
 	/**
@@ -50,23 +36,88 @@ public abstract class PowerUp {
 	 * If the current time remaining is already zero, the time remaining is not
 	 * decreased.
 	 */
-	public void decrementTimeRemaining() {
+	public void update(List<Agent> allAgents) {
 		if (timeRemaining > 0) {
 			--timeRemaining;
+		}
+		if (timeRemaining == 0) {
+			deactivate(allAgents);
 		}
 	}
 	
 	/**
 	 * Activate this power up.
 	 */
-	public void activate() {
+	public void activate(List<Agent> allAgents) {
 		timeRemaining = timeLimit;
+		apply(allAgents);
 	}
+	
+	public boolean isActivated() {
+		return (timeRemaining > 0);
+	}
+	
+	protected abstract void deactivate(List<Agent> allAgents);
+	
+	protected List<Agent> filterToTarget(List<Agent> allAgents) {
+		
+		List<Agent> filtered = new ArrayList<Agent>();
+		
+		switch (target) {
+		
+			case AllPredators:
+				for (Agent agent : allAgents) {
+					if (agent instanceof Predator) {
+						filtered.add(agent);
+					}
+				}
+				break;
+				
+			case AllPrey:
+				for (Agent agent : allAgents) {
+					if (agent instanceof Prey) {
+						filtered.add(agent);
+					}
+				}
+				break;
+				
+			case Owner:
+				Agent owner = findOwner(allAgents);
+				if (owner != null) {
+					filtered.add(owner);
+				}
+				break;
+				
+			default:
+				throw new IllegalArgumentException("Unknown enum constant");
+		}
+		
+		return filtered;
+	}
+	
+	protected abstract void apply(List<Agent> allAgents);
 
+	protected Agent findOwner(List<Agent> allAgents) {
+		
+		Agent owner = null;
+		int num = 0;
+		for (Agent agent : allAgents) {
+			List<PowerUp> powerUps = agent.getActivatedPowerUps();
+			if (powerUps.contains(this)) {
+				owner = agent;
+				++num;
+			}
+		}
+		if (num != 1) {
+			System.err.println("A power up should have exactly one owner.");
+		}
+		
+		return owner;
+	}
+	
 	/**
 	 * Return the name of this power up. 
-	 * This should be the String representation of the enum type of the power 
-	 * up. 
+	 * This should be the String representation of the type of the power up. 
 	 * 
 	 * @return the name of this power up.
 	 */
