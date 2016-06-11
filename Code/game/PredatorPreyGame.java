@@ -2,6 +2,10 @@ package game;
 
 import java.util.List;
 
+import ai.AILogic;
+import data.DataManager;
+import data.GameDataManager;
+import data.PlayerProgress;
 import geometry.PointXY;
 import geometry.PolygonShape;
 import logic.Agent;
@@ -14,24 +18,20 @@ import logic.Predator;
 import logic.Prey;
 import physics.PhysicsConfiguration;
 import physics.PhysicsDebugType;
+import physics.PhysicsGameWorld;
 import physics.PhysicsProcessor;
 import physics.PhysicsProcessorBox2D;
 import render.Renderer;
 import render.RendererConfiguration;
 import ui.ScreenManager;
 import ui.ScreenName;
+import sound.SoundConfiguration;
 import sound.SoundManager;
-import xml.ConfigurationXMLParser;
-import ai.AILogic;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.World;
 
-public class PredatorPreyGame extends Game	 {
-
-	private World world;
+public class PredatorPreyGame extends Game implements GameStatus {
 
 	private GameLogic gameLogic;
 	private Renderer renderer;
@@ -45,46 +45,46 @@ public class PredatorPreyGame extends Game	 {
 	private ResultLogger logger;
 	
 	private ScreenManager screenManager;
+	private DataManager dataManager;
+	
+	private GameType gameType;
+	private int currentLevel;
 	
 	// Physics debug information
 	private final PhysicsDebugType debugType = PhysicsDebugType.DebugNone;
 	
 	@Override
 	public void create() {
-
-		String filename = "Configuration.xml";
-		String schemaFilename = "Configuration.xsd";
-		ConfigurationXMLParser xmlParser = 
-				new ConfigurationXMLParser(filename, schemaFilename);
-		xmlParser.parseXML();
-		gameConfig = xmlParser.getGameConfig();
-		physicsConfig = xmlParser.getPhysicsConfig();
-		rendererConfig = xmlParser.getRendererConfig();
-
-		// Create the world.
-		Vector2 gravity = new Vector2(0f, 0f);
-		boolean doSleep = true;
-		world = new World(gravity, doSleep);
-
+		
+		gameType = GameType.NotPlaying;
+		currentLevel = -1;
+		
+		dataManager = new GameDataManager();
+		rendererConfig = dataManager.getRendererConfig();
+		
+		// Create dummy game and physics configuration class. These will be 
+		// replaced for the actual level / sandbox versions via the UI.
+		gameConfig = new GameConfiguration();
+		physicsConfig = new PhysicsConfiguration();
+		
 		gameLogic = new GameLogic(gameConfig);
 
-		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
+		physProc = new PhysicsProcessorBox2D(gameLogic.getGameState(), 
 				physicsConfig);
 		physProc.setDebugCategory(debugType);
 		
 		renderer = new Renderer(false, false);
-		
 		renderer.loadTextures(rendererConfig);
 
-//		Gdx.input.setInputProcessor(inputMultiplexer);
-//		setScreen(getScreenByName("SPLASH"));
+		SoundConfiguration soundConfig = dataManager.getSoundConfiguration();
+		soundManager = new SoundManager(soundConfig, this);
+		physProc.addReceiver(soundManager);
+		
 		screenManager = new ScreenManager(this);
 		screenManager.changeScreen(ScreenName.Splash);
+		screenManager.addReceiver(soundManager);
 		
 		logger = new ResultLogger();
-		
-		soundManager = new SoundManager();
-		physProc.addReceiver(soundManager);
 	}
 
 	public void setAI(AILogic ai) {
@@ -99,28 +99,16 @@ public class PredatorPreyGame extends Game	 {
 		return gameLogic;
 	}
 	
-	public World getWorld() {
-		return world;
-	}
-	
-	/**
-	 * Adds an input processer to the input multiplexer if it hasn't been 
-	 * already added. Throws an exception 
-	 * @param inputProc - the input processor.
-	 */
-	public void addInputProcessor(InputProcessor inputProc) {
-		
-//		if (inputProc == null) {
-//			throw new IllegalArgumentException("Input processor can't be null");
-//		}
-//		
-//		if (!inputMultiplexer.getProcessors().contains(inputProc, true)) {
-//			inputMultiplexer.addProcessor(inputProc);
-//		}
+	public PhysicsGameWorld getWorld() {
+		return physProc.getWorld();
 	}
 	
 	public PhysicsProcessor getPhysicsProcessor() {
 		return physProc;
+	}
+	
+	public DataManager getDataManager() {
+		return dataManager;
 	}
 	
 	public ResultLogger getLogger() {
@@ -136,11 +124,8 @@ public class PredatorPreyGame extends Game	 {
 	}
 	
 	public void resetGame() {
-		Vector2 gravity = new Vector2(0f, 0f);
-		boolean doSleep = true;
-		world = new World(gravity, doSleep);
 		gameLogic = new GameLogic(gameConfig);
-		physProc = new PhysicsProcessorBox2D(world, gameLogic.getGameState(), 
+		physProc = new PhysicsProcessorBox2D(gameLogic.getGameState(), 
 				physicsConfig);
 		physProc.setDebugCategory(debugType);
 		physProc.addReceiver(soundManager);
@@ -182,4 +167,78 @@ public class PredatorPreyGame extends Game	 {
 		gameLogic.setNonPlayerMoves();
 	}
 	
+	public void setGameTypeLevel(int levelNumber) {
+		gameType = GameType.Levels;
+		currentLevel = levelNumber;
+		gameConfig = dataManager.getGameConfig(levelNumber);
+		physicsConfig = dataManager.getPhysicsConfig(levelNumber);
+		resetGame();
+	}
+	
+	public void setGameTypeSandbox() {
+		gameType = GameType.Sandbox;
+		currentLevel = -1;
+		gameConfig = dataManager.getGameConfigSandbox();
+		physicsConfig = dataManager.getPhysicsConfigSandbox();
+		resetGame();
+	}
+	
+	public void gameOver(GameOver reason) {
+		
+		// Check whether the player was playing a in level mode and whether 
+		// they won.
+		if (gameType == GameType.Levels && reason == GameOver.Prey) {
+			
+			// The player completed the level. Update their progress
+			PlayerProgress progress = dataManager.getPlayerProgress();
+			
+			// Unlock the next level
+			progress.setLevelLocked(currentLevel + 1, false);
+			
+			// TODO Save the score here as well
+			
+			
+			// Save the player progress
+			dataManager.savePlayerProgress();
+		}
+		
+		// Work out which screen we should change to depending on the game type
+		GameType type = getGameType();
+		ScreenName name = ScreenName.MainMenu;
+		switch (type) {
+			case Levels:
+				name = ScreenName.Levels;
+				break;
+			case Sandbox:
+				name = ScreenName.Sandbox;
+				break;
+			case NotPlaying:
+			default:
+				// We're leaving a game but not in a game mode. This is strange.
+				System.err.println("How did we get here?");
+				break;			
+		}
+		
+		// We're no longer playing a game (i.e. back in the menu screens)
+		gameType = GameType.NotPlaying;
+		currentLevel = -1;
+		
+		// Change the screen now
+		screenManager.changeScreen(name);
+	}
+	
+	public void updateSoundManager() {
+		SoundConfiguration config = getDataManager().getSoundConfiguration();
+		soundManager.update(config);
+	}
+
+	@Override
+	public GameType getGameType() {
+		return gameType;
+	}
+	
+	@Override
+	public int getLevelNumber() {
+		return currentLevel;
+	}
 }

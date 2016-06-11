@@ -1,8 +1,6 @@
 package ui;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -13,8 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 
 import functional.Consumer;
 import functional.IntConsumer;
@@ -41,12 +37,10 @@ abstract class MenuScreen extends AbstractScreen {
 	protected Button createScreenChangeButton(String text, final ScreenName name) {
 
 		Button button = new TextButton(text, getSkin());
-		button.getStyle().disabled = getDrawable("button_next.png");
 		button.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-		       button.setDisabled(true);
-//				getManager().changeScreen(name);
+				getManager().changeScreen(name);
 			}
 		});
 		
@@ -96,11 +90,6 @@ abstract class MenuScreen extends AbstractScreen {
 		
 		// That's it
 		return slider;
-	}
-	
-	private Drawable getDrawable(String filepath) {
-	    Sprite sprite = new Sprite(new Texture(Gdx.files.internal(filepath)));
-	    return new SpriteDrawable(sprite);
 	}
 	
 }

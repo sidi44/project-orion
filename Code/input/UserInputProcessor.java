@@ -8,36 +8,37 @@ import logic.Move;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.input.GestureDetector.GestureListener;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
-public class UserInputProcessor implements InputProcessor {
+public class UserInputProcessor implements InputProcessor, GestureListener {
 
 	private Move mMove;
-	private final LinkedList<Direction> mPressedMoveKeys;
+	private Direction mPressedMove;
 	private boolean mPressedEnter;
 	
 	// Camera movement
 	private boolean mCamZoomChanged;
 	private float mCamDeltaZoom;
 
-	private final float mCamMoveSize = 0.05f;
-	private final float mCamZoomSize = 0.05f;
+	private final float mCamMoveSize = 0.2f;
+	private final float mCamZoomSize = 0.2f;
 	public final LinkedList<Direction> mPressedCamKeys;
 
-	public UserInputProcessor() {
+	private CameraAccessor mCameraAccessor;
+	
+	public UserInputProcessor(CameraAccessor ca) {
 		mMove = new Move();
-		mPressedMoveKeys = new LinkedList<Direction>();
+		mPressedMove = Direction.None;
 		mPressedCamKeys = new LinkedList<Direction>();
 		mPressedEnter = false;
+		mCameraAccessor = ca;
 	}
 
 	public Move getNextMove() {
 		
-		if ( mPressedMoveKeys.isEmpty() ) {
-			mMove.setDirection( Direction.None );
-		}
-		else {
-			mMove.setDirection( mPressedMoveKeys.getLast() );
-		}
+		mMove.setDirection(mPressedMove);
 		mMove.setUsePowerUp(mPressedEnter);
 		mPressedEnter = false;
 		
@@ -82,46 +83,47 @@ public class UserInputProcessor implements InputProcessor {
 		
 		switch (keycode) {
 
-		case Input.Keys.LEFT:
-			mPressedMoveKeys.add( Direction.Left );
-			break;
-
-		case Input.Keys.RIGHT:
-			mPressedMoveKeys.add( Direction.Right );
-			break;
-
-		case Input.Keys.UP:
-			mPressedMoveKeys.add( Direction.Up );
-			break;
-
-		case Input.Keys.DOWN:
-			mPressedMoveKeys.add( Direction.Down );
-			break;
-			
-		case Input.Keys.ENTER:
-			mPressedEnter = true;
-			break;
-
-		// Camera movements inputs
-		case Input.Keys.A:
-			mPressedCamKeys.add( Direction.Left );
-			break;
-
-		case Input.Keys.D:
-			mPressedCamKeys.add( Direction.Right );
-			break;
-
-		case Input.Keys.W:
-			mPressedCamKeys.add( Direction.Up );
-			break;
-
-		case Input.Keys.S:
-			mPressedCamKeys.add( Direction.Down );
-			break;
-
-		default:
-			keyProcessed = false;
-			break;
+			// Player movement inputs
+			case Input.Keys.LEFT:
+				mPressedMove = Direction.Left;
+				break;
+	
+			case Input.Keys.RIGHT:
+				mPressedMove = Direction.Right;
+				break;
+	
+			case Input.Keys.UP:
+				mPressedMove = Direction.Up;
+				break;
+	
+			case Input.Keys.DOWN:
+				mPressedMove = Direction.Down;
+				break;
+				
+			case Input.Keys.ENTER:
+				mPressedEnter = true;
+				break;
+	
+			// Camera movements inputs
+			case Input.Keys.A:
+				mPressedCamKeys.add( Direction.Left );
+				break;
+	
+			case Input.Keys.D:
+				mPressedCamKeys.add( Direction.Right );
+				break;
+	
+			case Input.Keys.W:
+				mPressedCamKeys.add( Direction.Up );
+				break;
+	
+			case Input.Keys.S:
+				mPressedCamKeys.add( Direction.Down );
+				break;
+	
+			default:
+				keyProcessed = false;
+				break;
 		}
 
 		return keyProcessed;
@@ -133,42 +135,26 @@ public class UserInputProcessor implements InputProcessor {
 		boolean keyProcessed = true;
 
 		switch (keycode) {
-		case Input.Keys.LEFT:
-			mPressedMoveKeys.remove( Direction.Left );
-			break;
+			// Camera movement inputs
+			case Input.Keys.A:
+				mPressedCamKeys.remove( Direction.Left );
+				break;
+	
+			case Input.Keys.D:
+				mPressedCamKeys.remove( Direction.Right );
+				break;
+	
+			case Input.Keys.W:
+				mPressedCamKeys.remove( Direction.Up );
+				break;
+	
+			case Input.Keys.S:
+				mPressedCamKeys.remove( Direction.Down );
+				break;
 
-		case Input.Keys.RIGHT:
-			mPressedMoveKeys.remove( Direction.Right );
-			break;
-
-		case Input.Keys.UP:
-			mPressedMoveKeys.remove( Direction.Up );
-			break;
-
-		case Input.Keys.DOWN:
-			mPressedMoveKeys.remove (Direction.Down );
-			break;
-
-		// Camera movement inputs
-		case Input.Keys.A:
-			mPressedCamKeys.remove( Direction.Left );
-			break;
-
-		case Input.Keys.D:
-			mPressedCamKeys.remove( Direction.Right );
-			break;
-
-		case Input.Keys.W:
-			mPressedCamKeys.remove( Direction.Up );
-			break;
-
-		case Input.Keys.S:
-			mPressedCamKeys.remove( Direction.Down );
-			break;
-
-		default:
-			keyProcessed = false;
-			break;
+			default:
+				keyProcessed = false;
+				break;
 
 		}
 		return keyProcessed;
@@ -181,8 +167,23 @@ public class UserInputProcessor implements InputProcessor {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		System.out.println("Event received by " + this.getClass().getSimpleName());
-		return false;
+//		Vector3 screenCoords = new Vector3(screenX, screenY, 0);
+//		Vector3 worldCoords = mCameraAccessor.screenToWorld(screenCoords);
+//		Vector3 camPos = mCameraAccessor.cameraPosition();
+//		
+//		if (worldCoords.x <= 1 * (camPos.x / 2)) {
+//			mPressedMove = Direction.Left;
+//		} else if (worldCoords.x >= 3 * (camPos.x / 2)) {
+//			mPressedMove = Direction.Right;
+//		} else if (worldCoords.y <= camPos.y) {
+//			mPressedMove = Direction.Down;
+//		} else if (worldCoords.y > camPos.y) {
+//			mPressedMove = Direction.Up;
+//		} else {
+			return false;
+//		}
+//		
+//		return true;
 	}
 
 	@Override
@@ -211,6 +212,71 @@ public class UserInputProcessor implements InputProcessor {
 		mCamZoomChanged = true;
 
 		return true;
+	}
+	
+	public void reset() {
+		mPressedMove = Direction.None;
+		mPressedCamKeys.clear();
+	}
+
+	@Override
+	public boolean touchDown(float x, float y, int pointer, int button) {
+		return false;
+	}
+
+	@Override
+	public boolean tap(float x, float y, int count, int button) {
+		if (count == 2) {
+			mPressedEnter = true;
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean longPress(float x, float y) {
+		return false;
+	}
+
+	@Override
+	public boolean fling(float velocityX, float velocityY, int button) {
+		
+		if (Math.abs(velocityX) > Math.abs(velocityY)) {
+			if (velocityX > 0) {
+				mPressedMove = Direction.Right;
+			} else {
+				mPressedMove = Direction.Left;
+			}
+		} else {
+			if (velocityY > 0) {
+				mPressedMove = Direction.Down;
+			} else {
+				mPressedMove = Direction.Up;
+			}
+		}
+		
+		return true;
+	}
+
+	@Override
+	public boolean pan(float x, float y, float deltaX, float deltaY) {
+		return false;
+	}
+
+	@Override
+	public boolean panStop(float x, float y, int pointer, int button) {
+		return false;
+	}
+
+	@Override
+	public boolean zoom(float initialDistance, float distance) {
+		return false;
+	}
+
+	@Override
+	public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2,
+			Vector2 pointer1, Vector2 pointer2) {
+		return false;
 	}
 
 }

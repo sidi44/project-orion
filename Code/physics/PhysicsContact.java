@@ -21,7 +21,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
  * @author Simon Dicken
  * @version 2015-12-28
  */
-public class PhysicsContact implements ContactListener {
+class PhysicsContact implements ContactListener {
 
 	private PhysicsProcessor physProc;
 	
@@ -55,14 +55,12 @@ public class PhysicsContact implements ContactListener {
 		// Get the UserData and the body type associated with the two colliding
 		// fixtures.
 		Fixture fix1 = contact.getFixtureA();
-		Body body1 = fix1.getBody();
-		PhysicsData data1 = (PhysicsData) body1.getUserData();
-		PhysicsBodyType type1 = data1.getType();
+		PhysicsBody body1 = getBodyFromFixture(fix1);
+		PhysicsBodyType type1 = body1.getType();
 		
 		Fixture fix2 = contact.getFixtureB();
-		Body body2 = fix2.getBody();
-		PhysicsData data2 = (PhysicsData) body2.getUserData();
-		PhysicsBodyType type2 = data2.getType();
+		PhysicsBody body2 = getBodyFromFixture(fix2);
+		PhysicsBodyType type2 = body2.getType();
 		
 		// Based on the body types, set the appropriate body in the collision to
 		// be deleted. If either of the colliding fixtures are walls, just 
@@ -72,48 +70,46 @@ public class PhysicsContact implements ContactListener {
 		} else if ((type1 == PhysicsBodyType.Prey && 
 					type2 == PhysicsBodyType.Pill)) {
 			
-			data2.setFlaggedForDelete(true);
+			body2.setFlaggedForDelete();
 		
 		} else if ((type1 == PhysicsBodyType.Pill && 
 					type2 == PhysicsBodyType.Prey)) {
 			
-			data1.setFlaggedForDelete(true);
+			body1.setFlaggedForDelete();
 			
 		} else if ((type1 == PhysicsBodyType.Predator && 
 					type2 == PhysicsBodyType.Prey)) {
 			
-			data2.setFlaggedForDelete(true);
+			body2.setFlaggedForDelete();
 			
 		} else if ((type1 == PhysicsBodyType.Prey && 
 					type2 == PhysicsBodyType.Predator)) {
 			
-			data1.setFlaggedForDelete(true);
+			body1.setFlaggedForDelete();
 			
 		} else if ((type1 == PhysicsBodyType.Predator &&
 					type2 == PhysicsBodyType.PowerUpPredator)) {
 
-			data2.setFlaggedForDelete(true);
-			PhysicsDataAgent agentData = (PhysicsDataAgent) data1;
-			PhysicsDataPowerUp powerUpData = (PhysicsDataPowerUp) data2;
-			powerUpData.setAgentID(agentData.getID());
+			PhysicsBodyAgent agent = (PhysicsBodyAgent) body1;
+			PhysicsBodyPowerUp powerUp = (PhysicsBodyPowerUp) body2;
+			collectPowerUp(agent, powerUp);
 
 		} else if ((type1 == PhysicsBodyType.PowerUpPredator &&
 					type2 == PhysicsBodyType.Predator)) {
 
-			data1.setFlaggedForDelete(true);
-			PhysicsDataAgent agentData = (PhysicsDataAgent) data2;
-			PhysicsDataPowerUp powerUpData = (PhysicsDataPowerUp) data1;
-			powerUpData.setAgentID(agentData.getID());
+			PhysicsBodyAgent agent = (PhysicsBodyAgent) body2;
+			PhysicsBodyPowerUp powerUp = (PhysicsBodyPowerUp) body1;
+			collectPowerUp(agent, powerUp);
 
 		} else if ((type1 == PhysicsBodyType.Prey &&
 					type2 == PhysicsBodyType.PowerUpPrey)) {
 
-			data2.setFlaggedForDelete(true);
+			body2.setFlaggedForDelete();
 
 		} else if ((type1 == PhysicsBodyType.PowerUpPrey &&
 					type2 == PhysicsBodyType.Prey)) {
 
-			data1.setFlaggedForDelete(true);
+			body1.setFlaggedForDelete();
 		}
 		
 		contact.setEnabled(false);
@@ -127,5 +123,18 @@ public class PhysicsContact implements ContactListener {
 	public void postSolve(Contact contact, ContactImpulse impulse) {
 
 	}
+	
+	private PhysicsBody getBodyFromFixture(Fixture fix) {
+		Body body = fix.getBody();
+		PhysicsData data = (PhysicsData) body.getUserData();
+		PhysicsBody parent = data.getParent();
+		return parent;
+	}
 
+	private void collectPowerUp(PhysicsBodyAgent agent, 
+			PhysicsBodyPowerUp powerUp) {
+		powerUp.setAgentID(agent.getAgent().getID());
+		powerUp.setFlaggedForDelete();
+	}
+	
 }

@@ -31,7 +31,7 @@ import logic.Prey;
  * path to the nearest Pill and heads in that direction.
  * 
  * @author Simon Dicken
- * @version 2015-05-31
+ * @version 2015-12-28
  */
 public class AILogicSimple implements AILogic {
 
@@ -85,10 +85,6 @@ public class AILogicSimple implements AILogic {
 	
 	private void calcNextMovePredator(Agent agent, GameState state) {
 		
-		if (agent.isInTransition()) {
-			return;
-		}
-		
 		// Find the closest prey.
 		Path closestPreyPath = findClosestPreyPath(agent, state);
 		
@@ -101,10 +97,6 @@ public class AILogicSimple implements AILogic {
 	}
 	
 	private void calcNextMovePrey(Agent agent, GameState state) {
-		
-		if (agent.isInTransition()) {
-			return;
-		}
 		
 		// Find the closest Predator.
 		Path closestPredatorPath = findClosestPredatorPath(agent, state);
