@@ -160,7 +160,7 @@
 	        <AnimationGroupName>Prey</AnimationGroupName>
 	        <Rows>1</Rows>
 	        <Columns>20</Columns>
-	        <Filename>Prey_Square_Multiple_Lines.png</Filename>
+	        <Filename>Prey_Square_Single_Line.png</Filename>
 	        <AnimationDefinition>
 	            <AnimationName>DOWN-STOP</AnimationName>
 	            <StartFrame>1</StartFrame>
@@ -270,5 +270,59 @@
 	            <FrameDuration>1</FrameDuration>
 	        </AnimationDefinition>
 	   	</AnimationGroupDefinition>
+	   	<AnimationGroupDefinition>
+	        <AnimationGroupName>SpeedUpEffect</AnimationGroupName>
+	        <Rows>4</Rows>
+	        <Columns>4</Columns>
+	        <Filename>Effect_SpeedUp_Multiple_Lines.png</Filename>
+	        <AnimationDefinition>
+	            <AnimationName>DOWN-STOP</AnimationName>
+	            <StartFrame>9</StartFrame>
+	            <EndFrame>12</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>DOWN</AnimationName>
+	            <StartFrame>9</StartFrame>
+	            <EndFrame>12</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>UP-STOP</AnimationName>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>4</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>UP</AnimationName>
+	            <StartFrame>1</StartFrame>
+	            <EndFrame>4</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>LEFT-STOP</AnimationName>
+	            <StartFrame>13</StartFrame>
+	            <EndFrame>16</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>LEFT</AnimationName>
+	            <StartFrame>13</StartFrame>
+	            <EndFrame>16</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>RIGHT-STOP</AnimationName>
+	            <StartFrame>9</StartFrame>
+	            <EndFrame>12</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>RIGHT</AnimationName>
+	            <StartFrame>9</StartFrame>
+	            <EndFrame>12</EndFrame>
+	            <FrameDuration>0.05</FrameDuration>
+	        </AnimationDefinition>
+	    </AnimationGroupDefinition>
 	</RendererConfiguration>
 </Configuration>

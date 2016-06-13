@@ -10,7 +10,7 @@ public class PowerUpTeleport extends PowerUp {
 	private final PointXY teleportPoint;
 
 	public PowerUpTeleport(PointXY teleportPoint) {
-		super(1, PowerUpTarget.Owner);
+		super(1, PowerUpTarget.Owner, PowerUpType.Teleport);
 		this.teleportPoint = teleportPoint;
 	}
 	
@@ -37,7 +37,7 @@ public class PowerUpTeleport extends PowerUp {
 	}
 
 	@Override
-	protected void deactivate(List<Agent> allAgents) {
+	protected void unapply(List<Agent> allAgents) {
 		// Nothing to for this power up
 	}
 	

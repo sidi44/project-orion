@@ -17,6 +17,7 @@ public abstract class PowerUp {
 	
 	private final int timeLimit;
 	private int timeRemaining;
+	private final PowerUpType type;
 	
 	private PowerUpTarget target;
 	
@@ -25,10 +26,11 @@ public abstract class PowerUp {
 	 * 
 	 * @param timeLimit - the duration of the power up.
 	 */
-	public PowerUp(int timeLimit, PowerUpTarget target) {
+	public PowerUp(int timeLimit, PowerUpTarget target, PowerUpType type) {
 		this.timeLimit = timeLimit;
 		this.timeRemaining = -1;
 		this.target = target;
+		this.type = type;
 	}
 	
 	/**
@@ -51,13 +53,27 @@ public abstract class PowerUp {
 	public void activate(List<Agent> allAgents) {
 		timeRemaining = timeLimit;
 		apply(allAgents);
+		List<Agent> toApply = filterToTarget(allAgents);
+		for (Agent agent : toApply) {
+			agent.powerUpApplied(this);
+		}
 	}
 	
 	public boolean isActivated() {
 		return (timeRemaining > 0);
 	}
 	
-	protected abstract void deactivate(List<Agent> allAgents);
+	public PowerUpTarget getTarget() {
+		return target;
+	}
+	
+	protected void deactivate(List<Agent> allAgents) {
+		unapply(allAgents);
+		List<Agent> toApply = filterToTarget(allAgents);
+		for (Agent agent : toApply) {
+			agent.powerUpTerminated(this);
+		}
+	}
 	
 	protected List<Agent> filterToTarget(List<Agent> allAgents) {
 		
@@ -97,6 +113,8 @@ public abstract class PowerUp {
 	
 	protected abstract void apply(List<Agent> allAgents);
 
+	protected abstract void unapply(List<Agent> allAgents);
+	
 	protected Agent findOwner(List<Agent> allAgents) {
 		
 		Agent owner = null;
@@ -113,6 +131,10 @@ public abstract class PowerUp {
 		}
 		
 		return owner;
+	}
+	
+	public PowerUpType getType() {
+		return type;
 	}
 	
 	/**
@@ -137,29 +159,27 @@ public abstract class PowerUp {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((target == null) ? 0 : target.hashCode());
 		result = prime * result + timeLimit;
 		result = prime * result + timeRemaining;
 		return result;
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (!(obj instanceof PowerUp)) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		PowerUp other = (PowerUp) obj;
-		if (timeLimit != other.timeLimit) {
+		if (target != other.target)
 			return false;
-		}
-		if (timeRemaining != other.timeRemaining) {
+		if (timeLimit != other.timeLimit)
 			return false;
-		}
+		if (timeRemaining != other.timeRemaining)
+			return false;
 		return true;
 	}
 	
