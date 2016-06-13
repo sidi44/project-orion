@@ -32,6 +32,7 @@ public abstract class Agent {
 	// PowerUps
 	private final List<PowerUp> storedPowerUps;
 	private final List<PowerUp> activatedPowerUps;
+	private final List<PowerUp> powerUpsAppliedToMe;
 	private int selectedPowerUp;
 	private final int maxPowerUp;
 	private final boolean stacking;
@@ -62,6 +63,7 @@ public abstract class Agent {
 		
 		this.storedPowerUps = new ArrayList<PowerUp>();
 		this.activatedPowerUps = new ArrayList<PowerUp>();
+		this.powerUpsAppliedToMe = new ArrayList<PowerUp>();
 		this.selectedPowerUp = -1;
 		this.stacking = false;
 		this.maxPowerUp  = maxPowerUp;
@@ -250,6 +252,18 @@ public abstract class Agent {
 		
 		return success;
 		
+	}
+	
+	public void powerUpApplied(PowerUp powerUp) {
+		powerUpsAppliedToMe.add(powerUp);
+	}
+	
+	public void powerUpTerminated(PowerUp powerUp) {
+		powerUpsAppliedToMe.remove(powerUp);
+	}
+	
+	public List<PowerUp> getPowerUpsAppliedToMe() {
+		return powerUpsAppliedToMe;
 	}
 	
 	/**

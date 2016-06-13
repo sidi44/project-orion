@@ -16,7 +16,7 @@ public class PowerUpFreeze extends PowerUpWithStrength {
 	 * Constructor for PowerUpFreeze.
 	 */
 	public PowerUpFreeze(PowerUpTarget target, int strength) {
-		super(target, strength);
+		super(target, strength, PowerUpType.Freeze);
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class PowerUpFreeze extends PowerUpWithStrength {
 	}
 
 	@Override
-	protected void deactivate(List<Agent> allAgents) {
+	protected void unapply(List<Agent> allAgents) {
 		List<Agent> toApply = filterToTarget(allAgents);
 		for (Agent agent : toApply) {
 			agent.setVariableSpeedIndex(0);

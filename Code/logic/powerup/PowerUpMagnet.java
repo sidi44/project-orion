@@ -21,7 +21,7 @@ public class PowerUpMagnet extends PowerUpWithStrength {
 	 * @param range - the range of the magnet in maze squares.
 	 */
 	public PowerUpMagnet(PowerUpTarget target, int strength) {
-		super(target, strength);
+		super(target, strength, PowerUpType.Magnet);
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class PowerUpMagnet extends PowerUpWithStrength {
 	}
 	
 	@Override
-	protected void deactivate(List<Agent> allAgents) {
+	protected void unapply(List<Agent> allAgents) {
 		List<Agent> toApply = filterToTarget(allAgents);
 		for (Agent agent : toApply) {
 			agent.setMagnet(null);

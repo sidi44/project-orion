@@ -222,5 +222,61 @@
 				}
 			]
 		}
+		{
+			animationGroupName: SpeedUpEffect
+			rows: 4
+			columns: 4
+			filename: Effect_SpeedUp_Multiple_Lines.png
+			animationDefinitions: [
+				{
+					animationName: UP-STOP
+					startFrame: 1
+					endFrame: 1
+					frameDuration: 1
+				}
+				{
+					animationName: UP
+					startFrame: 1
+					endFrame: 4
+					frameDuration: 0.1
+				}
+				{
+					animationName: RIGHT-STOP
+					startFrame: 5
+					endFrame: 5
+					frameDuration: 1
+				}
+				{
+					animationName: RIGHT
+					startFrame: 5
+					endFrame: 8
+					frameDuration: 0.1
+				}
+				{
+					animationName: DOWN-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: DOWN
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.1
+				}
+				{
+					animationName: LEFT-STOP
+					startFrame: 13
+					endFrame: 13
+					frameDuration: 1
+				}
+				{
+					animationName: LEFT
+					startFrame: 13
+					endFrame: 16
+					frameDuration: 0.1
+				}
+			]
+		}
 	]
 }
