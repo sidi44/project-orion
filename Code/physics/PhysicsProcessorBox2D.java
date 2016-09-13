@@ -510,8 +510,9 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 		List<Agent> allAgents = state.getAgents();
 		
 		if (move.getUsePowerUp()) {
-			move.setUsePowerUp(false);
-			agent.activatePowerUp(allAgents);
+			int index = move.getUsePowerUpIndex();
+			move.setUsePowerUpIndex(-1);
+			agent.activatePowerUp(index, allAgents);
 			checkForPositionChange();
 			jogAgents(state);
 		}
@@ -579,7 +580,7 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 					(PhysicsBodyPowerUp) physicsBody;
 				int preyID2 = preyPowerUp.getAgentID();
 				PointXY preyPowerUpPos = getPosition(physicsBody);
-				state.predatorPowerUpCollected(preyID2, preyPowerUpPos);
+				state.preyPowerUpCollected(preyID2, preyPowerUpPos);
 
 			case PowerUpPredator:
 				PhysicsBodyPowerUp predPowerUp = 

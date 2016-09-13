@@ -25,7 +25,7 @@ public class AgentConfig {
 	public AgentConfig() {
 		this.numPred = 1;
 		this.numPredPlayer = 1;
-		this.maxPredPowerUp = 5;
+		this.maxPredPowerUp = 3;
 		this.predBaseSpeedIndex = 4;
 		this.numPrey = 5;
 		this.numPreyPlayer = 0;
