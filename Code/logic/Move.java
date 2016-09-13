@@ -13,7 +13,7 @@ package logic;
 public class Move {
 
 	private Direction dir;
-	private boolean usePowerUp;
+	private int usePowerUpIndex;
 	
 	/**
 	 * Constructor for Move.
@@ -22,7 +22,7 @@ public class Move {
 	 */
 	public Move(Direction dir) {
 		this.dir = dir;
-		this.usePowerUp = false;
+		this.usePowerUpIndex = -1;
 	}
 	
 	/**
@@ -32,7 +32,7 @@ public class Move {
 	 */
 	public Move() {
 		this.dir = Direction.None;
-		this.usePowerUp = false;
+		this.usePowerUpIndex = -1;
 	}
 	
 	/**
@@ -59,15 +59,26 @@ public class Move {
 	 * @return true if the move includes using a power up.
 	 */
 	public boolean getUsePowerUp() {
-		return usePowerUp;
+		return usePowerUpIndex != -1;
 	}
 
 	/**
-	 * Set whether the move includes using a power up.
+	 * Get the index of the power up to use this move.
 	 * 
-	 * @param usePowerUp - true if the move should include using a power up.
+	 * @return the index of the power up to use this move.
 	 */
-	public void setUsePowerUp(boolean usePowerUp) {
-		this.usePowerUp = usePowerUp;
+	public int getUsePowerUpIndex() {
+		return usePowerUpIndex;
+	}
+	
+	/**
+	 * Set the power up index for this move.
+	 * Set this to -1 to indicate that no power up should be used this move.
+	 * 
+	 * @param powerUpIndex - the index of the agent's stored power up to use 
+	 * this move. 
+	 */
+	public void setUsePowerUpIndex(int powerUpIndex) {
+		this.usePowerUpIndex = powerUpIndex;
 	}
 }

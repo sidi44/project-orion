@@ -41,6 +41,19 @@ public class GameDataManager implements DataManager {
 	private final String SOUNDS_PREFS = "sounds";
 	private final String SANDBOX_PREFS = "sandbox";
 	
+	// Sandbox preferences
+	private final String PREF_SANDBOX_MAZE_WIDTH = "mazewidth";
+	private final String PREF_SANDBOX_MAZE_HEIGHT = "mazeheight";
+	private final String PREF_SANDBOX_NUM_PREY = "numprey";
+	private final String PREF_SANDBOX_PREDATOR_SPEED = "predatorspeed";
+	private final String PREF_SANDBOX_PREY_SPEED = "preyspeed";
+	
+	// Sound preferences
+	private final String PREF_SOUND_PLAY_SOUNDS = "playsounds";
+	private final String PREF_SOUND_PLAY_MUSIC = "playmusic";
+	private final String PREF_SOUND_SOUND_LEVEL = "soundlevel";
+	private final String PREF_SOUND_MUSIC_LEVEL = "musiclevel";
+	
 	
 	public GameDataManager() {
 		
@@ -266,10 +279,10 @@ public class GameDataManager implements DataManager {
 		// Now get the required values from the sandbox configuration, using the 
 		// default value if none exists in the preferences
 		int defaultMazeWidth = defaultSandboxConfig.getMazeWidth();
-		int mazeWidth = prefs.getInteger("mazewidth", defaultMazeWidth);
+		int mazeWidth = prefs.getInteger(PREF_SANDBOX_MAZE_WIDTH, defaultMazeWidth);
 		
 		int defaultMazeHeight = defaultSandboxConfig.getMazeHeight();
-		int mazeHeight = prefs.getInteger("mazeheight", defaultMazeHeight);
+		int mazeHeight = prefs.getInteger(PREF_SANDBOX_MAZE_HEIGHT, defaultMazeHeight);
 		
 		List<PointXY> mazePoints = new ArrayList<PointXY>();
 		mazePoints.add(new PointXY(0, 0));
@@ -292,18 +305,18 @@ public class GameDataManager implements DataManager {
 		// TODO Replace max power up values with data read from the sandbox config
 		AgentConfig agentConfig = new AgentConfig();
 		int defaultNumPrey = defaultSandboxConfig.getNumPrey();
-		int numPrey = prefs.getInteger("numprey", defaultNumPrey);
+		int numPrey = prefs.getInteger(PREF_SANDBOX_NUM_PREY, defaultNumPrey);
 		agentConfig.setNumPrey(numPrey);
 		
 		int defaultPredatorSpeedIndex = 
 				defaultSandboxConfig.getPredatorSpeedIndex();
 		int predatorSpeedIndex = 
-				prefs.getInteger("predatorspeed", defaultPredatorSpeedIndex);
+				prefs.getInteger(PREF_SANDBOX_PREDATOR_SPEED, defaultPredatorSpeedIndex);
 		agentConfig.setPredBaseSpeedIndex(predatorSpeedIndex);
 		
 		int defaultPreySpeedIndex = defaultSandboxConfig.getPreySpeedIndex();
 		int preySpeedIndex = 
-				prefs.getInteger("preyspeed", defaultPreySpeedIndex);
+				prefs.getInteger(PREF_SANDBOX_PREY_SPEED, defaultPreySpeedIndex);
 		agentConfig.setPreyBaseSpeedIndex(preySpeedIndex);
 		
 		// Use the default power up config for now
@@ -325,19 +338,19 @@ public class GameDataManager implements DataManager {
 		Preferences prefs = getSandboxPrefs();
 		
 		int defaultPredatorSpeed = defaultSandboxConfig.getPredatorSpeedIndex();
-		int predatorSpeed = prefs.getInteger("predatorspeed", defaultPredatorSpeed);
+		int predatorSpeed = prefs.getInteger(PREF_SANDBOX_PREDATOR_SPEED, defaultPredatorSpeed);
 		
 		int defaultPreySpeed = defaultSandboxConfig.getPreySpeedIndex();
-		int preySpeed = prefs.getInteger("preyspeed", defaultPreySpeed);
+		int preySpeed = prefs.getInteger(PREF_SANDBOX_PREY_SPEED, defaultPreySpeed);
 		
 		int defaultMazeWidth = defaultSandboxConfig.getMazeWidth();
-		int mazeWidth = prefs.getInteger("mazewidth", defaultMazeWidth);
+		int mazeWidth = prefs.getInteger(PREF_SANDBOX_MAZE_WIDTH, defaultMazeWidth);
 		
 		int defaultMazeHeight = defaultSandboxConfig.getMazeHeight();
-		int mazeHeight = prefs.getInteger("mazeheight", defaultMazeHeight);
+		int mazeHeight = prefs.getInteger(PREF_SANDBOX_MAZE_HEIGHT, defaultMazeHeight);
 		
 		int defaultNumPrey = defaultSandboxConfig.getNumPrey();
-		int numPrey = prefs.getInteger("numprey", defaultNumPrey);
+		int numPrey = prefs.getInteger(PREF_SANDBOX_NUM_PREY, defaultNumPrey);
 		
 		
 		SandboxConfiguration sandboxConfig = 
@@ -352,11 +365,11 @@ public class GameDataManager implements DataManager {
 		
 		// We use Preferences to store the sandbox data
 		Preferences prefs = getSandboxPrefs();
-		prefs.putInteger("predatorspeed", sandboxConfig.getPredatorSpeedIndex());
-		prefs.putInteger("preyspeed", sandboxConfig.getPreySpeedIndex());
-		prefs.putInteger("mazewidth", sandboxConfig.getMazeWidth());
-		prefs.putInteger("mazeheight", sandboxConfig.getMazeHeight());
-		prefs.putInteger("numprey", sandboxConfig.getNumPrey());
+		prefs.putInteger(PREF_SANDBOX_PREDATOR_SPEED, sandboxConfig.getPredatorSpeedIndex());
+		prefs.putInteger(PREF_SANDBOX_PREY_SPEED, sandboxConfig.getPreySpeedIndex());
+		prefs.putInteger(PREF_SANDBOX_MAZE_WIDTH, sandboxConfig.getMazeWidth());
+		prefs.putInteger(PREF_SANDBOX_MAZE_HEIGHT, sandboxConfig.getMazeHeight());
+		prefs.putInteger(PREF_SANDBOX_NUM_PREY, sandboxConfig.getNumPrey());
 		
 		prefs.flush();
 		
@@ -370,13 +383,13 @@ public class GameDataManager implements DataManager {
 		
 		Preferences prefs = getSoundPrefs();
 		boolean playSounds = 
-				prefs.getBoolean("playsounds", defaultSoundConfig.playSounds());
+				prefs.getBoolean(PREF_SOUND_PLAY_SOUNDS, defaultSoundConfig.playSounds());
 		boolean playMusic = 
-				prefs.getBoolean("playmusic", defaultSoundConfig.playMusic());
+				prefs.getBoolean(PREF_SOUND_PLAY_MUSIC, defaultSoundConfig.playMusic());
 		int soundLevel = 
-				prefs.getInteger("soundlevel", defaultSoundConfig.getSoundLevel());
+				prefs.getInteger(PREF_SOUND_SOUND_LEVEL, defaultSoundConfig.getSoundLevel());
 		int musicLevel = 
-				prefs.getInteger("musiclevel", defaultSoundConfig.getMusicLevel());
+				prefs.getInteger(PREF_SOUND_MUSIC_LEVEL, defaultSoundConfig.getMusicLevel());
 		
 		soundConfig.setPlaySounds(playSounds);
 		soundConfig.setPlayMusic(playMusic);
@@ -390,10 +403,10 @@ public class GameDataManager implements DataManager {
 	public void saveSoundData(SoundConfiguration soundData) {
 		// We use Preferences to store the sound data
 		Preferences prefs = getSoundPrefs();
-		prefs.putBoolean("playsounds", soundData.playSounds());
-		prefs.putBoolean("playmusic", soundData.playMusic());
-		prefs.putInteger("soundlevel", soundData.getSoundLevel());
-		prefs.putInteger("musiclevel", soundData.getMusicLevel());
+		prefs.putBoolean(PREF_SOUND_PLAY_SOUNDS, soundData.playSounds());
+		prefs.putBoolean(PREF_SOUND_PLAY_MUSIC, soundData.playMusic());
+		prefs.putInteger(PREF_SOUND_SOUND_LEVEL, soundData.getSoundLevel());
+		prefs.putInteger(PREF_SOUND_MUSIC_LEVEL, soundData.getMusicLevel());
 		prefs.flush();
 	}
 
