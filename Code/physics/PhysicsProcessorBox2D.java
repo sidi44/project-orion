@@ -186,7 +186,6 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 		Agent agent = physicsBody.getAgent();
 		int speedIndex = agent.getSpeedIndex();
 		float speed = speedConverter.getSpeed(speedIndex);
-		//float speed = physicsBody.getBaseSpeed();
 		
 		// Round the position of the body so that we don't lose accuracy due to
 		// floating point arithmetic. (This will only change the position if the
@@ -200,24 +199,30 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 		
 		// Is the proposed move valid? (e.g. trying to move left when there is 
 		// a wall there is not valid)
-		if (moveValid(move, body, maze)) {
+		Direction direction = move.getDirection();
+		if (!moveValid(move, body, maze)) {
 			
-			// The proposed move is ok, so update the velocity vector as 
-			// appropriate and set it on the body.
-			updateVelocity(velocity, move.getDirection(), speed);
-			body.setLinearVelocity(velocity);
-			
-			agent.setCurrentDirection(move.getDirection());
-			
-		} else {
 			// The proposed move isn't ok. Note that we might be coming out of a
 			// power up at this point, so the velocity may be incorrect. We 
 			// work out the direction from the velocity, then the correct
 			// velocity (i.e. of the right magnitude) from the direction.
-			Direction currentDir = getDirectionFromVelocity(velocity);
-			updateVelocity(velocity, currentDir, speed);
-			body.setLinearVelocity(velocity);
+			direction = getDirectionFromVelocity(velocity);
+			
+			if (direction == Direction.None) {
+				// We're not going anywhere... so try to move to the nearest
+				// centre point
+				direction = getDirectionToNearestCentre(body, maze);
+			}
 		}
+		
+
+		// Update the velocity vector based on the direction worked out above 
+		// and the speed. Then set the velocity on the body and update the 
+		// agent's current direction.
+		updateVelocity(velocity, direction, speed);
+		body.setLinearVelocity(velocity);
+		agent.setCurrentDirection(direction);
+		
 		
 		// This bit of code prevents agents moving past the square centre when
 		// there's a wall ahead. If the agent is at a square centre and the node
@@ -466,7 +471,7 @@ public class PhysicsProcessorBox2D extends PhysicsProcessor {
 			PointXY focusState = magnet.getFocalPoint();
 			Vector2 focusWorld = stateToWorld(focusState);
 			
-			int range = 10 + strength;
+			int range = 3 + strength;
 			int force = -1000 * strength;
 			
 			Body body = physicsBody.getBody();
