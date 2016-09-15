@@ -65,7 +65,7 @@ public abstract class Agent {
 		this.storedPowerUps = new HashMap<Integer, PowerUp>();
 		this.activatedPowerUps = new ArrayList<PowerUp>();
 		this.powerUpsAppliedToMe = new ArrayList<PowerUp>();
-		this.stacking = false;
+		this.stacking = true;
 		this.maxPowerUp  = maxPowerUp;
 		this.setMagnet(null);
 	}
@@ -387,6 +387,27 @@ public abstract class Agent {
 		this.variableSpeedIndex = variableSpeedIndex;
 	}
 
+	/**
+	 * Get the agent's base speed index.
+	 * This is the speed the agent will move when no power up is applied.
+	 * 
+	 * @return the agent's base speed index.
+	 */
+	public int getBaseSpeedIndex() {
+		return baseSpeedIndex;
+	}
+	
+	/**
+	 * Get the agent's variable speed index.
+	 * This is the additional speed that is due to applied power ups (which of
+	 * course may be negative). 
+	 * 
+	 * @return the agent's variable speed index.
+	 */
+	public int getVariableSpeedIndex() {
+		return variableSpeedIndex;
+	}
+	
 	/**
 	 * Returns true if a magnet is currently applied to this agent.
 	 * 
