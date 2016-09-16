@@ -1,5 +1,6 @@
 {
 	predatorSpeedIndex: 3
+	maxPredatorPowerUps: 1
 	levelsLocked: {
 		class: java.util.HashMap
 		1: false

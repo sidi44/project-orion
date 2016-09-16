@@ -8,14 +8,14 @@ import logic.powerup.PowerUpType;
 public class PlayerProgress {
 
 	private int predatorSpeedIndex;
+	private int maxPredatorPowerUps;
 	private Map<String, Boolean> levelsLocked;
 	private Map<String, Integer> levelScores;
 	private Map<String, Integer> powerUpDefinitions;
 	
-	// numPowerUps?
-	
 	public PlayerProgress() {
 		predatorSpeedIndex = 1;
+		maxPredatorPowerUps = 1;
 		levelsLocked = new HashMap<String, Boolean>();
 		levelScores = new HashMap<String, Integer>();
 		powerUpDefinitions = new HashMap<String, Integer>();
@@ -27,6 +27,14 @@ public class PlayerProgress {
 
 	public void setPredatorSpeedIndex(int predatorSpeedIndex) {
 		this.predatorSpeedIndex = predatorSpeedIndex;
+	}
+	
+	public int getMaxPredatorPowerUps() {
+		return maxPredatorPowerUps;
+	}
+	
+	public void setMaxPredatorPowerUps(int maxPredatorPowerUps) {
+		this.maxPredatorPowerUps = maxPredatorPowerUps;
 	}
 	
 	public boolean isLevelLocked(int levelNumber) {
