@@ -47,6 +47,8 @@ public class GameDataManager implements DataManager {
 	private final String PREF_SANDBOX_NUM_PREY = "numprey";
 	private final String PREF_SANDBOX_PREDATOR_SPEED = "predatorspeed";
 	private final String PREF_SANDBOX_PREY_SPEED = "preyspeed";
+	private final String PREF_SANDBOX_MAX_PREDATOR_POWER_UPS = "maxpredatorpowerups";
+	private final String PREF_SANDBOX_POWER_UP_STRENGTHS = "powerupstrengths";
 	
 	// Sound preferences
 	private final String PREF_SOUND_PLAY_SOUNDS = "playsounds";
@@ -237,20 +239,28 @@ public class GameDataManager implements DataManager {
 		// We always want pills for levels
 		boolean hasPills = true;
 		
-		// Use the default maze config for now
+		// Get the level's maze config
 		MazeConfig mazeConfig = level.getMazeConfig();
 		
-		// Create the agent config (using mostly default values)
-		// TODO Replace max power up values with data read from the levels config
+		// Create the agent config. 
+		// Use default values for numPred, numPredPlayer, numPreyPlayer and 
+		// maxPreyPowerUp. Replace the values for numPrey, preyBaseSpeedIndex, 
+		// predBaseSpeedIndex and maxPredatorPowerUps with values from the level
+		// data and the player progress as appropriate.
 		AgentConfig agentConfig = new AgentConfig();
 		int numPrey = level.getNumPrey();
 		int preySpeedIndex = level.getPreySpeedIndex();
 		int predatorSpeedIndex = playerProgress.getPredatorSpeedIndex();
+		int maxPredatorPowerUps = playerProgress.getMaxPredatorPowerUps();
 		agentConfig.setNumPrey(numPrey);
-		agentConfig.setPredBaseSpeedIndex(predatorSpeedIndex);
 		agentConfig.setPreyBaseSpeedIndex(preySpeedIndex);
+		agentConfig.setPredBaseSpeedIndex(predatorSpeedIndex);
+		agentConfig.setMaxPredPowerUp(maxPredatorPowerUps);
 		
-		// Use the default power up config for now
+		// Create the power up config. 
+		// Set the number of predator power ups and the type and strength of 
+		// these power ups from the level data and player progress.
+		// (Prey power up data uses default values.)
 		PowerUpConfig powerUpConfig = new PowerUpConfig();
 		powerUpConfig.setNumPredPow(level.getNumPowerUps());
 		List<PowerUpType> powerUpTypes = level.getPowerUpTypes();
@@ -301,8 +311,11 @@ public class GameDataManager implements DataManager {
 		MazeConfig mazeConfig = new MazeConfig();
 		mazeConfig.randomiseValues();
 		
-		// Create the agent config (using mostly default values)
-		// TODO Replace max power up values with data read from the sandbox config
+		
+		// Create the agent config. 
+		// Replace the values for the number of prey, the speed of the 
+		// predator and prey and the maximum number of predator power ups with 
+		// values from the preferences.
 		AgentConfig agentConfig = new AgentConfig();
 		int defaultNumPrey = defaultSandboxConfig.getNumPrey();
 		int numPrey = prefs.getInteger(PREF_SANDBOX_NUM_PREY, defaultNumPrey);
@@ -319,9 +332,32 @@ public class GameDataManager implements DataManager {
 				prefs.getInteger(PREF_SANDBOX_PREY_SPEED, defaultPreySpeedIndex);
 		agentConfig.setPreyBaseSpeedIndex(preySpeedIndex);
 		
-		// Use the default power up config for now
-		// TODO Read in the correct power up strengths from the sandbox config
+		int defaultMaxPredatorPowerUps = defaultSandboxConfig.getMaxPredatorPowerUps();
+		int maxPredatorPowerUps = defaultMaxPredatorPowerUps;
+//				prefs.getInteger(PREF_SANDBOX_MAX_PREDATOR_POWER_UPS, defaultMaxPredatorPowerUps);
+		agentConfig.setMaxPredPowerUp(maxPredatorPowerUps);
+		
+		
+		// Create the power up config. 
+		// The number of predator power ups is based on the size of the maze.
+		// We allow allow types of power up in sandbox mode, and give them all
+		// the same strength.
 		PowerUpConfig powerUpConfig = new PowerUpConfig();
+		
+		int numPowerUps = ((mazeWidth + 1) * (mazeHeight + 1)) / 16 + 1;
+		powerUpConfig.setNumPredPow(numPowerUps);
+		
+		int defaultPowerUpStrengths = defaultSandboxConfig.getPowerUpStrengths();
+		int powerUpStrengths = defaultPowerUpStrengths;
+//				prefs.getInteger(PREF_SANDBOX_POWER_UP_STRENGTHS, defaultPowerUpStrengths);
+		
+		Map<PowerUpType, Integer> powerUpDefs = 
+				new HashMap<PowerUpType, Integer>();
+		for (PowerUpType type : PowerUpType.values()) {
+			powerUpDefs.put(type, powerUpStrengths);
+		}
+		powerUpConfig.setPredatorPowerUps(powerUpDefs);
+
 		
 		// Create our game configuration
 		GameConfiguration gameConfig = new GameConfiguration(mazeShape, 
@@ -352,10 +388,17 @@ public class GameDataManager implements DataManager {
 		int defaultNumPrey = defaultSandboxConfig.getNumPrey();
 		int numPrey = prefs.getInteger(PREF_SANDBOX_NUM_PREY, defaultNumPrey);
 		
+		int defaultMaxPredatorPowerUps = defaultSandboxConfig.getMaxPredatorPowerUps();
+		int maxPredatorPowerUps = 
+				prefs.getInteger(PREF_SANDBOX_MAX_PREDATOR_POWER_UPS, defaultMaxPredatorPowerUps);
+		
+		int defaultPowerUpStrengths = defaultSandboxConfig.getPowerUpStrengths();
+		int powerUpStrengths = 
+				prefs.getInteger(PREF_SANDBOX_POWER_UP_STRENGTHS, defaultPowerUpStrengths);
 		
 		SandboxConfiguration sandboxConfig = 
 				new SandboxConfiguration(predatorSpeed, preySpeed, mazeWidth, 
-						mazeHeight, numPrey);
+						mazeHeight, numPrey, maxPredatorPowerUps, powerUpStrengths);
 		
 		return sandboxConfig;
 	}
@@ -370,10 +413,12 @@ public class GameDataManager implements DataManager {
 		prefs.putInteger(PREF_SANDBOX_MAZE_WIDTH, sandboxConfig.getMazeWidth());
 		prefs.putInteger(PREF_SANDBOX_MAZE_HEIGHT, sandboxConfig.getMazeHeight());
 		prefs.putInteger(PREF_SANDBOX_NUM_PREY, sandboxConfig.getNumPrey());
+		prefs.putInteger(PREF_SANDBOX_MAX_PREDATOR_POWER_UPS, 
+				sandboxConfig.getMaxPredatorPowerUps());
+		prefs.putInteger(PREF_SANDBOX_POWER_UP_STRENGTHS, 
+				sandboxConfig.getPowerUpStrengths());
 		
 		prefs.flush();
-		
-		// TODO save other data (see above method)
 	}
 
 	@Override

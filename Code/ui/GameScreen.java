@@ -27,6 +27,8 @@ class GameScreen extends MenuScreen {
 	private final UserInputProcessor inputProc;
 	private List<PowerUpButton> powerUpButtons;
 	
+	private final static int NUM_POWER_UP_BUTTONS = 5;
+	
 	public GameScreen(ScreenManager manager) {
 		super(manager);
 		
@@ -60,9 +62,7 @@ class GameScreen extends MenuScreen {
 		
 		// Create the Power Up buttons 
 		powerUpButtons = new ArrayList<PowerUpButton>();
-		Predator predator = getPredator();
-		int numPowerUps = predator.getMaxPowerUp();
-		for (int i = 0; i < numPowerUps; ++i) {
+		for (int i = 0; i < NUM_POWER_UP_BUTTONS; ++i) {
 			final int index = i;
 			PowerUpButton button = new PowerUpButton(getSkin());
 			powerUpButtons.add(button);
@@ -116,6 +116,15 @@ class GameScreen extends MenuScreen {
 	protected void doShow() {
 		// Set up the intial view
 		cameraManager.setInitialViewport();
+		
+		// Make sure the right number of power up buttons are visible
+		Predator predator = getPredator();
+		int numPowerUps = predator.getMaxPowerUp(); 
+		for (int i = 0; i < NUM_POWER_UP_BUTTONS; ++i) {
+			PowerUpButton button = powerUpButtons.get(i);
+			boolean visible = (i < numPowerUps);
+			button.setVisible(visible);
+		}
 	}
 	
 	@Override
@@ -123,9 +132,11 @@ class GameScreen extends MenuScreen {
 		
 		Predator predator = getPredator();
 		int numPowerUps = predator.getMaxPowerUp();
-		for (int i = 0; i < numPowerUps; ++i) {
-			PowerUp powerUp = predator.getStoredPowerUp(i);
-			powerUpButtons.get(i).setPowerUp(powerUp);
+		for (int i = 0; i < NUM_POWER_UP_BUTTONS; ++i) {
+			if (i < numPowerUps) {
+				PowerUp powerUp = predator.getStoredPowerUp(i);
+				powerUpButtons.get(i).setPowerUp(powerUp);
+			}
 		}
 		
 		PredatorPreyGame game = getManager().getGame();

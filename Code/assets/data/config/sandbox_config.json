@@ -4,4 +4,6 @@
 	mazeWidth: 6
 	mazeHeight: 10 
 	numPrey: 3
+	maxPredatorPowerUps: 5
+	powerUpStrengths: 1
 }
