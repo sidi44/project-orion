@@ -324,5 +324,59 @@
 	            <FrameDuration>0.05</FrameDuration>
 	        </AnimationDefinition>
 	    </AnimationGroupDefinition>
+	    	   	<AnimationGroupDefinition>
+	        <AnimationGroupName>SlowDownEffect</AnimationGroupName>
+	        <Rows>4</Rows>
+	        <Columns>4</Columns>
+	        <Filename>Effect_SlowDown_Multiple_Lines.png</Filename>
+	        <AnimationDefinition>
+	            <AnimationName>DOWN-STOP</AnimationName>
+	            <StartFrame>9</StartFrame>
+	            <EndFrame>12</EndFrame>
+	            <FrameDuration>0.4</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>DOWN</AnimationName>
+	            <StartFrame>9</StartFrame>
+	            <EndFrame>12</EndFrame>
+	            <FrameDuration>0.4</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>UP-STOP</AnimationName>
+	            <StartFrame>9</StartFrame>
+	            <EndFrame>12</EndFrame>
+	            <FrameDuration>0.4</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>UP</AnimationName>
+	            <StartFrame>9</StartFrame>
+	            <EndFrame>12</EndFrame>
+	            <FrameDuration>0.4</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>LEFT-STOP</AnimationName>
+	            <StartFrame>9</StartFrame>
+	            <EndFrame>12</EndFrame>
+	            <FrameDuration>0.4</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>LEFT</AnimationName>
+	            <StartFrame>9</StartFrame>
+	            <EndFrame>12</EndFrame>
+	            <FrameDuration>0.4</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>RIGHT-STOP</AnimationName>
+	            <StartFrame>9</StartFrame>
+	            <EndFrame>12</EndFrame>
+	            <FrameDuration>0.4</FrameDuration>
+	        </AnimationDefinition>
+	        <AnimationDefinition>
+	            <AnimationName>RIGHT</AnimationName>
+	            <StartFrame>9</StartFrame>
+	            <EndFrame>12</EndFrame>
+	            <FrameDuration>0.4</FrameDuration>
+	        </AnimationDefinition>
+	    </AnimationGroupDefinition>
 	</RendererConfiguration>
 </Configuration>

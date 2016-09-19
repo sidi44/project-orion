@@ -182,15 +182,15 @@
 		}
 		{
 			animationGroupName: PowerUp
-			rows: 4
-			columns: 3
-			filename: power_ups.png
+			rows: 1
+			columns: 24
+			filename: Powerup_Magnet_Single_Line.png
 			animationDefinitions: [
 				{
 					animationName: "Magnet"
-					startFrame: 10
-					endFrame: 10
-					frameDuration: 1
+					startFrame: 1
+					endFrame: 24
+					frameDuration: 0.04167
 				}
 			]
 		}
@@ -275,6 +275,62 @@
 					startFrame: 13
 					endFrame: 16
 					frameDuration: 0.1
+				}
+			]
+		}
+				{
+			animationGroupName: SlowDownEffect
+			rows: 4
+			columns: 4
+			filename: Effect_SlowDown_Multiple_Lines.png
+			animationDefinitions: [
+				{
+					animationName: UP-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: UP
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.4
+				}
+				{
+					animationName: RIGHT-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: RIGHT
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.4
+				}
+				{
+					animationName: DOWN-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: DOWN
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.4
+				}
+				{
+					animationName: LEFT-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: LEFT
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.4
 				}
 			]
 		}
