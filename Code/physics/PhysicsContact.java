@@ -131,10 +131,15 @@ class PhysicsContact implements ContactListener {
 		return parent;
 	}
 
-	private void collectPowerUp(PhysicsBodyAgent agent, 
+	private boolean collectPowerUp(PhysicsBodyAgent agent, 
 			PhysicsBodyPowerUp powerUp) {
-		powerUp.setAgentID(agent.getAgent().getID());
-		powerUp.setFlaggedForDelete();
+		if (agent.getAgent().canCollectPowerUp()) {
+			powerUp.setAgentID(agent.getAgent().getID());
+			powerUp.setFlaggedForDelete();
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 }
