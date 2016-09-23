@@ -6,7 +6,7 @@ public class SoundConfiguration {
 	private boolean playMusic;
 	private int soundLevel;
 	private int musicLevel;
-	
+
 	public SoundConfiguration() {
 		playSounds = true;
 		playMusic = true;
@@ -39,7 +39,7 @@ public class SoundConfiguration {
 			System.err.println("Sound level out of range. "
 					+ "Sound level will not be set.");
 			return;
-		}		
+		}
 		this.soundLevel = soundLevel;
 	}
 
@@ -55,5 +55,5 @@ public class SoundConfiguration {
 		}
 		this.musicLevel = musicLevel;
 	}
-	
+
 }
