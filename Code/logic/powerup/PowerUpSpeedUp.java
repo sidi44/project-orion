@@ -1,7 +1,5 @@
 package logic.powerup;
 
-import java.util.List;
-
 import logic.Agent;
 
 /**
@@ -10,7 +8,7 @@ import logic.Agent;
 public class PowerUpSpeedUp extends PowerUpWithStrength {
 	
 	public PowerUpSpeedUp(PowerUpTarget target, int strength) {
-		super(target, strength);
+		super(target, strength, PowerUpType.SpeedUp);
 	}
 
 	@Override
@@ -19,16 +17,12 @@ public class PowerUpSpeedUp extends PowerUpWithStrength {
 	}
 
 	@Override
-	protected void apply(List<Agent> allAgents) {
-		List<Agent> toApply = filterToTarget(allAgents);
-		for (Agent agent : toApply) {
-			apply(agent);
-		}
-	}
-
-	private void apply(Agent agent) {
-		int variableSpeedIndex = getVariableSpeedIndex();
-		agent.setVariableSpeedIndex(variableSpeedIndex);
+	protected void apply(Agent agent) {
+		int variableSpeedIndexChange = getVariableSpeedIndex();
+		int currentVariableSpeedIndex = agent.getVariableSpeedIndex();
+		int newVariableSpeedIndex = 
+				currentVariableSpeedIndex + variableSpeedIndexChange;
+		agent.setVariableSpeedIndex(newVariableSpeedIndex);
 	}
 	
 	private int getVariableSpeedIndex() {
@@ -38,11 +32,8 @@ public class PowerUpSpeedUp extends PowerUpWithStrength {
 	}
 	
 	@Override
-	protected void deactivate(List<Agent> allAgents) {
-		List<Agent> toApply = filterToTarget(allAgents);
-		for (Agent agent : toApply) {
-			agent.setVariableSpeedIndex(0);
-		}
+	protected void unapply(Agent agent) {
+		agent.setVariableSpeedIndex(0);
 	}
 	
 	@Override

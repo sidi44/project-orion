@@ -39,7 +39,6 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 	public Move getNextMove() {
 		
 		mMove.setDirection(mPressedMove);
-		mMove.setUsePowerUp(mPressedEnter);
 		mPressedEnter = false;
 		
 		return mMove;
@@ -277,6 +276,21 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 	public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2,
 			Vector2 pointer1, Vector2 pointer2) {
 		return false;
+	}
+
+	@Override
+	public void pinchStop() {
+		// Do nothing.
+	}
+	
+	/**
+	 * Set the index of the power up to use for the next move.
+	 * Use -1 to indicate that no power up should be used.
+	 * 
+	 * @param index - the index of the power up.
+	 */
+	public void setUsePowerUpIndex(int index) {
+		mMove.setUsePowerUpIndex(index);
 	}
 
 }

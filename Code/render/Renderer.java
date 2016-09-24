@@ -3,6 +3,7 @@ package render;
 import java.util.List;
 
 import physics.PhysicsBody;
+import physics.PhysicsBodyAgent;
 import physics.PhysicsGameWorld;
 
 import com.badlogic.gdx.math.Matrix4;
@@ -69,6 +70,8 @@ public class Renderer {
 		drawBodies(world.getPills(), projMatrix);
 		drawBodies(world.getPredators(), projMatrix);
 		drawBodies(world.getPrey(), projMatrix);
+		
+		drawPowerUpEffectTextures(world.getAgents(), projMatrix);
 	}
 	
 	public void loadTextures(RendererConfiguration config) {
@@ -89,7 +92,13 @@ public class Renderer {
 				textureDrawer.drawTexture(body, projMatrix);
 			}
 		}
-		
+	}
+	
+	private void drawPowerUpEffectTextures(List<PhysicsBodyAgent> pbAgents,
+			Matrix4 projMatrix) {
+		if (texturesLoaded) {
+			textureDrawer.drawPowerUpEffectTextures(pbAgents, projMatrix);
+		}
 	}
 
 }
