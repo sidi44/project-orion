@@ -6,7 +6,7 @@ public class SoundConfiguration {
 	private boolean playMusic;
 	private int soundLevel;
 	private int musicLevel;
-
+	
 	public SoundConfiguration() {
 		playSounds = true;
 		playMusic = true;
@@ -55,5 +55,5 @@ public class SoundConfiguration {
 		}
 		this.musicLevel = musicLevel;
 	}
-
+	
 }

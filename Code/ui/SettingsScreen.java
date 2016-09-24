@@ -21,9 +21,9 @@ import functional.IntConsumer;
 import game.PredatorPreyGame;
 
 class SettingsScreen extends MenuScreen {
-
+	
 	SoundConfiguration soundConfig;
-
+	
 	public SettingsScreen(ScreenManager manager) {
 		super(manager);
 	}
@@ -35,13 +35,13 @@ class SettingsScreen extends MenuScreen {
 		// that now.
 		DataManager dataManager = getManager().getGame().getDataManager();
 		soundConfig = dataManager.getSoundConfiguration();
-
+		
 		super.initialise();
 	}
-
+	
 	@Override
 	protected void addActors() {
-
+		
 		FileHandle file = Gdx.files.internal("data/ui/settings_screen.png");
 		Image screenImage = new Image(new Texture(file));
 		getStage().addActor(screenImage);
@@ -55,7 +55,7 @@ class SettingsScreen extends MenuScreen {
 			}
 		};
 		CheckBox soundCheck = createCheckBox("Sound", soundOn, soundOnFunc);
-
+		
 		boolean musicOn = soundConfig.playMusic();
 		Consumer<Boolean> musicOnFunc = new Consumer<Boolean>() {
 			@Override
@@ -105,17 +105,17 @@ class SettingsScreen extends MenuScreen {
 
 		Button menuButton = createScreenChangeButton(
 				"Main menu", ScreenName.MainMenu);
-
-
+		
+		
 		Table table = new Table();
 		float pad = 20f;
-
+		
 		Cell<CheckBox> soundCheckCell = table.add(soundCheck);
 		soundCheckCell.pad(pad);
 		Cell<SliderPanel> soundSliderCell = table.add(sliderPanels.get(0));
 		soundSliderCell.pad(pad);
 		table.row();
-
+		
 		Cell<CheckBox> musicCheckCell = table.add(musicCheck);
 		musicCheckCell.pad(pad);
 		Cell<SliderPanel> musicSliderCell = table.add(sliderPanels.get(1));
@@ -125,12 +125,12 @@ class SettingsScreen extends MenuScreen {
 		Cell<Button> menuCell = table.add(menuButton);
 		menuCell.pad(pad);
 		menuCell.colspan(2);
-
+		
 		table.setFillParent(true);
 		table.setDebug(true);
 		getStage().addActor(table);
 	}
-
+	
 	private void saveData() {
 		ScreenManager manager = getManager();
 		PredatorPreyGame game = manager.getGame();
@@ -138,5 +138,5 @@ class SettingsScreen extends MenuScreen {
 		dataManager.saveSoundData(soundConfig);
 		game.updateSoundManager();
 	}
-
+	
 }

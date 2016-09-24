@@ -20,27 +20,27 @@ import data.SandboxConfiguration;
 import functional.IntConsumer;
 
 class SandboxScreen extends MenuScreen {
-
+	
 	private SandboxConfiguration sandboxConfig;
-
+	
 	public SandboxScreen(ScreenManager manager) {
 		super(manager);
 	}
-
-	@Override
+	
+	@Override 
 	protected void initialise() {
-		// This is called before addActors() and we must make sure the
-		// sandboxConfig is initialised before that method is called, so do
+		// This is called before addActors() and we must make sure the 
+		// sandboxConfig is initialised before that method is called, so do 
 		// that now.
 		DataManager dataManager = getManager().getGame().getDataManager();
 		sandboxConfig = dataManager.getSandboxConfig();
-
+		
 		super.initialise();
 	}
 
 	@Override
 	protected void addActors() {
-
+		
 		// Get out background image and add it to the stage
 		FileHandle file = Gdx.files.internal("data/ui/sandbox_screen.png");
 		Image screenImage = new Image(new Texture(file));
@@ -146,11 +146,11 @@ class SandboxScreen extends MenuScreen {
 				manager.changeScreen(ScreenName.Game);
 			}
 		});
-
+		
 		// Create the menu button
 		Button menuButton = createScreenChangeButton(
 				"Main menu", ScreenName.MainMenu);
-
+		
 		// Set out the widgets using a table
 		Table table = new Table();
 		float pad = 10f;
@@ -164,17 +164,17 @@ class SandboxScreen extends MenuScreen {
 		gameCell.pad(pad);
 		Cell<Button> menuCell = table.add(menuButton);
 		menuCell.pad(pad);
-
+		
 		table.setFillParent(true);
 		table.setDebug(true);
 		getStage().addActor(table);
 	}
-
+	
 	@Override
 	protected void doHide() {
 		saveData();
 	}
-
+	
 	private void saveData() {
 		ScreenManager manager = getManager();
 		DataManager dataManager = manager.getGame().getDataManager();

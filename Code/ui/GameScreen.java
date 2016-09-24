@@ -22,7 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 class GameScreen extends MenuScreen {
-
+	
 	private final CameraManager cameraManager;
 	private final UserInputProcessor inputProc;
 	private List<PowerUpButton> powerUpButtons;
@@ -31,22 +31,22 @@ class GameScreen extends MenuScreen {
 	
 	public GameScreen(ScreenManager manager) {
 		super(manager);
-
+		
 		Camera gameCamera = new OrthographicCamera();
 		cameraManager = new CameraManager(gameCamera, manager.getGame());
-
+		
 		this.inputProc = new UserInputProcessor(cameraManager);
 	}
-
+	
 	@Override
 	protected void addInputProcessor(InputMultiplexer multiplexer) {
 		multiplexer.addProcessor(inputProc);
 		multiplexer.addProcessor(new GestureDetector(inputProc));
 	}
-
+	
 	@Override
 	protected void addActors() {
-
+		
 		// Create our main menu button
 		Button menuButton = new TextButton("Main menu", getSkin());
 		menuButton.addListener(new ClickListener() {
@@ -55,7 +55,7 @@ class GameScreen extends MenuScreen {
 				gameFinished(GameOver.Exit);
 			}
 		});
-
+		
 		// Create the Score and Time remaining text fields
 		Label timeLabel = new Label("Time remaining: ", getSkin());
 		Label scoreLabel = new Label("Score: ", getSkin());
@@ -111,7 +111,7 @@ class GameScreen extends MenuScreen {
 		table.setDebug(true);
 		getStage().addActor(table);
 	}
-
+	
 	@Override
 	protected void doShow() {
 		// Set up the intial view
@@ -126,7 +126,7 @@ class GameScreen extends MenuScreen {
 			button.setVisible(visible);
 		}
 	}
-
+	
 	@Override
 	protected void doRender(float delta) {
 		
@@ -140,7 +140,7 @@ class GameScreen extends MenuScreen {
 		}
 		
 		PredatorPreyGame game = getManager().getGame();
-
+		
 		Camera gameCamera = cameraManager.getCamera();
 		game.getRenderer().render(game.getWorld(), gameCamera.combined);
 		inputProc.processCameraInputs(gameCamera);
@@ -151,12 +151,12 @@ class GameScreen extends MenuScreen {
 		}
 		cameraManager.update();
 	}
-
+	
 	private void gameFinished(GameOver reason) {
-
+		
 		// Grab the game from the screen manager
 		PredatorPreyGame game = getManager().getGame();
-
+		
 		// Tell the game its finished and why
 		game.gameOver(reason);
 

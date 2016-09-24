@@ -22,22 +22,22 @@ import functional.IntConsumer;
 abstract class MenuScreen extends AbstractScreen {
 
 	private Skin skin;
-
+	
 	public MenuScreen(ScreenManager manager) {
 		super(manager);
 	}
-
+	
 	@Override
 	protected void initialise() {
 		TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("data/ui/uiskin.atlas"));
 		skin = new Skin(Gdx.files.internal("data/ui/uiskin.json"), atlas);
 		super.initialise();
 	}
-
+	
 	protected Skin getSkin() {
 		return skin;
 	}
-
+	
 	protected Button createScreenChangeButton(String text, final ScreenName name) {
 
 		Button button = new TextButton(text, getSkin());
@@ -47,19 +47,19 @@ abstract class MenuScreen extends AbstractScreen {
 				getManager().changeScreen(name);
 			}
 		});
-
+		
 		return button;
 	}
 
-	protected CheckBox createCheckBox(String text, boolean initialState,
+	protected CheckBox createCheckBox(String text, boolean initialState, 
 			final Consumer<Boolean> func) {
-
+		
 		// Create the checkbox
 		final CheckBox checkbox = new CheckBox(text, getSkin());
-
+		
 		// Set the initial state
 		checkbox.setChecked(initialState);
-
+		
 		// Add a listener which calls the provided function when the checkbox's
 		// state is changed
 		checkbox.addListener(new ClickListener() {
@@ -69,19 +69,19 @@ abstract class MenuScreen extends AbstractScreen {
 				func.accept(value);
 			}
 		});
-
+		
 		return checkbox;
 	}
-
-	protected Slider createIntSlider(int min, int max, int step,
+	
+	protected Slider createIntSlider(int min, int max, int step, 
 			int initialValue, final IntConsumer func) {
-
+		
 		// Create the slider
 		final Slider slider = new Slider(min, max, step, false, getSkin());
-
+		
 		// Set the initial value
 		slider.setValue(initialValue);
-
+		
 		// Add a listener which calls the provided function when the sliders
 		// value is changed
 		slider.addListener(new ChangeListener() {
@@ -91,7 +91,7 @@ abstract class MenuScreen extends AbstractScreen {
 				func.accept(value);
 			}
 		});
-
+		
 		// That's it
 		return slider;
 	}

@@ -19,7 +19,7 @@ public class SandboxConfiguration {
 		maxPredatorPowerUps = 5;
 		powerUpStrengths = 2;
 	}
-
+	
 	public SandboxConfiguration(int predatorSpeedIndex, int preySpeedIndex, 
 			int mazeWidth, int mazeHeight, int numPrey, int maxPredatorPowerUps,
 			int powerUpStrengths) {
@@ -39,15 +39,15 @@ public class SandboxConfiguration {
 	public int getPreySpeedIndex() {
 		return preySpeedIndex;
 	}
-
+	
 	public int getMazeWidth() {
 		return mazeWidth;
 	}
-
+	
 	public int getMazeHeight() {
 		return mazeHeight;
 	}
-
+	
 	public int getNumPrey() {
 		return numPrey;
 	}
