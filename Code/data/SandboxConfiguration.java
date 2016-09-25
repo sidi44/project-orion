@@ -7,23 +7,29 @@ public class SandboxConfiguration {
 	private int mazeWidth;
 	private int mazeHeight;
 	private int numPrey;
-	// maze generation parameters...
-
+	private int maxPredatorPowerUps;
+	private int powerUpStrengths;
+	
 	public SandboxConfiguration() {
 		predatorSpeedIndex = 4;
 		preySpeedIndex = 2;
 		mazeWidth = 8;
 		mazeHeight = 8;
 		numPrey = 2;
+		maxPredatorPowerUps = 5;
+		powerUpStrengths = 2;
 	}
-
-	public SandboxConfiguration(int predatorSpeedIndex, int preySpeedIndex,
-			int mazeWidth, int mazeHeight, int numPrey) {
+	
+	public SandboxConfiguration(int predatorSpeedIndex, int preySpeedIndex, 
+			int mazeWidth, int mazeHeight, int numPrey, int maxPredatorPowerUps,
+			int powerUpStrengths) {
 		this.predatorSpeedIndex = predatorSpeedIndex;
 		this.preySpeedIndex = preySpeedIndex;
 		this.mazeWidth = mazeWidth;
 		this.mazeHeight = mazeHeight;
 		this.numPrey = numPrey;
+		this.maxPredatorPowerUps = maxPredatorPowerUps;
+		this.powerUpStrengths = powerUpStrengths;
 	}
 
 	public int getPredatorSpeedIndex() {
@@ -33,19 +39,27 @@ public class SandboxConfiguration {
 	public int getPreySpeedIndex() {
 		return preySpeedIndex;
 	}
-
+	
 	public int getMazeWidth() {
 		return mazeWidth;
 	}
-
+	
 	public int getMazeHeight() {
 		return mazeHeight;
 	}
-
+	
 	public int getNumPrey() {
 		return numPrey;
 	}
 
+	public int getMaxPredatorPowerUps() {
+		return maxPredatorPowerUps;
+	}
+	
+	public int getPowerUpStrengths() {
+		return powerUpStrengths;
+	}
+	
 	public void setPredatorSpeedIndex(int predatorSpeedIndex) {
 		this.predatorSpeedIndex = predatorSpeedIndex;
 	}
@@ -65,46 +79,12 @@ public class SandboxConfiguration {
 	public void setNumPrey(int numPrey) {
 		this.numPrey = numPrey;
 	}
-
-
-
-
-
-
-	public interface IntAttribute {
-
-	    void setValue(int value);
-
-	    int getValue();
-
-	    public static final Integer integer = 10;
-
-	    public final class MazeHeight implements IntAttribute {
-
-            @Override
-            public void setValue(int value) {
-//                setMazeHeight(0);
-            }
-
-            @Override
-            public int getValue() {
-                // TODO Auto-generated method stub
-                return 0;
-            }
-	    }
-
-	    public final class MazeWidth implements IntAttribute {
-
-            @Override
-            public void setValue(int value) {
-                // TODO Auto-generated method stub
-
-            }
-
-            @Override
-            public int getValue() {
-                // TODO Auto-generated method stub
-                return 0;
-            }}
+	
+	public void setMaxPredatorPowerUps(int maxPredatorPowerUps) {
+		this.maxPredatorPowerUps = maxPredatorPowerUps;
+	}
+	
+	public void setPowerUpStrengths(int powerUpStrengths) {
+		this.powerUpStrengths = powerUpStrengths;
 	}
 }

@@ -6,8 +6,8 @@ public abstract class PowerUpWithStrength extends PowerUp {
 	
 	private final static int TIME_LIMIT_BASE = 120;
 	
-	public PowerUpWithStrength(PowerUpTarget target, int strength) {
-		super(getTimeLimit(strength), target);
+	public PowerUpWithStrength(PowerUpTarget target, int strength, PowerUpType type) {
+		super(getTimeLimit(strength), target, type);
 		
 		if (strength < 1 || strength > 3) {
 			throw new IllegalArgumentException("Invalid strength value: " + 

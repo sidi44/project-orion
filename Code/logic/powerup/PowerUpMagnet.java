@@ -1,7 +1,5 @@
 package logic.powerup;
 
-import java.util.List;
-
 import logic.Agent;
 
 /**
@@ -16,12 +14,11 @@ public class PowerUpMagnet extends PowerUpWithStrength {
 	/**
 	 * Constructor for PredatorPowerUpMagnet.
 	 * 
-	 * @param timeLimit - the duration of this power up.
-	 * @param force - the magnet's force in Newtons.
-	 * @param range - the range of the magnet in maze squares.
+	 * @param target - the agents which this power up targets.
+	 * @param strength - the strength of this power up.
 	 */
 	public PowerUpMagnet(PowerUpTarget target, int strength) {
-		super(target, strength);
+		super(target, strength, PowerUpType.Magnet);
 	}
 
 	@Override
@@ -30,25 +27,18 @@ public class PowerUpMagnet extends PowerUpWithStrength {
 	}
 
 	@Override
-	protected void apply(List<Agent> allAgents) {
-		//throw new IllegalStateException("Not implemented yet...");
+	protected void apply(Agent agent) {
+
 		// Set a 'magnet' on an agent, this contains info on which agent to 
 		// pull towards and how strong the pull is (as an index).
-		// Will need to reset this at the end of the power up.
-		Agent owner = findOwner(allAgents);
+		Agent owner = getOwner();
 		Magnet magnet = new Magnet(owner, getStrength());
-		List<Agent> toApply = filterToTarget(allAgents);
-		for (Agent agent : toApply) {
-			agent.setMagnet(magnet);
-		}
+		agent.setMagnet(magnet);
 	}
 	
 	@Override
-	protected void deactivate(List<Agent> allAgents) {
-		List<Agent> toApply = filterToTarget(allAgents);
-		for (Agent agent : toApply) {
-			agent.setMagnet(null);
-		}
+	protected void unapply(Agent agent) {
+		agent.setMagnet(null);
 	}
 
 	@Override

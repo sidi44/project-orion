@@ -2,4 +2,5 @@
 	wallWidthRatio: 0.1
 	pillRadiusRatio: 0.2
 	powerUpRadiusRatio: 0.5
+	agentRadiusRatio: 0.95
 }

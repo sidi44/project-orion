@@ -1,7 +1,5 @@
 package logic.powerup;
 
-import java.util.List;
-
 import logic.Agent;
 
 /**
@@ -16,7 +14,7 @@ public class PowerUpFreeze extends PowerUpWithStrength {
 	 * Constructor for PowerUpFreeze.
 	 */
 	public PowerUpFreeze(PowerUpTarget target, int strength) {
-		super(target, strength);
+		super(target, strength, PowerUpType.Freeze);
 	}
 
 	@Override
@@ -25,24 +23,14 @@ public class PowerUpFreeze extends PowerUpWithStrength {
 	}
 
 	@Override
-	protected void apply(List<Agent> allAgents) {
-		List<Agent> toApply = filterToTarget(allAgents);
-		for (Agent agent : toApply) {
-			apply(agent);
-		}
+	protected void apply(Agent agent) {
+		int baseSpeed = agent.getBaseSpeedIndex();
+		agent.setVariableSpeedIndex(-baseSpeed);
 	}
 	
-	private void apply(Agent agent) {
-		int currentSpeed = agent.getSpeedIndex();
-		agent.setVariableSpeedIndex(-currentSpeed);
-	}
-
 	@Override
-	protected void deactivate(List<Agent> allAgents) {
-		List<Agent> toApply = filterToTarget(allAgents);
-		for (Agent agent : toApply) {
-			agent.setVariableSpeedIndex(0);
-		}
+	protected void unapply(Agent agent) {
+		agent.setVariableSpeedIndex(0);
 	}
 	
 	@Override

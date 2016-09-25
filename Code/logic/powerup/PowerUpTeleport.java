@@ -1,7 +1,5 @@
 package logic.powerup;
 
-import java.util.List;
-
 import logic.Agent;
 import geometry.PointXY;
 
@@ -10,7 +8,7 @@ public class PowerUpTeleport extends PowerUp {
 	private final PointXY teleportPoint;
 
 	public PowerUpTeleport(PointXY teleportPoint) {
-		super(1, PowerUpTarget.Owner);
+		super(1, PowerUpTarget.Owner, PowerUpType.Teleport);
 		this.teleportPoint = teleportPoint;
 	}
 	
@@ -29,15 +27,12 @@ public class PowerUpTeleport extends PowerUp {
 	}
 
 	@Override
-	protected void apply(List<Agent> allAgents) {
-		List<Agent> toApply = filterToTarget(allAgents);
-		for (Agent agent : toApply) {
-			agent.setPosition(teleportPoint);
-		}
+	protected void apply(Agent agent) {
+		agent.setPosition(teleportPoint);
 	}
 
 	@Override
-	protected void deactivate(List<Agent> allAgents) {
+	protected void unapply(Agent agent) {
 		// Nothing to for this power up
 	}
 	

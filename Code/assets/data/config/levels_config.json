@@ -70,6 +70,7 @@
 			numPowerUps: 1
 			powerUpTypes: [
 				SlowDown
+				Magnet
 			]
 			starScores : {
 				class: java.util.HashMap

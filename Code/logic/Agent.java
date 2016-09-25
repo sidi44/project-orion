@@ -1,7 +1,9 @@
 package logic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import logic.powerup.Magnet;
 import logic.powerup.PowerUp;
@@ -30,9 +32,9 @@ public abstract class Agent {
 	private Direction previousDirection;
 	
 	// PowerUps
-	private final List<PowerUp> storedPowerUps;
+	private final Map<Integer, PowerUp> storedPowerUps;
 	private final List<PowerUp> activatedPowerUps;
-	private int selectedPowerUp;
+	private final List<PowerUp> powerUpsAppliedToMe;
 	private final int maxPowerUp;
 	private final boolean stacking;
 	private Magnet magnet;
@@ -60,10 +62,10 @@ public abstract class Agent {
 		this.currentDirection = Direction.None;
 		this.previousDirection = Direction.None;
 		
-		this.storedPowerUps = new ArrayList<PowerUp>();
+		this.storedPowerUps = new HashMap<Integer, PowerUp>();
 		this.activatedPowerUps = new ArrayList<PowerUp>();
-		this.selectedPowerUp = -1;
-		this.stacking = false;
+		this.powerUpsAppliedToMe = new ArrayList<PowerUp>();
+		this.stacking = true;
 		this.maxPowerUp  = maxPowerUp;
 		this.setMagnet(null);
 	}
@@ -151,24 +153,76 @@ public abstract class Agent {
 		return maxPowerUp;
 	}
 	
-	public void addStoredPowerUp(PowerUp powerUp) {
+	/**
+	 * Returns true if this agent can currently collect a power up.
+	 * In other words, the number of power ups this agent currently holds is 
+	 * less than the maximum number of power ups the agent can hold.
+	 *  
+	 * @return true if a power up can be collected by this agent, false 
+	 * otherwise.
+	 */
+	public boolean canCollectPowerUp() {
+		return numStoredPowerUps() < maxPowerUp;
+	}
+	
+	/**
+	 * The number of power ups this agent is currently holding.
+	 * 
+	 * @return the number of power ups this agent is currently holding.
+	 */
+	private int numStoredPowerUps() {
+		return storedPowerUps.size();
+	}
+	
+	/**
+	 * Add a power up to the agent's stored power ups. The power up will not be
+	 * added if the agent is already storing the maximum number of power ups
+	 * that it can hold.
+	 * 
+	 * @param powerUp - the power up to be stored.
+	 * @return the index that this power up is stored at, or -1 if the power up
+	 * could not be stored.
+	 */
+	public int addStoredPowerUp(PowerUp powerUp) {
 		
-		storedPowerUps.add(powerUp);
-		
-		if (storedPowerUps.size() == 1) {
-			selectedPowerUp = 0;
+		int index = availableStoredPowerUpIndex();
+		if (index >= 0) {
+			storedPowerUps.put(index, powerUp);
+			return index;
 		}
+		
+		return -1;
+	}
+	
+	/**
+	 * Obtain the first available index that at which a power up can be stored,
+	 * or -1 if no slots are available.
+	 * 
+	 * @return the first available index that at which a power up can be stored,
+	 * or -1 if no slots are available.
+	 */
+	private int availableStoredPowerUpIndex() {
+		
+		for (int i = 0; i < maxPowerUp; ++i) {
+			if (!storedPowerUps.containsKey(i)) {
+				return i;
+			}
+		}
+		
+		return -1;
 	}
 	
 	/**
 	 * Updates activatedPowers of the agent (i.e. remove expired ones).
+	 * 
+	 * @param allAgents - all the agents currently active in the game.
 	 */
-	public boolean updateActivatedPowerUps(List<Agent> allAgent) {
+	public boolean updateActivatedPowerUps(List<Agent> allAgents) {
 		
 		List<PowerUp> toRemove = new ArrayList<PowerUp>();
 		
 		for (PowerUp powerUp : activatedPowerUps) {
-			powerUp.update(allAgent);
+			powerUp.update(allAgents);
 			if (!powerUp.isActivated()) {
 				toRemove.add(powerUp);
 			}
@@ -182,9 +236,10 @@ public abstract class Agent {
 	}
 	
 	/**
-	 * Checks whether the agent has an activated power.
+	 * Checks whether the agent has an activated power up.
 	 * 
-	 * @return hasActivatedPower (boolean)
+	 * @return true if the agent currently has at least one activated power up, 
+	 * false otherwise. (boolean)
 	 */
 	public boolean hasActivatedPowerUp() {
 		return activatedPowerUps.size() > 0;
@@ -206,31 +261,29 @@ public abstract class Agent {
 	 * @return the selected power up in the Agent's collection of stored power 
 	 * ups.
 	 */
-	public PowerUp getSelectedStoredPowerUp() {
-		if (isSelectedValid()) {
-			return storedPowerUps.get(selectedPowerUp);
-		} else {
-			return null;
-		}
+	public PowerUp getStoredPowerUp(int index) {
+		return storedPowerUps.get(index);
 	}
 
 	/**
-	 * Activate the selected power up.
+	 * Activate the power up stored at the provided index.
 	 * 
 	 * The power up will not be activated if:
-	 * 	- the power up is not currently stored by the agent.
+	 * 	- there is no power up stored at the given index.
 	 *  - the Agent already has a power up activated and stacking is not 
 	 *  enabled.
-	 *  - the power up is already activated.
 	 * 
+	 * @param index - the index of the stored power up to acitvate.
+	 * @param allAgents - all the agents currently in the game.
 	 * @return true if the selected power up is activated, false otherwise.
 	 */
-	public boolean activatePowerUp(List<Agent> allAgents) {
+	public boolean activatePowerUp(int index, List<Agent> allAgents) {
 		
 		boolean success = false;
 		
-		if (isSelectedValid()) {
-			PowerUp powerUp = storedPowerUps.get(selectedPowerUp);
+		PowerUp powerUp = storedPowerUps.get(index);
+		
+		if (powerUp != null) {
 			
 			// The agent allows this power up to be activated if it allows 
 			// power ups to be stacked, or it doesn't currently have an 
@@ -238,37 +291,62 @@ public abstract class Agent {
 			boolean activationAllowed = getStacking() || !hasActivatedPowerUp();
 			
 			// Check the agent allows the power up to be activated and the given
-			// power up is not already activated.
+			// power up is not already activated (this should never happen...).
 			success = activationAllowed && !powerUp.isActivated();
 
 			if (success) {
 				activatedPowerUps.add(powerUp);
-				storedPowerUps.remove(powerUp);
+				storedPowerUps.remove(index);
 				powerUp.activate(allAgents);
 			}
 		}
 		
 		return success;
-		
 	}
 	
 	/**
-	 * Checks whether the selectedPowerUp is valid.
+	 * Add the provided power up to the list of power ups that are currently 
+	 * applied to this agent.
 	 * 
-	 * @return isValid (boolean)
+	 * @param powerUp - the power up to add.
 	 */
-	public boolean isSelectedValid() {
-		//boolean inRangeMax = selectedPowerUp <= getMaxPowerUp();
-		boolean inRange = selectedPowerUp >= 0 && 
-						  selectedPowerUp < storedPowerUps.size();
-		
-		return inRange;
+	public void powerUpApplied(PowerUp powerUp) {
+		powerUpsAppliedToMe.add(powerUp);
+	}
+	
+	/**
+	 * Remove the provided power up from the list of power ups that are 
+	 * currently applied to this agent.
+	 * 
+	 * @param powerUp - the power up to remove.
+	 */
+	public void powerUpTerminated(PowerUp powerUp) {
+		powerUpsAppliedToMe.remove(powerUp);
+	}
+	
+	/**
+	 * Get the list of power ups that are currently applied to this agent.
+	 * 
+	 * @return the list of power ups applied to this agent.
+	 */
+	public List<PowerUp> getPowerUpsAppliedToMe() {
+		return powerUpsAppliedToMe;
 	}
 
+	/**
+	 * Get the direction this agent is currently travelling in.
+	 * 
+	 * @return - the direction this agent is travelling in.
+	 */
 	public Direction getCurrentDirection() {
 		return currentDirection;
 	}
 
+	/**
+	 * Set the direction this agent is currently travelling in.
+	 * 
+	 * @param newDirection - the direction this agent is travelling in.
+	 */
 	public void setCurrentDirection(Direction newDirection) {
 		if (currentDirection != Direction.None) {
 			previousDirection = currentDirection;
@@ -276,26 +354,84 @@ public abstract class Agent {
 		this.currentDirection = newDirection;
 	}
 
+	/**
+	 * Get the previous direction this agent was travelling in. This does not 
+	 * include the 'None' state. 
+	 * For example, if the agent's direction states have gone 'Right', 'None',
+	 * 'Down', then this will return 'Right'.
+	 * 
+	 * @return the previous direction this agent was travelling in.
+	 */
 	public Direction getPreviousDirection() {
 		return previousDirection;
 	}
 
+	/**
+	 * Get the agent's current speed index. 
+	 * This is the agent's base speed index, plus any variable speed index 
+	 * resulting from a power up applied to the agent.
+	 * 
+	 * @return the agent's current speed index.
+	 */
 	public int getSpeedIndex() {
 		return baseSpeedIndex + variableSpeedIndex;
 	}
 
+	/**
+	 * Set the variable portion of this agent's speed index.
+	 * 
+	 * @param variableSpeedIndex - the variable speed index to use for this 
+	 * agent.
+	 */
 	public void setVariableSpeedIndex(int variableSpeedIndex) {
 		this.variableSpeedIndex = variableSpeedIndex;
 	}
 
+	/**
+	 * Get the agent's base speed index.
+	 * This is the speed the agent will move when no power up is applied.
+	 * 
+	 * @return the agent's base speed index.
+	 */
+	public int getBaseSpeedIndex() {
+		return baseSpeedIndex;
+	}
+	
+	/**
+	 * Get the agent's variable speed index.
+	 * This is the additional speed that is due to applied power ups (which of
+	 * course may be negative). 
+	 * 
+	 * @return the agent's variable speed index.
+	 */
+	public int getVariableSpeedIndex() {
+		return variableSpeedIndex;
+	}
+	
+	/**
+	 * Returns true if a magnet is currently applied to this agent.
+	 * 
+	 * @return true if a magnet is currently applied to this agent, false 
+	 * otherwise.
+	 */
 	public boolean magnetApplied() {
 		return magnet != null;
 	}
 	
+	/**
+	 * Get the magnet currently applied to this agent.
+	 * 
+	 * @return the magnet applied to this agent.
+	 */
 	public Magnet getMagnet() {
 		return magnet;
 	}
 
+	/**
+	 * Set the magnet to apply to this agent.
+	 * 
+	 * @param magnet - the magnet to apply to this agent.
+	 */
 	public void setMagnet(Magnet magnet) {
 		this.magnet = magnet;
 	}

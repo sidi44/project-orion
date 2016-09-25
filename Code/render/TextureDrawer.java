@@ -1,9 +1,13 @@
 package render;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import logic.Agent;
 import logic.Direction;
+import logic.powerup.PowerUp;
+import logic.powerup.PowerUpType;
 import physics.PhysicsBody;
 import physics.PhysicsBodyAgent;
 import physics.PhysicsBodyDebug;
@@ -103,6 +107,53 @@ public class TextureDrawer {
 		}
 		
 		spriteBatch.end();
+	}
+	
+	// Temporary method, can remove after we have all images
+	private void filterOutOnesWithoutImage(Set<PowerUpType> powerUpTypes) {
+		Set<PowerUpType> hasImage = new HashSet<PowerUpType>();
+		hasImage.add(PowerUpType.SpeedUp);
+		hasImage.add(PowerUpType.SlowDown);
+//		hasImage.add(PowerUpType.Teleport);
+//		hasImage.add(PowerUpType.Magnet);
+//		hasImage.add(PowerUpType.Freeze);
+		
+		powerUpTypes.retainAll(hasImage);
+	}
+	
+	public void drawPowerUpEffectTextures(List<PhysicsBodyAgent> pbAgents, Matrix4 projMatrix) {
+		float deltaTime = Gdx.graphics.getDeltaTime();
+		
+		for (PhysicsBodyAgent pbAgent : pbAgents) {
+			List<PowerUp> powerUps = pbAgent.getAgent().getPowerUpsAppliedToMe();
+			Set<PowerUpType> powerUpTypes = new HashSet<PowerUpType>();
+			Body body = pbAgent.getBody();
+			
+			for (PowerUp powerUp : powerUps) {
+				powerUpTypes.add(powerUp.getType());
+			}
+			
+			filterOutOnesWithoutImage(powerUpTypes); // Remove line when have all images
+			
+			for (PowerUpType powerUpType : powerUpTypes) {
+				Agent agent = pbAgent.getAgent();
+				String bodyId = String.valueOf(agent.getID());
+				String animationGroupName = powerUpType.name() + "Effect";		
+				Direction currentDirection = agent.getCurrentDirection();
+				Direction previousDirection = agent.getPreviousDirection();		
+				
+				String animationName = getNameByDirection(animationGroupName,
+														  currentDirection,
+														  previousDirection);
+
+				TextureRegion frame = animator.getAnimationFrame(bodyId, 
+													animationGroupName,
+													animationName, 
+													deltaTime);
+				
+				drawForCell(body, projMatrix, frame);
+			}
+		}	
 	}
 	
 	public void drawTexture(Body body, Matrix4 projMatrix) {
@@ -220,6 +271,10 @@ public class TextureDrawer {
 											   type);
 		}
 
+		drawForCell(body, projMatrix, frame);
+	}
+
+	private void drawForCell(Body body, Matrix4 projMatrix, TextureRegion frame) {
 		float[] boundingBox = BoundingBoxUtils.getBoundingBox(body);
 		float width = boundingBox[1] - boundingBox[0];
 		float height = boundingBox[3] - boundingBox[2];
