@@ -1,13 +1,11 @@
 package ui;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -177,22 +175,6 @@ abstract class MenuScreen extends AbstractScreen {
                     	            padding,
                     	            func,
                     	            slider);
-	}
-
-
-	protected Dialog createDialog() {
-	    Dialog dialog = new Dialog("Game over", skin, "dialog") {
-	        @Override
-            public void result(Object obj) {
-	            System.out.println("result "+obj);
-	        }
-	    };
-	    dialog.text("Play again?");
-	    dialog.button("Yes", true); //sends "true" as the result
-	    dialog.button("No", false);  //sends "false" as the result
-	    dialog.key(Keys.ENTER, true); //sends "true" when the ENTER key is pressed
-
-	    return dialog;
 	}
 
 }

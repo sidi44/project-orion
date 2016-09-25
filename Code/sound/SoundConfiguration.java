@@ -39,7 +39,7 @@ public class SoundConfiguration {
 			System.err.println("Sound level out of range. "
 					+ "Sound level will not be set.");
 			return;
-		}
+		}		
 		this.soundLevel = soundLevel;
 	}
 

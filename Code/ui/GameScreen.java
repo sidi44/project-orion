@@ -159,8 +159,6 @@ class GameScreen extends MenuScreen {
 		
 		// Tell the game its finished and why
 		game.gameOver(reason);
-
-		createDialog().show(getStage());
 	}
 	
 	/**
