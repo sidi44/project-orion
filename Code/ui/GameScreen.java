@@ -154,6 +154,9 @@ class GameScreen extends MenuScreen {
 	
 	private void gameFinished(GameOver reason) {
 		
+		// Clear any stored user input
+		inputProc.reset();
+		
 		// Grab the game from the screen manager
 		PredatorPreyGame game = getManager().getGame();
 		
