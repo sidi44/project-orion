@@ -1,8 +1,5 @@
 package ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import sound.SoundConfiguration;
 
 import com.badlogic.gdx.Gdx;
@@ -12,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import data.DataManager;
@@ -22,7 +19,10 @@ import game.PredatorPreyGame;
 
 class SettingsScreen extends MenuScreen {
 	
-	SoundConfiguration soundConfig;
+	private SoundConfiguration soundConfig;
+	
+	private final float SLIDER_PADDING = 5f;
+	private final float TABLE_PADDING = 20f;
 	
 	public SettingsScreen(ScreenManager manager) {
 		super(manager);
@@ -66,64 +66,58 @@ class SettingsScreen extends MenuScreen {
 		};
 		CheckBox musicCheck = createCheckBox("Music", musicOn, musicOnFunc);
 
-		final float sliderPanelPadding = 5f;
-		List<SliderPanel> sliderPanels = new ArrayList<SliderPanel>();
-
 		// Create the sound volume slider
-        final Label soundSliderValueLabel = new Label(Integer.toString(soundConfig.getSoundLevel()), getSkin());
         final IntConsumer soundFunc = new IntConsumer() {
             @Override
             public void accept(int value) {
                 soundConfig.setSoundLevel(value);
-                soundSliderValueLabel.setText(Integer.toString(value));
                 saveData();
             }
         };
-
-        sliderPanels.add(createIntSliderPanel("Sound",
-                                              soundSliderValueLabel,
-                                              soundConfig.getSoundLevel(),
-                                              sliderPanelPadding,
-                                              soundFunc));
+        
+        int soundLevel = soundConfig.getSoundLevel();
+        Slider soundSlider = createIntSlider(0, 11, 1, soundLevel, soundFunc);
+        SliderPanel soundSliderPanel = createIntSliderPanel(soundSlider, 
+        													"Sound",
+        													SLIDER_PADDING);
 
 		// Create the music volume slider
-        final Label musicSliderValueLabel = new Label(Integer.toString(soundConfig.getMusicLevel()), getSkin());
         final IntConsumer musicFunc = new IntConsumer() {
             @Override
             public void accept(int value) {
                 soundConfig.setMusicLevel(value);
-                musicSliderValueLabel.setText(Integer.toString(value));
                 saveData();
             }
         };
 
-        sliderPanels.add(createIntSliderPanel("Music",
-                                              musicSliderValueLabel,
-                                              soundConfig.getMusicLevel(),
-                                              sliderPanelPadding,
-                                              musicFunc));
+        int musicLevel = soundConfig.getMusicLevel();
+        Slider musicSlider = createIntSlider(0, 11, 1, musicLevel, musicFunc);
+        SliderPanel musicSliderPanel = createIntSliderPanel(musicSlider, 
+        													"Music",
+        													SLIDER_PADDING);
 
+        // Add the main menu button
 		Button menuButton = createScreenChangeButton(
 				"Main menu", ScreenName.MainMenu);
 		
 		
+		// Layout the widgets in a table
 		Table table = new Table();
-		float pad = 20f;
 		
 		Cell<CheckBox> soundCheckCell = table.add(soundCheck);
-		soundCheckCell.pad(pad);
-		Cell<SliderPanel> soundSliderCell = table.add(sliderPanels.get(0));
-		soundSliderCell.pad(pad);
+		soundCheckCell.pad(TABLE_PADDING);
+		Cell<SliderPanel> soundSliderCell = table.add(soundSliderPanel);
+		soundSliderCell.pad(TABLE_PADDING);
 		table.row();
 		
 		Cell<CheckBox> musicCheckCell = table.add(musicCheck);
-		musicCheckCell.pad(pad);
-		Cell<SliderPanel> musicSliderCell = table.add(sliderPanels.get(1));
-		musicSliderCell.pad(pad);
+		musicCheckCell.pad(TABLE_PADDING);
+		Cell<SliderPanel> musicSliderCell = table.add(musicSliderPanel);
+		musicSliderCell.pad(TABLE_PADDING);
 		table.row();
 
 		Cell<Button> menuCell = table.add(menuButton);
-		menuCell.pad(pad);
+		menuCell.pad(TABLE_PADDING);
 		menuCell.colspan(2);
 		
 		table.setFillParent(true);

@@ -94,87 +94,60 @@ abstract class MenuScreen extends AbstractScreen {
 		return slider;
 	}
 
+	protected SliderPanel createIntSliderPanel(final Slider slider,
+											   String labelName,
+                                               float padding) {
 
-	protected SliderPanel createIntSliderPanel(String labelName,
-	                                           final Label sliderValueLabel,
-                                    	       float padding,
-                                    	       final IntConsumer func,
-                                    	       final Slider slider) {
+		// Create the value label for the slider
+		int initialValue = (int) slider.getValue();
+		String valueLabel = Integer.toString(initialValue);
+		final Label sliderValueLabel = new Label(valueLabel, getSkin());
+        
+		// Make sure the value label gets updated when the slider changes
+        slider.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+                int value = (int) slider.getValue();
+                sliderValueLabel.setText(Integer.toString(value));
+			}
+        });
 
+        // Create the plus and minus buttons
 	    final ImageButton minusButton = new ImageButton(getSkin(), "minus");
 	    final ImageButton plusButton = new ImageButton(getSkin(), "plus");
 
-
-	    // Minus button
 	    minusButton.addListener(new ClickListener() {
-
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 final int currentValue = (int) slider.getValue();
-
                 if (currentValue > slider.getMinValue()) {
                     final int newValue = currentValue - 1;
                     slider.setValue(newValue);
-                    sliderValueLabel.setText(Integer.toString(newValue));
-                    func.accept(newValue);
                 }
             }
 	    });
 
-	    // Plus button
 	    plusButton.addListener(new ClickListener() {
-
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 final int currentValue = (int) slider.getValue();
-
                 if (currentValue < slider.getMaxValue()) {
                     final int newValue = currentValue + 1;
                     slider.setValue(newValue);
-                    sliderValueLabel.setText(Integer.toString(newValue));
-                    func.accept(newValue);
                 }
             }
 	    });
 
-	    return new SliderPanel(new Label (labelName, getSkin()),
+	    // Create the slider label widget
+	    Label sliderLabel = new Label(labelName, getSkin());
+	    
+	    // Add everything into a SliderPanel which lays out the widgets nicely
+	    return new SliderPanel(sliderLabel,
                                sliderValueLabel,
                                minusButton,
                                plusButton,
                                slider,
                                padding);
-	}
-
-
-	protected SliderPanel createIntSliderPanel(String labelName,
-	                                           final Label sliderValueLabel,
-                                               int initialValue,
-                                               float padding,
-                                               final IntConsumer func) {
-
-	    // Create the slider
-        final Slider slider = new Slider(1, 10, 1, false, getSkin()); // FIXME we should set these from config
-
-        // Set the initial value
-        slider.setValue(initialValue);
-
-        // Add a listener which calls the provided function when the sliders
-        // value is changed
-        slider.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                int value = (int) slider.getValue();
-                sliderValueLabel.setText(Integer.toString(value));
-                func.accept(value);
-            }
-        });
-
-
-	    return createIntSliderPanel(labelName,
-                    	            sliderValueLabel,
-                    	            padding,
-                    	            func,
-                    	            slider);
 	}
 
 }

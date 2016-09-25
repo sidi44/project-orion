@@ -10,7 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -22,6 +22,9 @@ import functional.IntConsumer;
 class SandboxScreen extends MenuScreen {
 	
 	private SandboxConfiguration sandboxConfig;
+	
+	private final float SLIDER_PADDING = 5f;
+	private final float TABLE_PADDING = 10f;
 	
 	public SandboxScreen(ScreenManager manager) {
 		super(manager);
@@ -46,93 +49,75 @@ class SandboxScreen extends MenuScreen {
 		Image screenImage = new Image(new Texture(file));
 		getStage().addActor(screenImage);
 
+		// Convenience list to store all the slider panels
 		List<SliderPanel> sliderPanels = new ArrayList<SliderPanel>();
-
-		final float sliderPanelPadding = 5f;
-
+		
 		// Create the maze width slider
-        final Label widthSliderValueLabel = new Label(Integer.toString(sandboxConfig.getMazeWidth()), getSkin());
+		int width = sandboxConfig.getMazeWidth();
         final IntConsumer widthFunc = new IntConsumer() {
             @Override
             public void accept(int value) {
                 sandboxConfig.setMazeWidth(value);
-                widthSliderValueLabel.setText(Integer.toString(value));
             }
         };
-
-        sliderPanels.add(createIntSliderPanel("Width",
-                                              widthSliderValueLabel,
-                                              sandboxConfig.getMazeWidth(),
-                                              sliderPanelPadding,
-                                              widthFunc));
+        Slider widthSlider = createIntSlider(4, 30, 1, width, widthFunc);
+        sliderPanels.add(createIntSliderPanel(widthSlider, 
+        									  "Width",
+        									  SLIDER_PADDING));
 
 		// Create the maze height slider
-        final Label heightSliderValueLabel = new Label(Integer.toString(sandboxConfig.getMazeHeight()), getSkin());
+        int height = sandboxConfig.getMazeHeight();
 		final IntConsumer heightFunc = new IntConsumer() {
 			@Override
 			public void accept(int value) {
 				sandboxConfig.setMazeHeight(value);
-				heightSliderValueLabel.setText(Integer.toString(value));
 			}
 		};
-
-		sliderPanels.add(createIntSliderPanel("Height",
-		                                      heightSliderValueLabel,
-                            		          sandboxConfig.getMazeHeight(),
-                            		          sliderPanelPadding,
-                            		          heightFunc));
-
-
+        Slider heightSlider = createIntSlider(4, 30, 1, height, heightFunc);
+        sliderPanels.add(createIntSliderPanel(heightSlider, 
+											  "Height",
+											  SLIDER_PADDING));
 
 		// Create the predator speed slider
-        final Label predatorSpeedSliderValueLabel = new Label(Integer.toString(sandboxConfig.getPredatorSpeedIndex()), getSkin());
+        int predatorSpeed = sandboxConfig.getPredatorSpeedIndex();
         final IntConsumer predatorSpeedFunc = new IntConsumer() {
             @Override
             public void accept(int value) {
                 sandboxConfig.setPredatorSpeedIndex(value);
-                predatorSpeedSliderValueLabel.setText(Integer.toString(value));
             }
         };
-
-        sliderPanels.add(createIntSliderPanel("Predator Speed",
-                                              predatorSpeedSliderValueLabel,
-                                              sandboxConfig.getPredatorSpeedIndex(),
-                                              sliderPanelPadding,
-                                              predatorSpeedFunc));
+        Slider predatorSpeedSlider = createIntSlider(1, 10, 1, predatorSpeed, predatorSpeedFunc);
+        sliderPanels.add(createIntSliderPanel(predatorSpeedSlider,
+        									  "Predator Speed",
+        									  SLIDER_PADDING));
 
 
 		// Create the prey speed slider
-        final Label preySpeedSliderValueLabel = new Label(Integer.toString(sandboxConfig.getPreySpeedIndex()), getSkin());
+        int preySpeed = sandboxConfig.getPreySpeedIndex();
         final IntConsumer preySpeedFunc = new IntConsumer() {
             @Override
             public void accept(int value) {
                 sandboxConfig.setPreySpeedIndex(value);
-                preySpeedSliderValueLabel.setText(Integer.toString(value));
             }
         };
-
-        sliderPanels.add(createIntSliderPanel("Prey Speed",
-                                              preySpeedSliderValueLabel,
-                                              sandboxConfig.getPreySpeedIndex(),
-                                              sliderPanelPadding,
-                                              preySpeedFunc));
+        Slider preySpeedSlider = createIntSlider(1, 10, 1, preySpeed, preySpeedFunc);
+        sliderPanels.add(createIntSliderPanel(preySpeedSlider, 
+        									  "Prey Speed",
+        									  SLIDER_PADDING));
 
 
 		// Create the number of prey slider
-        final Label numPreySliderValueLabel = new Label(Integer.toString(sandboxConfig.getNumPrey()), getSkin());
-        final IntConsumer numPreySpeedFunc = new IntConsumer() {
+        int numPrey = sandboxConfig.getNumPrey();
+        final IntConsumer numPreyFunc = new IntConsumer() {
             @Override
             public void accept(int value) {
                 sandboxConfig.setNumPrey(value);
-                numPreySliderValueLabel.setText(Integer.toString(value));
             }
         };
-
-        sliderPanels.add(createIntSliderPanel("Num prey",
-                                              numPreySliderValueLabel,
-                                              sandboxConfig.getNumPrey(),
-                                              sliderPanelPadding,
-                                              numPreySpeedFunc));
+        Slider numPreySlider = createIntSlider(1, 10, 1, numPrey, numPreyFunc);
+        sliderPanels.add(createIntSliderPanel(numPreySlider, 
+        								      "Num prey",
+        								      SLIDER_PADDING));
 
 
 		// Create the game button
@@ -153,17 +138,16 @@ class SandboxScreen extends MenuScreen {
 		
 		// Set out the widgets using a table
 		Table table = new Table();
-		float pad = 10f;
 
 		for (SliderPanel panel : sliderPanels) {
-		    table.add(panel).colspan(4).pad(pad);
+		    table.add(panel).colspan(4).pad(TABLE_PADDING).right();
 		    table.row();
 		}
 
 		Cell<Button> gameCell = table.add(gameButton);
-		gameCell.pad(pad);
+		gameCell.pad(TABLE_PADDING);
 		Cell<Button> menuCell = table.add(menuButton);
-		menuCell.pad(pad);
+		menuCell.pad(TABLE_PADDING);
 		
 		table.setFillParent(true);
 		table.setDebug(true);
