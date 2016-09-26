@@ -106,6 +106,7 @@ class LevelsScreen extends MenuScreen {
 		for (Integer levelNumber : levelButtons.keySet()) {
 			Button button = levelButtons.get(levelNumber);
 			boolean locked = progress.isLevelLocked(levelNumber);
+			button.setDisabled(locked);
 			if (locked) {
 				button.setTouchable(Touchable.disabled);
 			} else {
