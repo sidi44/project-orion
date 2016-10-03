@@ -474,4 +474,20 @@ public class GameDataManager implements DataManager {
 		handle.writeString(progressString, append);
 	}
 
+	@Override
+	public List<Integer> getLevelStarScores(int levelNumber) {
+		
+		// Check that the level exists
+		if (!levelsData.levelExists(levelNumber)) {
+			System.err.println("No data for requested level number.");
+			return new ArrayList<Integer>();
+		}
+		
+		// Get the requested level
+		Level level = levelsData.getLevel(levelNumber);
+		
+		// Return the star scores for this level
+		return level.getStarScores();
+	}
+
 }

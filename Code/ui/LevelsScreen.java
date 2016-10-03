@@ -1,6 +1,7 @@
 package ui;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import game.PredatorPreyGame;
@@ -9,7 +10,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -21,7 +21,12 @@ import data.PlayerProgress;
 
 class LevelsScreen extends MenuScreen {
 
-	Map<Integer, Button> levelButtons;
+	Map<Integer, LevelButtonPanel> levelButtons;
+	
+	private static final int PADDING = 20;
+	
+	private static final int NUM_LEVEL_ROWS = 3;
+	private static final int NUM_LEVEL_COLS = 3;
 	
 	public LevelsScreen(ScreenManager manager) {
 		super(manager);
@@ -29,7 +34,7 @@ class LevelsScreen extends MenuScreen {
 	
 	@Override
 	protected void initialise() {
-		levelButtons = new HashMap<Integer, Button>();
+		levelButtons = new HashMap<Integer, LevelButtonPanel>();
 		super.initialise();
 	}
 
@@ -42,12 +47,11 @@ class LevelsScreen extends MenuScreen {
 		getStage().addActor(screenImage);
 
 		// Create our levels buttons
-		Button levelButton1 = createLevelButton("Level 1", 1);
-		Button levelButton2 = createLevelButton("Level 2", 2);
-		Button levelButton3 = createLevelButton("Level 3", 3);
-		Button levelButton4 = createLevelButton("Level 4", 4);
-		Button levelButton5 = createLevelButton("Level 5", 5);
-		Button levelButton6 = createLevelButton("Level 6", 6);
+		int numLevels = NUM_LEVEL_ROWS * NUM_LEVEL_COLS;
+		for (int i = 1; i <= numLevels; ++i) {
+			LevelButtonPanel button = createLevelButtonPanel(i);
+			levelButtons.put(i, button);
+		}
 		
 		// Create the button to get back to the main menu
 		Button menuButton = createScreenChangeButton(
@@ -57,17 +61,15 @@ class LevelsScreen extends MenuScreen {
 		float pad = 20f;
 		Table table = new Table();
 		
-		table.add(levelButton1).pad(pad);
-		table.add(levelButton2).pad(pad);
-		table.add(levelButton3).pad(pad);
-		table.row();
+		for (int i = 0; i < NUM_LEVEL_ROWS; ++i) {
+			for (int j = 0; j < NUM_LEVEL_COLS; ++j) {
+				int num = i * NUM_LEVEL_COLS + j + 1;
+				table.add(levelButtons.get(num)).pad(PADDING).expand();
+			}
+			table.row();
+		}
 		
-		table.add(levelButton4).pad(pad);
-		table.add(levelButton5).pad(pad);
-		table.add(levelButton6).pad(pad);
-		table.row();
-		
-		table.add(menuButton).pad(pad).colspan(3);
+		table.add(menuButton).pad(pad).colspan(NUM_LEVEL_COLS);
 		
 		table.setFillParent(true);
 		table.setDebug(true);
@@ -75,7 +77,16 @@ class LevelsScreen extends MenuScreen {
 	}
 	
 	
-	protected Button createLevelButton(String text, final int levelNumber) {
+	private LevelButtonPanel createLevelButtonPanel(int levelNumber) {
+		
+		String text = "Level " + levelNumber;
+		Button button = createLevelButton(text, levelNumber);
+		LevelButtonPanel panel = new LevelButtonPanel(getSkin(), button);
+		
+		return panel;
+	}
+	
+	private Button createLevelButton(String text, final int levelNumber) {
 
 		Button button = new TextButton(text, getSkin());
 		button.addListener(new ClickListener() {
@@ -87,32 +98,61 @@ class LevelsScreen extends MenuScreen {
 			}
 		});
 		
-		levelButtons.put(levelNumber, button);
-		
 		return button;
 	}
 	
 	@Override
 	protected void doShow() {
 		updateLevelsLocked();
+		updateStars();
 	}
 	
-	void updateLevelsLocked() {
+	private void updateLevelsLocked() {
 		
 		PredatorPreyGame game = getManager().getGame();
 		DataManager dataManager = game.getDataManager();
 		PlayerProgress progress = dataManager.getPlayerProgress();
 		
 		for (Integer levelNumber : levelButtons.keySet()) {
-			Button button = levelButtons.get(levelNumber);
+			LevelButtonPanel button = levelButtons.get(levelNumber);
 			boolean locked = progress.isLevelLocked(levelNumber);
-			button.setDisabled(locked);
-			if (locked) {
-				button.setTouchable(Touchable.disabled);
-			} else {
-				button.setTouchable(Touchable.enabled);
-			}
+			button.setLocked(locked);
 		}
+		
+	}
+	
+	private void updateStars() {
+		
+		// Grab the data manager
+		PredatorPreyGame game = getManager().getGame();
+		DataManager dataManager = game.getDataManager();
+		
+		// Get the player's progress
+		PlayerProgress progress = dataManager.getPlayerProgress();
+		
+		for (Integer levelNumber : levelButtons.keySet()) {
+			LevelButtonPanel button = levelButtons.get(levelNumber);
+			
+			List<Integer> starScores = 
+					dataManager.getLevelStarScores(levelNumber);
+			
+			int score = progress.getLevelScore(levelNumber);
+			
+			if (starScores.size() != 3) {
+				button.setNotComplete();
+			} else if (score >= starScores.get(2)) {
+				button.setCompleteGold();
+			} else if (score >= starScores.get(1)) {
+				button.setCompleteSilver();
+			} else if (score >= starScores.get(0)) {
+				button.setCompleteBronze();
+			} else {
+				button.setNotComplete();
+			}
+			
+		}
+		
+		
 		
 	}
 	

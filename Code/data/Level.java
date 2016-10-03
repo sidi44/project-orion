@@ -2,6 +2,7 @@ package data;
 
 import geometry.PointXY;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ class Level {
 	private int preySpeedIndex;
 	private int numPowerUps;
 	private List<PowerUpType> powerUpTypes;
-	private Map<Integer, Integer> starScores;
+	private Map<String, Integer> starScores;
 	
 	public Level() {
 		
@@ -46,8 +47,16 @@ class Level {
 		return powerUpTypes;
 	}
 
-	public Map<Integer, Integer> getStarScores() {
-		return starScores;
+	public List<Integer> getStarScores() {
+		List<Integer> scores = new ArrayList<Integer>();
+		if (starScores.size() == 3) {
+			for (int i = 1; i <= 3; ++i) {
+				String num = Integer.toString(i);
+				int score = starScores.get(num);
+				scores.add(score);
+			}
+		}
+		return scores;
 	}
 	
 }

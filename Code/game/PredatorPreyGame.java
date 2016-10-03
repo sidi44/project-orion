@@ -195,8 +195,8 @@ public class PredatorPreyGame extends Game implements GameStatus {
 			// Unlock the next level
 			progress.setLevelLocked(currentLevel + 1, false);
 			
-			// TODO Save the score here as well
-			
+			// TODO Save the actual score here
+			progress.setLevelScore(currentLevel, 150);
 			
 			// Save the player progress
 			dataManager.savePlayerProgress();
