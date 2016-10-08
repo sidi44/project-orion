@@ -65,7 +65,7 @@ public class PlayerProgress {
 		String num = Integer.toString(levelNumber);
 		
 		if (levelScores.containsKey(num)) {
-			if (levelScores.get(num) > score) {
+			if (score > levelScores.get(num)) {
 				levelScores.put(num, score);
 			}
 		} else {

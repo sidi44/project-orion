@@ -148,7 +148,9 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		GameState state = gameLogic.getGameState();
 		physProc.stepSimulation(delta, state);
 		
-		return gameLogic.isGameOver(1);
+		state.decreaseTimeRemaining(delta);
+		
+		return gameLogic.isGameOver();
 	}
 	
 	private void processMoves(Move move) {
@@ -195,8 +197,10 @@ public class PredatorPreyGame extends Game implements GameStatus {
 			// Unlock the next level
 			progress.setLevelLocked(currentLevel + 1, false);
 			
-			// TODO Save the actual score here
-			progress.setLevelScore(currentLevel, 150);
+			// Save the score
+			GameState state = gameLogic.getGameState();
+			int score = state.getScore();
+			progress.setLevelScore(currentLevel, score);
 			
 			// Save the player progress
 			dataManager.savePlayerProgress();
