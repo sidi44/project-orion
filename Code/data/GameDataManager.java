@@ -239,6 +239,9 @@ public class GameDataManager implements DataManager {
 		// We always want pills for levels
 		boolean hasPills = true;
 		
+		// Get the game time limit for this level
+		int timeLimit = level.getTimeLimit();
+		
 		// Get the level's maze config
 		MazeConfig mazeConfig = level.getMazeConfig();
 		
@@ -274,7 +277,7 @@ public class GameDataManager implements DataManager {
 		
 		// Create our game configuration
 		GameConfiguration gameConfig = new GameConfiguration(mazeShape, 
-				hasPills, mazeConfig, agentConfig, powerUpConfig);
+				hasPills, timeLimit, mazeConfig, agentConfig, powerUpConfig);
 		
 		// We're done
 		return gameConfig;
@@ -339,12 +342,14 @@ public class GameDataManager implements DataManager {
 		
 		
 		// Create the power up config. 
-		// The number of predator power ups is based on the size of the maze.
+		// The number of predator power ups is based on the size of the maze 
+		// (about 1 per 4x4 grid section).
 		// We allow allow types of power up in sandbox mode, and give them all
 		// the same strength.
 		PowerUpConfig powerUpConfig = new PowerUpConfig();
 		
-		int numPowerUps = ((mazeWidth + 1) * (mazeHeight + 1)) / 16 + 1;
+		int numSquares = (mazeWidth + 1) * (mazeHeight + 1);
+		int numPowerUps = numSquares / 16 + 1;
 		powerUpConfig.setNumPredPow(numPowerUps);
 		
 		int defaultPowerUpStrengths = defaultSandboxConfig.getPowerUpStrengths();
@@ -358,10 +363,13 @@ public class GameDataManager implements DataManager {
 		}
 		powerUpConfig.setPredatorPowerUps(powerUpDefs);
 
+		// Set the time limit - we use 3 seconds per grid square to give a 
+		// fairly generous value
+		int timeLimit = 3 * numSquares;
 		
 		// Create our game configuration
 		GameConfiguration gameConfig = new GameConfiguration(mazeShape, 
-				hasPills, mazeConfig, agentConfig, powerUpConfig);
+				hasPills, timeLimit, mazeConfig, agentConfig, powerUpConfig);
 		
 		// We're done
 		return gameConfig;

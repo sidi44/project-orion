@@ -17,6 +17,7 @@ class Level {
 	private int preySpeedIndex;
 	private int numPowerUps;
 	private List<PowerUpType> powerUpTypes;
+	private int timeLimit;
 	private Map<String, Integer> starScores;
 	
 	public Level() {
@@ -47,6 +48,10 @@ class Level {
 		return powerUpTypes;
 	}
 
+	public int getTimeLimit() {
+		return timeLimit;
+	}
+	
 	public List<Integer> getStarScores() {
 		List<Integer> scores = new ArrayList<Integer>();
 		if (starScores.size() == 3) {

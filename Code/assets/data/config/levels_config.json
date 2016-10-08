@@ -33,11 +33,12 @@
 				Freeze
 				SpeedUp
 			]
+			timeLimit: 60
 			starScores : {
 				class: java.util.HashMap
-				1: 100
-				2: 200
-				3: 300
+				1: 10
+				2: 1500
+				3: 3000
 			}
 		}
 		2: {
@@ -72,11 +73,12 @@
 				SlowDown
 				Magnet
 			]
+			timeLimit: 60
 			starScores : {
 				class: java.util.HashMap
-				1: 150
-				2: 250
-				3: 350
+				1: 10
+				2: 1500
+				3: 3000
 			}	
 		}
 		3: {
@@ -111,11 +113,12 @@
 				SpeedUp
 				Teleport
 			]
+			timeLimit: 60
 			starScores : {
 				class: java.util.HashMap
-				1: 150
-				2: 250
-				3: 350
+				1: 10
+				2: 1500
+				3: 3000
 			}	
 		}
 		4: {
@@ -150,11 +153,12 @@
 				Freeze
 				Magnet
 			]
+			timeLimit: 60
 			starScores : {
 				class: java.util.HashMap
-				1: 150
-				2: 250
-				3: 350
+				1: 10
+				2: 1500
+				3: 3000
 			}	
 		}
 		5: {
@@ -189,11 +193,12 @@
 				SlowDown
 				SpeedUp
 			]
+			timeLimit: 60
 			starScores : {
 				class: java.util.HashMap
-				1: 150
-				2: 250
-				3: 350
+				1: 10
+				2: 1500
+				3: 3000
 			}	
 		}
 		6: {
@@ -228,11 +233,12 @@
 				SlowDown
 				Teleport
 			]
+			timeLimit: 60
 			starScores : {
 				class: java.util.HashMap
-				1: 150
-				2: 250
-				3: 350
+				1: 10
+				2: 1500
+				3: 3000
 			}	
 		}
 		7: {
@@ -268,11 +274,12 @@
 				SlowDown
 				SpeedUp
 			]
+			timeLimit: 60
 			starScores : {
 				class: java.util.HashMap
-				1: 150
-				2: 250
-				3: 350
+				1: 10
+				2: 1500
+				3: 3000
 			}	
 		}
 		8: {
@@ -306,11 +313,12 @@
 			powerUpTypes: [
 				SpeedUp
 			]
+			timeLimit: 60
 			starScores : {
 				class: java.util.HashMap
-				1: 150
-				2: 250
-				3: 350
+				1: 10
+				2: 1500
+				3: 3000
 			}	
 		}
 		9: {
@@ -348,11 +356,12 @@
 				Magnet
 				Teleport
 			]
+			timeLimit: 60
 			starScores : {
 				class: java.util.HashMap
-				1: 150
-				2: 250
-				3: 350
+				1: 10
+				2: 1500
+				3: 3000
 			}	
 		}
 	}
