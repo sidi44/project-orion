@@ -2,13 +2,9 @@
 	allowRotations: true
 	wallTextureFilename: wall_2.png
 	wallTextureScale: 1
-	backgroundBottomLeft: {
-		x: 0
-		y: 0
-	}
-	backgroundTopRight: {
-		x: 80
-		y: 80
+	backgroundSize: {
+		x: 100
+		y: 100
 	}
 	backroundFilename: background_2.png
 	animationGroupDefinitions: [
