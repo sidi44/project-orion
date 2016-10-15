@@ -7,6 +7,7 @@ import physics.PhysicsBodyAgent;
 import physics.PhysicsGameWorld;
 
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 
@@ -77,6 +78,10 @@ public class Renderer {
 	public void loadTextures(RendererConfiguration config) {
 		textureDrawer = new TextureDrawer(config);
 		texturesLoaded = true;
+	}
+	
+	public void setBackgroundSize(Vector2 size) {
+		textureDrawer.setBackgroundSize(size);
 	}
 	
 	private void drawBodies(List<? extends PhysicsBody> bodies, 
