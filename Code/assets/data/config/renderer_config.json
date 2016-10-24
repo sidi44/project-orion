@@ -196,15 +196,15 @@
 		}
 		{
 			animationGroupName: PowerUp
-			rows: 4
-			columns: 3
-			filename: power_ups.png
+			rows: 1
+			columns: 24
+			filename: Powerup_Freeze_Single_Line.png
 			animationDefinitions: [
 				{
 					animationName: "Freeze"
-					startFrame: 11
-					endFrame: 11
-					frameDuration: 1
+					startFrame: 1
+					endFrame: 24
+					frameDuration: 0.04167
 				}
 			]
 		}
