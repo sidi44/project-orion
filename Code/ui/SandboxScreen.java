@@ -1,6 +1,7 @@
 package ui;
 
-import functional.IntConsumer;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -16,10 +17,14 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import data.DataManager;
 import data.SandboxConfiguration;
+import functional.IntConsumer;
 
 class SandboxScreen extends MenuScreen {
 	
 	private SandboxConfiguration sandboxConfig;
+	
+	private final float SLIDER_PADDING = 5f;
+	private final float TABLE_PADDING = 10f;
 	
 	public SandboxScreen(ScreenManager manager) {
 		super(manager);
@@ -44,58 +49,77 @@ class SandboxScreen extends MenuScreen {
 		Image screenImage = new Image(new Texture(file));
 		getStage().addActor(screenImage);
 
+		// Convenience list to store all the slider panels
+		List<SliderPanel> sliderPanels = new ArrayList<SliderPanel>();
+		
 		// Create the maze width slider
 		int width = sandboxConfig.getMazeWidth();
-		IntConsumer widthFunc = new IntConsumer() {
-			@Override
-			public void accept(int value) {
-				sandboxConfig.setMazeWidth(value);
-			}
-		};
-		Slider widthSlider = createIntSlider(4, 30, 1, width, widthFunc);
-		
+        final IntConsumer widthFunc = new IntConsumer() {
+            @Override
+            public void accept(int value) {
+                sandboxConfig.setMazeWidth(value);
+            }
+        };
+        Slider widthSlider = createIntSlider(4, 30, 1, width, widthFunc);
+        sliderPanels.add(createIntSliderPanel(widthSlider, 
+        									  "Width",
+        									  SLIDER_PADDING));
+
 		// Create the maze height slider
-		int height = sandboxConfig.getMazeHeight();
-		IntConsumer heightFunc = new IntConsumer() {
+        int height = sandboxConfig.getMazeHeight();
+		final IntConsumer heightFunc = new IntConsumer() {
 			@Override
 			public void accept(int value) {
 				sandboxConfig.setMazeHeight(value);
 			}
 		};
-		Slider heightSlider = createIntSlider(4, 30, 1, height, heightFunc);
-		
+        Slider heightSlider = createIntSlider(4, 30, 1, height, heightFunc);
+        sliderPanels.add(createIntSliderPanel(heightSlider, 
+											  "Height",
+											  SLIDER_PADDING));
+
 		// Create the predator speed slider
-		int predatorSpeed = sandboxConfig.getPredatorSpeedIndex();
-		IntConsumer predatorSpeedFunc = new IntConsumer() {
-			@Override
-			public void accept(int value) {
-				sandboxConfig.setPredatorSpeedIndex(value);
-			}
-		};
-		Slider predatorSpeedSlider = 
-				createIntSlider(1, 10, 1, predatorSpeed, predatorSpeedFunc);
-		
+        int predatorSpeed = sandboxConfig.getPredatorSpeedIndex();
+        final IntConsumer predatorSpeedFunc = new IntConsumer() {
+            @Override
+            public void accept(int value) {
+                sandboxConfig.setPredatorSpeedIndex(value);
+            }
+        };
+        Slider predatorSpeedSlider = createIntSlider(1, 10, 1, predatorSpeed, predatorSpeedFunc);
+        sliderPanels.add(createIntSliderPanel(predatorSpeedSlider,
+        									  "Predator Speed",
+        									  SLIDER_PADDING));
+
+
 		// Create the prey speed slider
-		int preySpeed = sandboxConfig.getPreySpeedIndex();
-		IntConsumer preySpeedFunc = new IntConsumer() {
-			@Override
-			public void accept(int value) {
-				sandboxConfig.setPreySpeedIndex(value);
-			}
-		};
-		Slider preySpeedSlider = 
-				createIntSlider(1, 10, 1, preySpeed, preySpeedFunc);
-		
+        int preySpeed = sandboxConfig.getPreySpeedIndex();
+        final IntConsumer preySpeedFunc = new IntConsumer() {
+            @Override
+            public void accept(int value) {
+                sandboxConfig.setPreySpeedIndex(value);
+            }
+        };
+        Slider preySpeedSlider = createIntSlider(1, 10, 1, preySpeed, preySpeedFunc);
+        sliderPanels.add(createIntSliderPanel(preySpeedSlider, 
+        									  "Prey Speed",
+        									  SLIDER_PADDING));
+
+
 		// Create the number of prey slider
-		int numPrey = sandboxConfig.getNumPrey();
-		IntConsumer numPreyFunc = new IntConsumer() {
-			@Override
-			public void accept(int value) {
-				sandboxConfig.setNumPrey(value);
-			}
-		};
-		Slider numPreySlider = createIntSlider(1, 10, 1, numPrey, numPreyFunc);
-		
+        int numPrey = sandboxConfig.getNumPrey();
+        final IntConsumer numPreyFunc = new IntConsumer() {
+            @Override
+            public void accept(int value) {
+                sandboxConfig.setNumPrey(value);
+            }
+        };
+        Slider numPreySlider = createIntSlider(1, 10, 1, numPrey, numPreyFunc);
+        sliderPanels.add(createIntSliderPanel(numPreySlider, 
+        								      "Num prey",
+        								      SLIDER_PADDING));
+
+
 		// Create the game button
 		Button gameButton = new TextButton("Play", getSkin());
 		gameButton.addListener(new ClickListener() {
@@ -114,37 +138,16 @@ class SandboxScreen extends MenuScreen {
 		
 		// Set out the widgets using a table
 		Table table = new Table();
-		float pad = 20f;
-		
-		Cell<Slider> widthSliderCell = table.add(widthSlider);
-		widthSliderCell.pad(pad);
-		widthSliderCell.colspan(2);
-		table.row();
-		
-		Cell<Slider> heightSliderCell = table.add(heightSlider);
-		heightSliderCell.pad(pad);
-		heightSliderCell.colspan(2);
-		table.row();
-		
-		Cell<Slider> predatorSpeedSliderCell = table.add(predatorSpeedSlider);
-		predatorSpeedSliderCell.pad(pad);
-		predatorSpeedSliderCell.colspan(2);
-		table.row();
-		
-		Cell<Slider> preySpeedSliderCell = table.add(preySpeedSlider);
-		preySpeedSliderCell.pad(pad);
-		preySpeedSliderCell.colspan(2);
-		table.row();
-		
-		Cell<Slider> numPreySliderCell = table.add(numPreySlider);
-		numPreySliderCell.pad(pad);
-		numPreySliderCell.colspan(2);
-		table.row();
+
+		for (SliderPanel panel : sliderPanels) {
+		    table.add(panel).colspan(4).pad(TABLE_PADDING).right();
+		    table.row();
+		}
 
 		Cell<Button> gameCell = table.add(gameButton);
-		gameCell.pad(pad);
+		gameCell.pad(TABLE_PADDING);
 		Cell<Button> menuCell = table.add(menuButton);
-		menuCell.pad(pad);
+		menuCell.pad(TABLE_PADDING);
 		
 		table.setFillParent(true);
 		table.setDebug(true);

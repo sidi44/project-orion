@@ -6,6 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -82,7 +84,7 @@ abstract class MenuScreen extends AbstractScreen {
 		// value is changed
 		slider.addListener(new ChangeListener() {
 			@Override
-			public void changed(ChangeEvent event, Actor actor) {			
+			public void changed(ChangeEvent event, Actor actor) {
 				int value = (int) slider.getValue();
 				func.accept(value);
 			}
@@ -91,5 +93,61 @@ abstract class MenuScreen extends AbstractScreen {
 		// That's it
 		return slider;
 	}
-	
+
+	protected SliderPanel createIntSliderPanel(final Slider slider,
+											   String labelName,
+                                               float padding) {
+
+		// Create the value label for the slider
+		int initialValue = (int) slider.getValue();
+		String valueLabel = Integer.toString(initialValue);
+		final Label sliderValueLabel = new Label(valueLabel, getSkin());
+        
+		// Make sure the value label gets updated when the slider changes
+        slider.addListener(new ChangeListener() {
+			@Override
+			public void changed(ChangeEvent event, Actor actor) {
+                int value = (int) slider.getValue();
+                sliderValueLabel.setText(Integer.toString(value));
+			}
+        });
+
+        // Create the plus and minus buttons
+	    final ImageButton minusButton = new ImageButton(getSkin(), "minus");
+	    final ImageButton plusButton = new ImageButton(getSkin(), "plus");
+
+	    minusButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                final int currentValue = (int) slider.getValue();
+                if (currentValue > slider.getMinValue()) {
+                    final int newValue = currentValue - 1;
+                    slider.setValue(newValue);
+                }
+            }
+	    });
+
+	    plusButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                final int currentValue = (int) slider.getValue();
+                if (currentValue < slider.getMaxValue()) {
+                    final int newValue = currentValue + 1;
+                    slider.setValue(newValue);
+                }
+            }
+	    });
+
+	    // Create the slider label widget
+	    Label sliderLabel = new Label(labelName, getSkin());
+	    
+	    // Add everything into a SliderPanel which lays out the widgets nicely
+	    return new SliderPanel(sliderLabel,
+                               sliderValueLabel,
+                               minusButton,
+                               plusButton,
+                               slider,
+                               padding);
+	}
+
 }

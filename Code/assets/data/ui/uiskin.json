@@ -23,9 +23,11 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 	default: {
 		font: default-font,
 		fontColor: { a: 1, b: 1, g: 1, r: 1 },
-		disabledFontColor: { a: 1, b: 0.8, g: 0.8, r: 0.8 },
+		downFontColor: { a: 1, r: 1 },
+		disabledFontColor: { a: 1, b: 0.7, g: 0.7, r: 0.7 },
 		up: default-round,
-		down: default-round-down
+		down: default-round,
+		disabled: default-round-down
 	},
 	toggle: {
 		font: default-font,
@@ -66,13 +68,15 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 		up: default-round,
 		down: default-round-down
 	},
+	minus: { imageUp: tree-minus, imageDown: tree-minus, imageOver: tree-minus },
 	powerup_freeze: {
 		imageUp: powerup_freeze_icon,
 		imageDown: powerup_freeze_icon,
 		imageOver: powerup_freeze_icon,
 		up: default-round,
 		down: default-round-down
-	}
+	},
+	plus: { imageUp: tree-plus, imageDown: tree-plus, imageOver: tree-plus }
 },
 com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle: {
 	default-vertical: { handle: default-splitpane-vertical },

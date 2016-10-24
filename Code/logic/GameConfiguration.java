@@ -16,6 +16,7 @@ public class GameConfiguration {
 	
 	private PolygonShape dimensions;
 	private boolean hasPills;
+	private int timeLimit;
 	private MazeConfig mConfig;
 	private AgentConfig aConfig;
 	private PowerUpConfig pConfig;
@@ -39,6 +40,7 @@ public class GameConfiguration {
 		this.dimensions = new PolygonShape(vertices);
 		
 		this.hasPills = true;
+		this.timeLimit = 200;
 		this.mConfig = new MazeConfig();
 		this.aConfig = new AgentConfig();
 		this.pConfig = new PowerUpConfig();
@@ -49,15 +51,18 @@ public class GameConfiguration {
 	 * 
 	 * @param dimensions (Rectangle)
 	 * @param hasPills (boolean)
+	 * @param timeLimit (int)
 	 * @param mConfig (MazeConfig)
 	 * @param aConfig (AgentConfig)
 	 * @param pConfig (PowerUpConfig)
 	 */
 	public GameConfiguration(PolygonShape dimensions, boolean hasPills,
-			MazeConfig mConfig, AgentConfig aConfig, PowerUpConfig pConfig) {
+			int timeLimit, MazeConfig mConfig, AgentConfig aConfig, 
+			PowerUpConfig pConfig) {
 		
 		this.dimensions = dimensions;
 		this.hasPills = hasPills;
+		this.timeLimit = timeLimit;
 		this.mConfig = mConfig;
 		this.aConfig = aConfig;
 		this.pConfig = pConfig;
@@ -98,6 +103,15 @@ public class GameConfiguration {
 	 */
 	public void setHasPills(boolean hasPills) {
 		this.hasPills = hasPills;
+	}
+	
+	/**
+	 * Get the time limit.
+	 * 
+	 * @return the time limit for this game.
+	 */
+	public int getTimeLimit() {
+		return timeLimit;
 	}
 	
 	/**

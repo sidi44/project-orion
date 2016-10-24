@@ -25,6 +25,9 @@ class GameScreen extends MenuScreen {
 	
 	private final CameraManager cameraManager;
 	private final UserInputProcessor inputProc;
+	
+	private Label scoreLabel;
+	private Label timeLabel;
 	private List<PowerUpButton> powerUpButtons;
 	
 	private final static int NUM_POWER_UP_BUTTONS = 5;
@@ -57,8 +60,8 @@ class GameScreen extends MenuScreen {
 		});
 		
 		// Create the Score and Time remaining text fields
-		Label timeLabel = new Label("Time remaining: ", getSkin());
-		Label scoreLabel = new Label("Score: ", getSkin());
+		scoreLabel = new Label("Score: ", getSkin());
+		timeLabel = new Label("Time remaining: ", getSkin());
 		
 		// Create the Power Up buttons 
 		powerUpButtons = new ArrayList<PowerUpButton>();
@@ -130,6 +133,17 @@ class GameScreen extends MenuScreen {
 	@Override
 	protected void doRender(float delta) {
 		
+		PredatorPreyGame game = getManager().getGame();
+		GameState state = game.getGameLogic().getGameState();
+		
+		int score = state.getScore();
+		String scoreText = "Score : " + score;
+		scoreLabel.setText(scoreText);
+		
+		int timeRemaining = (int) state.getTimeRemaining();
+		String timeRemainingText = "Time remaining : " + timeRemaining + "s";
+		timeLabel.setText(timeRemainingText);
+		
 		Predator predator = getPredator();
 		int numPowerUps = predator.getMaxPowerUp();
 		for (int i = 0; i < NUM_POWER_UP_BUTTONS; ++i) {
@@ -138,8 +152,6 @@ class GameScreen extends MenuScreen {
 				powerUpButtons.get(i).setPowerUp(powerUp);
 			}
 		}
-		
-		PredatorPreyGame game = getManager().getGame();
 		
 		Camera gameCamera = cameraManager.getCamera();
 		game.getRenderer().render(game.getWorld(), gameCamera.combined);
@@ -153,6 +165,9 @@ class GameScreen extends MenuScreen {
 	}
 	
 	private void gameFinished(GameOver reason) {
+		
+		// Clear any stored user input
+		inputProc.reset();
 		
 		// Grab the game from the screen manager
 		PredatorPreyGame game = getManager().getGame();

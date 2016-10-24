@@ -33,11 +33,12 @@
 				Freeze
 				SpeedUp
 			]
+			timeLimit: 60
 			starScores : {
 				class: java.util.HashMap
-				1: 100
-				2: 200
-				3: 300
+				1: 10
+				2: 1500
+				3: 3000
 			}
 		}
 		2: {
@@ -72,11 +73,295 @@
 				SlowDown
 				Magnet
 			]
+			timeLimit: 60
 			starScores : {
 				class: java.util.HashMap
-				1: 150
-				2: 250
-				3: 350
+				1: 10
+				2: 1500
+				3: 3000
+			}	
+		}
+		3: {
+			mazeDimensions: [
+				{
+					x: 0
+					y: 0
+				}
+				{
+					x: 0
+					y: 5
+				}
+				{
+					x: 5
+					y: 5
+				}
+				{
+					x: 5
+					y: 0
+				}
+			]
+			mazeConfig: {
+				maxLength: 2
+				loopLimit: 50
+				deadEndMinProp: 0.2
+				ranPathMaxProp: 0.6
+			}
+			numPrey: 2
+			preySpeedIndex: 3
+			numPowerUps: 2
+			powerUpTypes: [
+				SpeedUp
+				Teleport
+			]
+			timeLimit: 60
+			starScores : {
+				class: java.util.HashMap
+				1: 10
+				2: 1500
+				3: 3000
+			}	
+		}
+		4: {
+			mazeDimensions: [
+				{
+					x: 0
+					y: 0
+				}
+				{
+					x: 0
+					y: 6
+				}
+				{
+					x: 6
+					y: 6
+				}
+				{
+					x: 6
+					y: 0
+				}
+			]
+			mazeConfig: {
+				maxLength: 2
+				loopLimit: 50
+				deadEndMinProp: 0.2
+				ranPathMaxProp: 0.6
+			}
+			numPrey: 3
+			preySpeedIndex: 3
+			numPowerUps: 2
+			powerUpTypes: [
+				Freeze
+				Magnet
+			]
+			timeLimit: 60
+			starScores : {
+				class: java.util.HashMap
+				1: 10
+				2: 1500
+				3: 3000
+			}	
+		}
+		5: {
+			mazeDimensions: [
+				{
+					x: 0
+					y: 0
+				}
+				{
+					x: 0
+					y: 6
+				}
+				{
+					x: 6
+					y: 6
+				}
+				{
+					x: 6
+					y: 0
+				}
+			]
+			mazeConfig: {
+				maxLength: 2
+				loopLimit: 50
+				deadEndMinProp: 0.2
+				ranPathMaxProp: 0.6
+			}
+			numPrey: 5
+			preySpeedIndex: 3
+			numPowerUps: 2
+			powerUpTypes: [
+				SlowDown
+				SpeedUp
+			]
+			timeLimit: 60
+			starScores : {
+				class: java.util.HashMap
+				1: 10
+				2: 1500
+				3: 3000
+			}	
+		}
+		6: {
+			mazeDimensions: [
+				{
+					x: 0
+					y: 0
+				}
+				{
+					x: 0
+					y: 7
+				}
+				{
+					x: 7
+					y: 7
+				}
+				{
+					x: 7
+					y: 0
+				}
+			]
+			mazeConfig: {
+				maxLength: 2
+				loopLimit: 50
+				deadEndMinProp: 0.2
+				ranPathMaxProp: 0.6
+			}
+			numPrey: 5
+			preySpeedIndex: 4
+			numPowerUps: 1
+			powerUpTypes: [
+				SlowDown
+				Teleport
+			]
+			timeLimit: 60
+			starScores : {
+				class: java.util.HashMap
+				1: 10
+				2: 1500
+				3: 3000
+			}	
+		}
+		7: {
+			mazeDimensions: [
+				{
+					x: 0
+					y: 0
+				}
+				{
+					x: 0
+					y: 8
+				}
+				{
+					x: 8
+					y: 8
+				}
+				{
+					x: 8
+					y: 0
+				}
+			]
+			mazeConfig: {
+				maxLength: 2
+				loopLimit: 50
+				deadEndMinProp: 0.2
+				ranPathMaxProp: 0.6
+			}
+			numPrey: 6
+			preySpeedIndex: 4
+			numPowerUps: 4
+			powerUpTypes: [
+				Freeze
+				SlowDown
+				SpeedUp
+			]
+			timeLimit: 60
+			starScores : {
+				class: java.util.HashMap
+				1: 10
+				2: 1500
+				3: 3000
+			}	
+		}
+		8: {
+			mazeDimensions: [
+				{
+					x: 0
+					y: 0
+				}
+				{
+					x: 0
+					y: 8
+				}
+				{
+					x: 8
+					y: 8
+				}
+				{
+					x: 8
+					y: 0
+				}
+			]
+			mazeConfig: {
+				maxLength: 2
+				loopLimit: 50
+				deadEndMinProp: 0.2
+				ranPathMaxProp: 0.6
+			}
+			numPrey: 6
+			preySpeedIndex: 5
+			numPowerUps: 5
+			powerUpTypes: [
+				SpeedUp
+			]
+			timeLimit: 60
+			starScores : {
+				class: java.util.HashMap
+				1: 10
+				2: 1500
+				3: 3000
+			}	
+		}
+		9: {
+			mazeDimensions: [
+				{
+					x: 0
+					y: 0
+				}
+				{
+					x: 0
+					y: 9
+				}
+				{
+					x: 9
+					y: 9
+				}
+				{
+					x: 9
+					y: 0
+				}
+			]
+			mazeConfig: {
+				maxLength: 2
+				loopLimit: 50
+				deadEndMinProp: 0.2
+				ranPathMaxProp: 0.6
+			}
+			numPrey: 9
+			preySpeedIndex: 7
+			numPowerUps: 8
+			powerUpTypes: [
+				Freeze
+				SpeedUp
+				SlowDown
+				Magnet
+				Teleport
+			]
+			timeLimit: 60
+			starScores : {
+				class: java.util.HashMap
+				1: 10
+				2: 1500
+				3: 3000
 			}	
 		}
 	}

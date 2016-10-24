@@ -1,5 +1,7 @@
 package data;
 
+import java.util.List;
+
 import logic.GameConfiguration;
 import physics.PhysicsConfiguration;
 import render.RendererConfiguration;
@@ -28,5 +30,7 @@ public interface DataManager {
 	PlayerProgress getPlayerProgress();
 	
 	void savePlayerProgress();
+	
+	List<Integer> getLevelStarScores(int levelNumber);
 	
 }
