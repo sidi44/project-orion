@@ -278,7 +278,8 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 		return false;
 	}
 
-	@Override
+	// commented out override: cannot find, got old version of lib gdx maybe?
+	//@Override
 	public void pinchStop() {
 		// Do nothing.
 	}
