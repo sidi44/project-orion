@@ -113,7 +113,7 @@ public class TextureDrawer {
 		Set<PowerUpType> hasImage = new HashSet<PowerUpType>();
 		hasImage.add(PowerUpType.SpeedUp);
 		hasImage.add(PowerUpType.SlowDown);
-//		hasImage.add(PowerUpType.Teleport);
+		hasImage.add(PowerUpType.Teleport);
 //		hasImage.add(PowerUpType.Magnet);
 //		hasImage.add(PowerUpType.Freeze);
 		

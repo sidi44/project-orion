@@ -99,9 +99,9 @@
 	</PhysicsConfiguration>
 	<RendererConfiguration>
 	    <AllowRotations>true</AllowRotations>
-	    <WallTextureFilename>wall_2.png</WallTextureFilename>
+	    <WallTextureFilename>Wall_Blue.png</WallTextureFilename>
 	    <WallTextureScale>1.0</WallTextureScale>
-	    <BackgroundFilename>background_3.png</BackgroundFilename>
+	    <BackgroundFilename>Background_Purple.png</BackgroundFilename>
 	    <AnimationGroupDefinition>
 	        <AnimationGroupName>Predator</AnimationGroupName>
 	        <Rows>4</Rows>
