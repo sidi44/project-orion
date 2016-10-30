@@ -71,6 +71,7 @@
 			powerUpTypes: [
 				SlowDown
 				Magnet
+				Teleport
 			]
 			starScores : {
 				class: java.util.HashMap

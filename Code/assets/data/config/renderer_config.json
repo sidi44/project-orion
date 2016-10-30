@@ -1,6 +1,6 @@
 {
 	allowRotations: true
-	wallTextureFilename: wall_2.png
+	wallTextureFilename: Wall_Blue.png
 	wallTextureScale: 1
 	backgroundBottomLeft: {
 		x: 0
@@ -10,7 +10,7 @@
 		x: 80
 		y: 80
 	}
-	backroundFilename: background_2.png
+	backroundFilename: Background_Purple.png
 	animationGroupDefinitions: [
 		{
 			animationGroupName: Predator
@@ -168,15 +168,15 @@
 		}
 		{
 			animationGroupName: PowerUp
-			rows: 4
-			columns: 3
-			filename: power_ups.png
+			rows: 1
+			columns: 24
+			filename: Powerup_Teleport_Single_Line.png
 			animationDefinitions: [
 				{
 					animationName: "Teleport"
-					startFrame: 8
-					endFrame: 8
-					frameDuration: 1
+					startFrame: 1
+					endFrame: 24
+					frameDuration: 0.04167
 				}
 			]
 		}
@@ -278,7 +278,7 @@
 				}
 			]
 		}
-				{
+		{
 			animationGroupName: SlowDownEffect
 			rows: 4
 			columns: 4
@@ -331,6 +331,62 @@
 					startFrame: 9
 					endFrame: 12
 					frameDuration: 0.4
+				}
+			]
+		}
+		{
+			animationGroupName: TeleportEffect
+			rows: 1
+			columns: 17
+			filename: Effect_Teleport_Single_Line.png
+			animationDefinitions: [
+				{
+					animationName: UP-STOP
+					startFrame: 1
+					endFrame: 17
+					frameDuration: 0.2
+				}
+				{
+					animationName: UP
+					startFrame: 1
+					endFrame: 17
+					frameDuration: 0.2
+				}
+				{
+					animationName: RIGHT-STOP
+					startFrame: 1
+					endFrame: 17
+					frameDuration: 0.2
+				}
+				{
+					animationName: RIGHT
+					startFrame: 1
+					endFrame: 17
+					frameDuration: 0.2
+				}
+				{
+					animationName: DOWN-STOP
+					startFrame: 1
+					endFrame: 17
+					frameDuration: 0.2
+				}
+				{
+					animationName: DOWN
+					startFrame: 1
+					endFrame: 17
+					frameDuration: 0.2
+				}
+				{
+					animationName: LEFT-STOP
+					startFrame: 1
+					endFrame: 17
+					frameDuration: 0.2
+				}
+				{
+					animationName: LEFT
+					startFrame: 1
+					endFrame: 17
+					frameDuration: 0.2
 				}
 			]
 		}

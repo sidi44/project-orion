@@ -53,7 +53,7 @@ public class RendererConfiguration {
 		this.wallTextureScale = 1.0f;
 		this.backgroundBottomLeft = new Vector2(0f, 0f);
 		this.backgroundTopRight = new Vector2(100f, 100f);
-		this.backroundFilename = "background_1.png";
+		this.backroundFilename = "Background_Purple.png";
 		
 		setupDefaultAnimationDefinitions();
 	}
