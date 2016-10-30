@@ -11,6 +11,11 @@ import java.util.Set;
 
 import logic.powerup.PowerUp;
 
+import pathfinding.Path;
+import pathfinding.PathFinder;
+import pathfinding.PathFinderCreator;
+import pathfinding.PathFinderType;
+
 /**
  * Represents the state of the game.
  * 
@@ -58,8 +63,9 @@ public class GameState {
 		
 		this.timeRemaining = timeLimit;
 		
-		this.pathFinder = new PathFinder(maze);
-		this.pathFinder.generateAllPaths();
+		this.pathFinder = PathFinderCreator.create(PathFinderType.BFS, maze);
+		pathFinder.generateAllPaths();
+		
 	}
 	
 	/**

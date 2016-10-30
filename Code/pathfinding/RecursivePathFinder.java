@@ -1,11 +1,12 @@
-package logic;
+package pathfinding;
 
 import geometry.PointXY;
 import geometry.PointXYPair;
+import logic.Maze;
+import logic.MazeNode;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,13 +22,14 @@ import java.util.Set;
  * be used when getPath(start, end) is called to return the path in constant 
  * time. If generateAllPaths() has not been called, getPath(start, end) will 
  * do the shortest path calculation at this time.
- * more efficient for longer paths. Note that generateAllPaths() may take time 
- * to complete, particularly for large mazes.
+ * 
+ * Note that generateAllPaths() may take time to complete, particularly for 
+ * large mazes.
  * 
  * @author Simon Dicken
  * @version 2015-12-28
  */
-public class PathFinder {
+class RecursivePathFinder implements PathFinder {
 
 	// The maze we're searching
 	private Maze maze;
@@ -47,7 +49,7 @@ public class PathFinder {
 	 * 
 	 * @param maze - the maze in which to find paths.
 	 */
-	public PathFinder(Maze maze) {
+	public RecursivePathFinder(Maze maze) {
 		this.maze = maze;
 		
 		reset();
@@ -123,12 +125,12 @@ public class PathFinder {
 	private Path shortestPath(PointXY start, Set<PointXY> goals) {
 		reset();
 		
-		Path path = new Path();
+		Path path = createPath();
 		shortestPath(start, goals, 0, path);
 		
 		// The returned shortest path is from the goal to the start, so we need  
 		// to reverse it.
-		path.reversePath();
+		path.reverse();
 		
 		return path;
 	}
@@ -223,17 +225,15 @@ public class PathFinder {
 	 * @param path
 	 */
 	private void addToAllPaths(Path path) {
-		
-		List<PointXY> pathNodes = path.getPathNodes();
 
 		// Find the sub path between each pair of nodes and add it to allPaths
-		for (int i = 0; i < pathNodes.size(); ++i) {
-			Set<PointXY> pathToNodes = pathExists.get(pathNodes.get(i));
-			for (int j = i; j < pathNodes.size(); ++j) {
+		for (int i = 0; i < path.getLength(); ++i) {
+			Set<PointXY> pathToNodes = pathExists.get(path.getPoint(i));
+			for (int j = i; j < path.getLength(); ++j) {
 				
 				// Find the sub path
-				PointXY start = pathNodes.get(i);
-				PointXY end = pathNodes.get(j);
+				PointXY start = path.getPoint(i);
+				PointXY end = path.getPoint(j);
 				Path subPath = path.subPath(start, end);
 				
 				// Add the sub path to allPaths if there is not one already
@@ -244,9 +244,9 @@ public class PathFinder {
 				}
 				
 				// Also store the reverse path
-				Set<PointXY> pathToNodesJ = pathExists.get(pathNodes.get(j));
-				Path reverseSubPath = new Path(subPath);
-				reverseSubPath.reversePath();
+				Set<PointXY> pathToNodesJ = pathExists.get(path.getPoint(j));
+				Path reverseSubPath = subPath.deepCopy();
+				reverseSubPath.reverse();
 				
 				PointXYPair reversePair = new PointXYPair(end, start);
 				if (!allPaths.containsKey(reversePair)) {
@@ -365,7 +365,7 @@ public class PathFinder {
 	 */
 	public Path getPath(PointXY start, PointXY end) {
 		
-		Path path = new Path();
+		Path path = createPath();
 		
 		if (!allPaths.isEmpty()) {
 			PointXYPair pair = new PointXYPair(start, end);
@@ -395,7 +395,7 @@ public class PathFinder {
 	 */
 	public Path getPath(PointXY start, Set<PointXY> goals) {
 		
-		Path path = new Path();
+		Path path = createPath();
 		
 		if (!allPaths.isEmpty()) {
 			int shortestPath = Integer.MAX_VALUE;
@@ -411,12 +411,16 @@ public class PathFinder {
 			}
 			
 		} else {
-			shortestPath(start, goals);
+			path = shortestPath(start, goals);
 		}
 		
 		return path;
 	}
 	
+	private Path createPath() {
+		return new PointXYPath();
+	}
+
 } 
 
 
