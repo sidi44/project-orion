@@ -17,7 +17,7 @@ import logic.Prey;
 
 import pathfinding.Path;
 
-public class OrionAI implements AILogic {
+public class OrionAI extends AILogicBase {
 
 	private double pillFactor;
 	private double preyFactor;
@@ -36,8 +36,10 @@ public class OrionAI implements AILogic {
 	
 	private Map<Direction, Double> predatorsInDirection;
 	
-	public OrionAI(double pillFactor, double preyFactor, double predatorFactor, 
-			double pillDistFactor, double preyDistFactor, double predatorDistFactor) {
+	public OrionAI(Maze maze, double pillFactor, double preyFactor, 
+			       double predatorFactor, double pillDistFactor, 
+			       double preyDistFactor, double predatorDistFactor) {
+		super(maze);
 		this.pillFactor = pillFactor;
 		this.preyFactor = preyFactor;
 		this.predatorFactor = predatorFactor;
@@ -175,7 +177,7 @@ public class OrionAI implements AILogic {
 		Set<PointXY> mazeCoords = nodes.keySet();
 		
 		for (PointXY mazePos : mazeCoords) {
-			Path path = state.getPath(pos, mazePos);
+			Path path = getPathFinder().getPath(pos, mazePos);
 			if (path.getLength() < 2) {
 				continue;
 			}
@@ -228,7 +230,7 @@ public class OrionAI implements AILogic {
 				continue;
 			}
 			PointXY preyPos = prey.getPosition();
-			Path path = state.getPath(pos, preyPos);
+			Path path = getPathFinder().getPath(pos, preyPos);
 			if (path.getLength() < 2) {
 				continue;
 			}
@@ -261,7 +263,7 @@ public class OrionAI implements AILogic {
 				continue;
 			}
 			PointXY predatorPos = predator.getPosition();
-			Path path = state.getPath(pos, predatorPos);
+			Path path = getPathFinder().getPath(pos, predatorPos);
 			if (path.getLength() < 2) {
 				continue;
 			}
@@ -342,7 +344,7 @@ public class OrionAI implements AILogic {
 		int closestPreyPathLength = Integer.MAX_VALUE;
 		for (Prey p : prey) {
 			PointXY preyPos = p.getPosition();
-			Path path = state.getPath(predatorPos, preyPos);
+			Path path = getPathFinder().getPath(predatorPos, preyPos);
 			if (path.getLength() < closestPreyPathLength) {
 				closestPreyPathLength = path.getLength();
 				closestPreyPath = path;

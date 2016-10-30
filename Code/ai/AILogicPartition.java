@@ -46,7 +46,7 @@ import utils.NumberUtils;
  * @author Simon Dicken
  * @version 2015-12-28
  */
-public class AILogicPartition implements AILogic {
+public class AILogicPartition extends AILogicBase {
 
 	private Map<Agent, Set<PointXY>> partition;
 	private Map<Agent, PointXY> targets;
@@ -56,7 +56,8 @@ public class AILogicPartition implements AILogic {
 	
 	private Map<Agent, Set<PointXY>> saferPositions;
 	
-	public AILogicPartition() {
+	public AILogicPartition(Maze maze) {
+		super(maze);
 		this.partition = new HashMap<Agent, Set<PointXY>>();
 		this.targets = new HashMap<Agent, PointXY>();
 		
@@ -153,7 +154,7 @@ public class AILogicPartition implements AILogic {
 				Prey prey = allPrey.get(i);
 				
 				PointXY preyPos = prey.getPosition();
-				Path path = state.getPath(node, preyPos);
+				Path path = getPathFinder().getPath(node, preyPos);
 				if (path == null) {
 					continue;
 				}
@@ -218,7 +219,8 @@ public class AILogicPartition implements AILogic {
 			
 			if (pillNodes.size() != 0) {
 				PointXY preyPos = agent.getPosition();
-				Path closestPillPath = state.getClosestPath(preyPos, pillNodes);
+				Path closestPillPath = getPathFinder().getPath(preyPos, 
+															   pillNodes);
 				
 				if (closestPillPath.getLength() > 1) {
 					PointXY nextSquare = closestPillPath.getPoint(1);
@@ -229,7 +231,8 @@ public class AILogicPartition implements AILogic {
 					int closestPredPathLength = Integer.MAX_VALUE;
 					for (Predator p : predators) {
 						PointXY predatorPos = p.getPosition();
-						Path path = state.getPath(nextSquare, predatorPos);
+						Path path = getPathFinder().getPath(nextSquare, 
+															predatorPos);
 						if (path.getLength() < closestPredPathLength) {
 							closestPredPathLength = path.getLength();
 						}
@@ -263,7 +266,7 @@ public class AILogicPartition implements AILogic {
 			target = state.getMaze().getRandomPoint();
 			targets.put(agent, target);
 		}
-		Path targetPath = state.getPath(agentPos, target);
+		Path targetPath = getPathFinder().getPath(agentPos, target);
 		// Use the targetPath to get the direction in which to travel.
 		if (!setDirectionFromPath(agent, targetPath)) {
 			targets.remove(agent);
@@ -292,7 +295,7 @@ public class AILogicPartition implements AILogic {
 		int closestPredPathLength = Integer.MAX_VALUE;
 		for (Predator p : predators) {
 			PointXY predatorPos = p.getPosition();
-			Path path = state.getPath(preyPos, predatorPos);
+			Path path = getPathFinder().getPath(preyPos, predatorPos);
 			if (path.getLength() < closestPredPathLength) {
 				closestPredPathLength = path.getLength();
 				closestPredPath = path;
@@ -321,7 +324,7 @@ public class AILogicPartition implements AILogic {
 			// Check whether the current target is still reasonable (i.e. if the
 			// predator has moved onto or close to the target path, we should 
 			// find a new path.)
-			Path targetPath = state.getPath(agentPos, target);
+			Path targetPath = getPathFinder().getPath(agentPos, target);
 			if (pathTooCloseToPredators(targetPath, predatorDist, state)) {
 				reevaluatePath = true;
 			}
@@ -371,7 +374,7 @@ public class AILogicPartition implements AILogic {
 		
 		for (Predator predator : allPredators) {
 			PointXY predatorPos = predator.getPosition();
-			Path path = state.getPath(agentPos, predatorPos);
+			Path path = getPathFinder().getPath(agentPos, predatorPos);
 			Integer length = path.getLength();
 			if (length <= runFromPredDist) {
 				predatorDist.put(predator, length);
@@ -387,7 +390,7 @@ public class AILogicPartition implements AILogic {
 		
 		PointXY target = targets.get(agent);
 		
-		Path targetPath = state.getPath(agentPos, target);
+		Path targetPath = getPathFinder().getPath(agentPos, target);
 		// Use the targetPath to get the direction in which to travel.
 		if (!setDirectionFromPath(agent, targetPath)) {
 			targets.remove(agent);
@@ -404,7 +407,8 @@ public class AILogicPartition implements AILogic {
 			int pathLength = path.getLength();
 			for (int i = 1; i < pathLength; ++i) {
 				PointXY pathNode = path.getPoint(i);
-				int dist = state.getPath(pathNode, predatorPos).getLength();
+				Path predPath = getPathFinder().getPath(pathNode, predatorPos);
+				int dist = predPath.getLength();
 				int currentDist = predatorDist.get(predator);
 				if (dist <= currentDist) {
 					tooClose = true;
@@ -428,7 +432,7 @@ public class AILogicPartition implements AILogic {
 		Set<PointXY> allPositions = maze.getNodes().keySet();
 		
 		for (PointXY pos : allPositions) {
-			Path path = state.getPath(agentPos, pos);
+			Path path = getPathFinder().getPath(agentPos, pos);
 			
 			boolean tooClose = 
 					pathTooCloseToPredators(path, predatorDist, state);
@@ -464,7 +468,7 @@ public class AILogicPartition implements AILogic {
 			int closestPredatorDist = Integer.MAX_VALUE;
 			for (Predator predator : closePredators) {
 				PointXY predatorPos = predator.getPosition();
-				Path path = state.getPath(predatorPos, newPos);
+				Path path = getPathFinder().getPath(predatorPos, newPos);
 				int pathLength = path.getLength();
 				if (pathLength < closestPredatorDist) {
 					closestPredatorDist = pathLength;
@@ -500,7 +504,7 @@ public class AILogicPartition implements AILogic {
 		int closestPreyPathLength = Integer.MAX_VALUE;
 		for (Prey p : prey) {
 			PointXY preyPos = p.getPosition();
-			Path path = state.getPath(predatorPos, preyPos);
+			Path path = getPathFinder().getPath(predatorPos, preyPos);
 			if (path.getLength() < closestPreyPathLength) {
 				closestPreyPathLength = path.getLength();
 				closestPreyPath = path;

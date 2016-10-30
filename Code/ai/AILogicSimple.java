@@ -34,12 +34,13 @@ import pathfinding.Path;
  * @author Simon Dicken
  * @version 2015-12-28
  */
-public class AILogicSimple implements AILogic {
+public class AILogicSimple extends AILogicBase {
 
 	private int runFromPredDist = 5;
 	private Map<Direction, Direction[]> runDirections;
 	
-	public AILogicSimple() {
+	public AILogicSimple(Maze maze) {
+		super(maze);
 		initialiseRunDirections();
 	}
 	
@@ -133,7 +134,7 @@ public class AILogicSimple implements AILogic {
 		int closestPreyPathLength = Integer.MAX_VALUE;
 		for (Prey p : prey) {
 			PointXY preyPos = p.getPosition();
-			Path path = state.getPath(predatorPos, preyPos);
+			Path path = getPathFinder().getPath(predatorPos, preyPos);
 			if (path.getLength() < closestPreyPathLength) {
 				closestPreyPathLength = path.getLength();
 				closestPreyPath = path;
@@ -153,7 +154,7 @@ public class AILogicSimple implements AILogic {
 		int closestPredPathLength = Integer.MAX_VALUE;
 		for (Predator p : predators) {
 			PointXY predatorPos = p.getPosition();
-			Path path = state.getPath(preyPos, predatorPos);
+			Path path = getPathFinder().getPath(preyPos, predatorPos);
 			if (path.getLength() < closestPredPathLength) {
 				closestPredPathLength = path.getLength();
 				closestPredPath = path;
@@ -165,7 +166,7 @@ public class AILogicSimple implements AILogic {
 
 	private Path findClosestPillPath(Agent agent, GameState state) {
 		PointXY preyPos = agent.getPosition();
-		return state.getClosestPillPath(preyPos);
+		return getPathFinder().getPath(preyPos, state.getPills());
 	}
 	
 	private void setNextMoveAvoidPredator(Agent agent, Path closestPredatorPath,
