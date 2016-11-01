@@ -1,5 +1,6 @@
 package logic.powerup;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -71,7 +72,7 @@ class PowerUpCombiner {
 		// the effects of other speed altering power ups, so we need to ensure
 		// that they are applied last.
 		List<PowerUp> powerUps = agent.getPowerUpsAppliedToMe();
-		powerUps.sort(new PowerUpSorter());
+		Collections.sort(powerUps, new PowerUpSorter());
 		
 		// Keep track of the power up types that have been applied to the agent.
 		// Only one of each type can be applied to a particular agent at once.
