@@ -39,7 +39,11 @@ public class PlayerProgress {
 	
 	public boolean isLevelLocked(int levelNumber) {
 		String num = Integer.toString(levelNumber);
-		return levelsLocked.get(num);
+		if (levelsLocked.containsKey(num)) {
+			return levelsLocked.get(num);
+		} else {
+			return true;
+		}
 	}
 	
 	public void setLevelLocked(int levelNumber, boolean locked) {
@@ -49,14 +53,19 @@ public class PlayerProgress {
 	
 	public int getLevelScore(int levelNumber) {
 		String num = Integer.toString(levelNumber);
-		return levelScores.get(num);
+		
+		if (levelScores.containsKey(num)) {
+			return levelScores.get(num);
+		} else {
+			return 0;
+		}
 	}
 	
 	public void setLevelScore(int levelNumber, int score) {
 		String num = Integer.toString(levelNumber);
 		
 		if (levelScores.containsKey(num)) {
-			if (levelScores.get(num) > score) {
+			if (score > levelScores.get(num)) {
 				levelScores.put(num, score);
 			}
 		} else {

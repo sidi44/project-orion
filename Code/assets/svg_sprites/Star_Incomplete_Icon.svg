@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="24.451338mm"
+   height="23.29978mm"
+   viewBox="0 0 86.638594 82.558274"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="Star_Incomplete_Icon.svg"
+   inkscape:export-filename="D:\Martin_Work\Group_Projects\JavaProjects\Orion\OrionResources\Assets SVG Sprite\Star_Incomplete_Icon.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="3.35625"
+     inkscape:cx="54.493649"
+     inkscape:cy="9.515623"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1280"
+     inkscape:window-height="962"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     showguides="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-184.67306,-720.523)">
+    <path
+       sodipodi:type="star"
+       style="opacity:1;fill:#d8d8d8;fill-opacity:1;stroke:#898989;stroke-width:3.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path4152"
+       sodipodi:sides="5"
+       sodipodi:cx="228.07651"
+       sodipodi:cy="766.07161"
+       sodipodi:r1="18.44352"
+       sodipodi:r2="40.9856"
+       sodipodi:arg1="0.26940661"
+       sodipodi:arg2="0.93521875"
+       inkscape:flatsided="false"
+       inkscape:rounded="-1.64105e-015"
+       inkscape:randomized="0"
+       d="m 245.85476,770.98053 6.55254,28.07338 -23.50567,-14.55725 -24.67452,14.907 6.58111,-26.85366 -21.80224,-18.86035 27.57302,-2.03923 11.2,-26.56333 10.45995,25.59334 28.72422,2.44331 z" />
+  </g>
+</svg>

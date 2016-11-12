@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="31.044443mm"
+   height="31.044445mm"
+   viewBox="0 0 109.99999 110"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="Powerup_SlowDown_Icon.svg"
+   inkscape:export-filename="D:\Martin_Work\Group_Projects\JavaProjects\Orion\OrionResources\Assets SVG Sprite\Powerup_SlowDown_Icon.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.678125"
+     inkscape:cx="93.03786"
+     inkscape:cy="-30.852861"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1366"
+     inkscape:window-height="706"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     showguides="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-172.99236,-706.80214)">
+    <g
+       id="g8095"
+       transform="translate(-93.379898,-122.93296)">
+      <circle
+         r="47.565689"
+         cy="884.73511"
+         cx="321.37225"
+         id="path5282-7-4-8-2-6-6"
+         style="opacity:1;fill:#898989;fill-opacity:1;stroke:none;stroke-width:3.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <circle
+         r="38.052551"
+         cy="884.73511"
+         cx="321.37225"
+         id="path5282-5-7-6-2-4-2-5"
+         style="opacity:1;fill:#efefef;fill-opacity:1;stroke:none;stroke-width:3.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+      <path
+         d="m 317.50413,882.39392 c -0.54739,-1.62602 1.09582,-3.00488 2.56814,-3.15176 2.67028,-0.2664 4.6385,2.27291 4.64799,4.75943 0.0143,3.74017 -3.5415,6.3741 -7.09035,6.20327 -4.84466,-0.23321 -8.18233,-4.87225 -7.80702,-9.52223 0.48267,-5.98017 6.25092,-10.04776 12.03422,-9.45182 7.14274,0.73603 11.96078,7.66893 11.13228,14.61304 -0.99376,8.32917 -9.12052,13.91479 -17.24946,12.84432 -9.53686,-1.25587 -15.9049,-10.60145 -14.58474,-19.9366 1.52218,-10.76378 12.10853,-17.92737 22.66919,-16.35098 12.00823,1.79247 19.97923,13.63924 18.1409,25.44299 -1.60341,10.29539 -10.08024,18.37376 -20.29982,19.97433"
+         sodipodi:t0="0.1"
+         sodipodi:argument="-17.373711"
+         sodipodi:radius="25.141182"
+         sodipodi:revolution="3"
+         sodipodi:expansion="1.14"
+         sodipodi:cy="882.78998"
+         sodipodi:cx="319.28186"
+         id="path4785"
+         style="fill:none;fill-rule:evenodd;stroke:#b940b9;stroke-width:3.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         sodipodi:type="spiral" />
+    </g>
+  </g>
+</svg>

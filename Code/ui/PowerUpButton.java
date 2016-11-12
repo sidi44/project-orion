@@ -11,7 +11,7 @@ import logic.powerup.PowerUpSpeedUp;
 import logic.powerup.PowerUpTeleport;
 import logic.powerup.PowerUpVisitor;
 
-public class PowerUpButton extends ImageButton implements PowerUpVisitor {
+class PowerUpButton extends ImageButton implements PowerUpVisitor {
 
 	// The UI skin
 	private Skin skin;

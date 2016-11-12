@@ -51,6 +51,10 @@ public class TextureDrawer {
 		shapeDrawer = new ShapeDrawer();
 	}
 	
+	public void setBackgroundSize(Vector2 size) {
+		rendererConfig.setBackgroundSize(size);
+	}
+	
 	/**
 	 * Draws the background image at the specified world coordinates. Assumes
 	 * the image has already been loaded into memory.
@@ -60,16 +64,11 @@ public class TextureDrawer {
 	 * @param projMatrix - the projection matrix
 	 */
 	public void drawBackground(float x, float y, Matrix4 projMatrix) {
-		Vector2 bottomLeft = rendererConfig.getBackgroundBottomLeft();
-		Vector2 topRight = rendererConfig.getBackgroundTopRight();
+		Vector2 backgroundSize = rendererConfig.getBackgroundSize();
 		
 		spriteBatch.begin();
 		spriteBatch.setProjectionMatrix(projMatrix);
-		spriteBatch.draw(background, 
-				         bottomLeft.x,
-				         bottomLeft.y,
-				         topRight.x - bottomLeft.x, 
-				         topRight.y - bottomLeft.y);
+		spriteBatch.draw(background, x, y, backgroundSize.x, backgroundSize.y);
 		spriteBatch.end();
 	}
 	
@@ -114,7 +113,7 @@ public class TextureDrawer {
 		Set<PowerUpType> hasImage = new HashSet<PowerUpType>();
 		hasImage.add(PowerUpType.SpeedUp);
 		hasImage.add(PowerUpType.SlowDown);
-//		hasImage.add(PowerUpType.Teleport);
+		hasImage.add(PowerUpType.Teleport);
 //		hasImage.add(PowerUpType.Magnet);
 //		hasImage.add(PowerUpType.Freeze);
 		

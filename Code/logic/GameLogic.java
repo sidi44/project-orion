@@ -193,7 +193,8 @@ public class GameLogic {
 		Set<PointXY> pills = (gc.getHasPills()) ? new HashSet<PointXY>(allPoints) : new HashSet<PointXY>();
 		
 		// Create game state
-		this.gs = new GameState(maze, predators, prey, pills, predatorPowerUps, preyPowerUps);
+		int timeLimit = gc.getTimeLimit();
+		this.gs = new GameState(maze, predators, prey, pills, predatorPowerUps, preyPowerUps, timeLimit);
 		
 		try {
 			if ((allPoints.size() + prey.size() + predatorPowerUps.size() + preyPowerUps.size() != totalNodes) || usedPoints.size() != predators.size() || (predators.size() != aConfig.getNumPred() || (prey.size() != aConfig.getNumPrey()))){
@@ -207,13 +208,12 @@ public class GameLogic {
 	/**
 	 * Checks to see whether game is over, and in what way.
 	 * 
-	 * @param timeRemaining: in seconds (int)
 	 * @return go (GameOver)
 	 */
-	public GameOver isGameOver(int timeRemaining) {
+	public GameOver isGameOver() {
 		GameOver go = GameOver.No;
 		
-		if (timeRemaining <= 0) {
+		if (gs.getTimeRemaining() <= 0) {
 			go = GameOver.Time; // Predators lose
 		} else if (gs.getPills().size() <= 0) {
 			go = GameOver.Pills; // Predators lose
