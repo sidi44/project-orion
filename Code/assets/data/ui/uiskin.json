@@ -29,16 +29,16 @@ com.badlogic.gdx.graphics.Color: {
 		b: 0
 		a: 1
 	}
-	black: {
-		r: 0
-		g: 0
-		b: 0
-		a: 1
-	}
 	grey: {
 		r: 0.7
 		g: 0.7
 		b: 0.7
+		a: 1
+	}
+	black: {
+		r: 0
+		g: 0
+		b: 0
 		a: 1
 	}
 }
@@ -122,8 +122,12 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 		imageOver: tree-plus
 	}
 	resume_button: {
-		imageUp: Pause_button_up2
-		imageDown: Pause_button_up3
+		imageUp: resume_button_up
+		imageDown: resume_button_down
+	}
+	reset_button: {
+		imageUp: reset_button_up
+		imageDown: reset_button_down
 	}
 	home_button: {
 		imageUp: home_button_up
@@ -132,10 +136,6 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 	settings_button: {
 		imageUp: settings_button_up
 		imageDown: settings_button_down
-	}
-	reset_button: {
-		imageUp: reset_button_up
-		imageDown: reset_button_down
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
@@ -183,7 +183,8 @@ com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
 	default: {
 		font: default-font
 		up: default-round
-		down: default-round-down
+		down: default-round
+		disabled: default-round-down
 	}
 	toggle: {
 		font: default-font
