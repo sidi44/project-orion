@@ -420,6 +420,21 @@ class RecursivePathFinder implements PathFinder {
 	private Path createPath() {
 		return new PointXYPath();
 	}
+	
+	@Override
+	public float getProgress() {
+		int total = maze.getNodes().size() * maze.getNodes().size();
+		
+		int current = allPaths.size();
+		
+		float progress = current * 100f / total;
+		return progress;
+	}
+
+	@Override
+	public void run() {
+		generateAllPaths();
+	}
 
 } 
 
