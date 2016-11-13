@@ -3,8 +3,9 @@ package pathfinding;
 import java.util.Set;
 
 import geometry.PointXY;
+import progress.ProgressTask;
 
-public interface PathFinder {
+public interface PathFinder extends ProgressTask {
 	
 	public void generateAllPaths();
 	

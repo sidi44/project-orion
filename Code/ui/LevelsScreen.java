@@ -94,7 +94,7 @@ class LevelsScreen extends MenuScreen {
 			public void clicked(InputEvent event, float x, float y) {
 				ScreenManager manager = getManager();
 				manager.getGame().setGameTypeLevel(levelNumber);
-				manager.changeScreen(ScreenName.Game);
+				manager.changeScreen(ScreenName.Loading);
 			}
 		});
 		
