@@ -28,7 +28,6 @@ public class GameState {
 	
 	private float timeRemaining;
 	
-	private PathFinder pathFinder;
 	private Map<Agent, Set<PointXY>> partition;
 	private Map<Agent, Set<PointXY>> saferPositions;
 	
@@ -57,9 +56,6 @@ public class GameState {
 		this.preyPowerUps = preyPowerUps;
 		
 		this.timeRemaining = timeLimit;
-		
-		this.pathFinder = new PathFinder(maze);
-		this.pathFinder.generateAllPaths();
 	}
 	
 	/**
@@ -289,43 +285,6 @@ public class GameState {
 			}
 		}
 		return null;
-	}
-	
-	/**
-	 * Get the shortest path in the GameState's maze between the provided start 
-	 * and end points.
-	 * 
-	 * @param start - the start point on the Path.
-	 * @param end - the end point on the Path.
-	 * @return the shortest Path from start to end in the GameState's maze.
-	 */
-	public Path getPath(PointXY start, PointXY end) {
-		return pathFinder.getPath(start, end);
-	}
-	
-	/**
-	 * Find the shortest path in the GameState's maze from the provided start
-	 * point to the nearest point in the set of goal points.
-	 * 
-	 * @param start - the start point on the Path.
-	 * @param goals - the set of goal points.
-	 * @return the shortest path from the start point to the nearest point in 
-	 * the set of goal points.
-	 */
-	public Path getClosestPath(PointXY start, Set<PointXY> goals) {
-		return pathFinder.getPath(start, goals);
-	}
-	
-	/**
-	 * Get the shortest path to the Pill closest to the given start point in the
-	 * GameState's maze.
-	 * 
-	 * @param start - the point in the maze from which to find the closest pill.
-	 * @return the shortest Path from start point to the closest pill in the 
-	 * GameState's maze.
-	 */
-	public Path getClosestPillPath(PointXY start) {
-		return pathFinder.getPath(start, pills);
 	}
 	
 	/**

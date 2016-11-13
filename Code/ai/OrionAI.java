@@ -12,11 +12,12 @@ import logic.GameState;
 import logic.Direction;
 import logic.Maze;
 import logic.MazeNode;
-import logic.Path;
 import logic.Predator;
 import logic.Prey;
 
-public class OrionAI implements AILogic {
+import pathfinding.Path;
+
+public class OrionAI extends AILogicBase {
 
 	private double pillFactor;
 	private double preyFactor;
@@ -35,8 +36,10 @@ public class OrionAI implements AILogic {
 	
 	private Map<Direction, Double> predatorsInDirection;
 	
-	public OrionAI(double pillFactor, double preyFactor, double predatorFactor, 
-			double pillDistFactor, double preyDistFactor, double predatorDistFactor) {
+	public OrionAI(Maze maze, double pillFactor, double preyFactor, 
+			       double predatorFactor, double pillDistFactor, 
+			       double preyDistFactor, double predatorDistFactor) {
+		super(maze);
 		this.pillFactor = pillFactor;
 		this.preyFactor = preyFactor;
 		this.predatorFactor = predatorFactor;
@@ -174,12 +177,11 @@ public class OrionAI implements AILogic {
 		Set<PointXY> mazeCoords = nodes.keySet();
 		
 		for (PointXY mazePos : mazeCoords) {
-			Path path = state.getPath(pos, mazePos);
-			List<PointXY> pathNodes = path.getPathNodes();
-			if (pathNodes.size() < 2) {
+			Path path = getPathFinder().getPath(pos, mazePos);
+			if (path.getLength() < 2) {
 				continue;
 			}
-			Direction dir = getDirection(pathNodes.get(0), pathNodes.get(1));
+			Direction dir = getDirection(path.getPoint(0), path.getPoint(1));
 			boolean hasPill = state.hasPill(mazePos);
 			if (hasPill) {
 				double current = pillsInDirection.get(dir);
@@ -228,12 +230,11 @@ public class OrionAI implements AILogic {
 				continue;
 			}
 			PointXY preyPos = prey.getPosition();
-			Path path = state.getPath(pos, preyPos);
-			List<PointXY> pathNodes = path.getPathNodes();
-			if (pathNodes.size() < 2) {
+			Path path = getPathFinder().getPath(pos, preyPos);
+			if (path.getLength() < 2) {
 				continue;
 			}
-			Direction dir = getDirection(pathNodes.get(0), pathNodes.get(1));
+			Direction dir = getDirection(path.getPoint(0), path.getPoint(1));
 			
 			double current = preyInDirection.get(dir);
 			current += 1.0 / (preyDistFactor * path.getLength());
@@ -262,12 +263,11 @@ public class OrionAI implements AILogic {
 				continue;
 			}
 			PointXY predatorPos = predator.getPosition();
-			Path path = state.getPath(pos, predatorPos);
-			List<PointXY> pathNodes = path.getPathNodes();
-			if (pathNodes.size() < 2) {
+			Path path = getPathFinder().getPath(pos, predatorPos);
+			if (path.getLength() < 2) {
 				continue;
 			}
-			Direction dir = getDirection(pathNodes.get(0), pathNodes.get(1));
+			Direction dir = getDirection(path.getPoint(0), path.getPoint(1));
 			
 			double current = predatorsInDirection.get(dir);
 			current += 1.0 / (predatorDistFactor * path.getLength());
@@ -328,9 +328,9 @@ public class OrionAI implements AILogic {
 		Path closestPreyPath = findClosestPreyPath(agent, state);
 		
 		// Use the closestPreyPath to get the direction in which to travel.
-		List<PointXY> path = closestPreyPath.getPathNodes();
-		if (path.size() > 1) {
-			Direction dir = getDirection(path.get(0), path.get(1));
+		if (closestPreyPath.getLength() > 1) {
+			Direction dir = getDirection(closestPreyPath.getPoint(0), 
+										 closestPreyPath.getPoint(1));
 			agent.setNextMoveDirection(dir);
 		}
 	}
@@ -340,11 +340,11 @@ public class OrionAI implements AILogic {
 		List<Prey> prey = state.getPrey();
 		
 		// Find the closest Prey.
-		Path closestPreyPath = new Path();
+		Path closestPreyPath = null;
 		int closestPreyPathLength = Integer.MAX_VALUE;
 		for (Prey p : prey) {
 			PointXY preyPos = p.getPosition();
-			Path path = state.getPath(predatorPos, preyPos);
+			Path path = getPathFinder().getPath(predatorPos, preyPos);
 			if (path.getLength() < closestPreyPathLength) {
 				closestPreyPathLength = path.getLength();
 				closestPreyPath = path;

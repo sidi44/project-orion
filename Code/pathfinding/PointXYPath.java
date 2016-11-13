@@ -1,4 +1,4 @@
-package logic;
+package pathfinding;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,7 +16,7 @@ import geometry.PointXY;
  * @author Simon Dicken
  * @version 2015-12-28
  */
-public class Path {
+class PointXYPath implements Path {
 
 	// The ordered list of points which describes the path.
 	List<PointXY> path;
@@ -27,7 +27,7 @@ public class Path {
 	/**
 	 * Constructor for Path.
 	 */
-	public Path() {
+	public PointXYPath() {
 		path = new ArrayList<PointXY>();
 		points = new HashSet<PointXY>();
 	}
@@ -39,7 +39,7 @@ public class Path {
 	 * 
 	 * @param path - the Path to copy
 	 */
-	public Path(Path path) {
+	public PointXYPath(PointXYPath path) {
 		this.path = new ArrayList<PointXY>();
 		this.points = new HashSet<PointXY>();
 		
@@ -52,6 +52,7 @@ public class Path {
 	 * 
 	 * @param point - the point to add to the end of the Path.
 	 */
+	@Override
 	public void addToEnd(PointXY point) {
 		path.add(point);
 		points.add(point);
@@ -73,6 +74,7 @@ public class Path {
 	 * 
 	 * @return the length of the Path.
 	 */
+	@Override
 	public int getLength() {
 		return path.size();
 	}
@@ -82,6 +84,7 @@ public class Path {
 	 * 
 	 * @return true if the path is empty, false otherwise.
 	 */
+	@Override
 	public boolean empty() {
 
 		if (path.size() != points.size()) {
@@ -94,7 +97,8 @@ public class Path {
 	/**
 	 * Reverse the points in the path.
 	 */
-	public void reversePath() {
+	@Override
+	public void reverse() {
 		ArrayList<PointXY> newPath =  new ArrayList<PointXY>();
 		
 		for (int i = path.size() - 1; i >= 0; --i) {
@@ -127,7 +131,8 @@ public class Path {
 	 * @throws IllegalArgumentException - if either or both of start and end are
 	 * not in the path.
 	 */
-	public Path subPath(PointXY start, PointXY end) {
+	@Override
+	public PointXYPath subPath(PointXY start, PointXY end) {
 		
 		if (!points.contains(start) || !points.contains(end)) {
 			throw new IllegalArgumentException("One or both of the points are"
@@ -136,12 +141,12 @@ public class Path {
 		
 		// Quick check to efficiently return if start and end are equal.
 		if (start.equals(end)) {
-			Path p = new Path();
+			PointXYPath p = new PointXYPath();
 			p.addToEnd(start);
 			return p;
 		}
 		
-		Path p = new Path();
+		PointXYPath p = new PointXYPath();
 		boolean adding = false;
 		boolean forwards = true;
 		for (PointXY point : path) {
@@ -170,7 +175,7 @@ public class Path {
 		}
 		
 		if (!forwards) {
-			p.reversePath();
+			p.reverse();
 		}
 		
 		return p;
@@ -179,9 +184,50 @@ public class Path {
 	/**
 	 * Removes all points from the Path.
 	 */
+	@Override
 	public void clear() {
 		path.clear();
 		points.clear();
+	}
+	
+	public PointXY start() {
+		if (!empty()) {
+			return path.get(0);
+		} else {
+			return null;
+		}
+	}
+	
+	public PointXY end() {
+		if (!empty()) {
+			return path.get(path.size() - 1);
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public PointXY getStart() {
+		return path.get(0);
+	}
+
+	@Override
+	public PointXY getEnd() {
+		return path.get(getLength() - 1);
+	}
+
+	@Override
+	public PointXY getPoint(int index) {
+		if (index < 0 || index >= getLength()) {
+			throw new IllegalArgumentException("Path point index out of bounds");
+		}
+		
+		return path.get(index);
+	}
+
+	@Override
+	public Path deepCopy() {
+		return new PointXYPath(this);
 	}
 	
 }

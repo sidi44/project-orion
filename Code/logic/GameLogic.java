@@ -36,14 +36,8 @@ public class GameLogic {
 	 */
 	public GameLogic(GameConfiguration gc) {
 		this.gc = gc;
-		//this.aiLogic = new AILogicRandom();
-//		this.aiLogic = new AILogicSimple();
-//		this.aiLogic = new OrionAI(-9.364799524753064, -9.109177244173164, 
-//				-6.344606437765757, -0.3417480479470899, 3.704418398331821, 
-//				0.6885758818912453);
-		this.aiLogic = new AILogicPartition();
-
 		createGs();
+		this.aiLogic = new AILogicPartition(gs.getMaze());
 	}
 	
 	/**
