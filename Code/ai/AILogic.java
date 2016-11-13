@@ -4,6 +4,7 @@ import java.util.List;
 
 import logic.Agent;
 import logic.GameState;
+import progress.ProgressTask;
 
 /**
  * AILogic interface.
@@ -25,5 +26,7 @@ public interface AILogic {
 	 * @param state - the current state of the game.
 	 */
 	void calcNextMove(List<Agent> agents, GameState state);
+	
+	List<ProgressTask> getProgressTasks();
 	
 }

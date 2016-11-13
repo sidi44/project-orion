@@ -30,6 +30,7 @@ public class ScreenManager extends Sender {
 		screens.put(ScreenName.Sandbox, new SandboxScreen(this));
 		screens.put(ScreenName.Game, new GameScreen(this));
 		screens.put(ScreenName.Pause, new PauseScreen(this));
+		screens.put(ScreenName.Loading, new LoadingScreen(this));
 	}
 	
 	public void changeScreen(ScreenName name) {

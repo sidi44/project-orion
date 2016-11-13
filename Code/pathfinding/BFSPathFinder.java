@@ -89,5 +89,20 @@ class BFSPathFinder implements PathFinder {
 		
 		return shortestPath;
 	}
+	
+	@Override
+	public float getProgress() {
+		int total = maze.getNodes().size() * maze.getNodes().size();
+		
+		int current = pathStore.numPaths();
+		
+		float progress = current * 100f / total;
+		return progress;
+	}
+
+	@Override
+	public void run() {
+		generateAllPaths();
+	}
 
 }

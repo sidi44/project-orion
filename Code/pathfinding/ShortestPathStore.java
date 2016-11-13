@@ -78,4 +78,8 @@ class ShortestPathStore {
 		return shortestPaths.containsKey(pair);
 	}
 	
+	public int numPaths() {
+		return shortestPaths.size();
+	}
+	
 }
