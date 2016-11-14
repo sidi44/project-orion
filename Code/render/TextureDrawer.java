@@ -108,18 +108,6 @@ public class TextureDrawer {
 		spriteBatch.end();
 	}
 	
-	// Temporary method, can remove after we have all images
-	private void filterOutOnesWithoutImage(Set<PowerUpType> powerUpTypes) {
-		Set<PowerUpType> hasImage = new HashSet<PowerUpType>();
-		hasImage.add(PowerUpType.SpeedUp);
-		hasImage.add(PowerUpType.SlowDown);
-		hasImage.add(PowerUpType.Teleport);
-//		hasImage.add(PowerUpType.Magnet);
-//		hasImage.add(PowerUpType.Freeze);
-		
-		powerUpTypes.retainAll(hasImage);
-	}
-	
 	public void drawPowerUpEffectTextures(List<PhysicsBodyAgent> pbAgents, Matrix4 projMatrix) {
 		float deltaTime = Gdx.graphics.getDeltaTime();
 		
@@ -131,8 +119,6 @@ public class TextureDrawer {
 			for (PowerUp powerUp : powerUps) {
 				powerUpTypes.add(powerUp.getType());
 			}
-			
-			filterOutOnesWithoutImage(powerUpTypes); // Remove line when have all images
 			
 			for (PowerUpType powerUpType : powerUpTypes) {
 				Agent agent = pbAgent.getAgent();
