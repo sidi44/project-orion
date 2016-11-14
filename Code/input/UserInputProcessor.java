@@ -10,12 +10,13 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+//import com.badlogic.gdx.math.Vector3;
 
 public class UserInputProcessor implements InputProcessor, GestureListener {
 
 	private Move mMove;
 	private Direction mPressedMove;
+	@SuppressWarnings("unused")
 	private boolean mPressedEnter;
 	
 	// Camera movement
@@ -26,6 +27,7 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 	private final float mCamZoomSize = 0.2f;
 	public final LinkedList<Direction> mPressedCamKeys;
 
+	@SuppressWarnings("unused")
 	private CameraAccessor mCameraAccessor;
 	
 	public UserInputProcessor(CameraAccessor ca) {
@@ -214,8 +216,10 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 	}
 	
 	public void reset() {
+		mMove.clear();
 		mPressedMove = Direction.None;
 		mPressedCamKeys.clear();
+		mPressedEnter = false;
 	}
 
 	@Override

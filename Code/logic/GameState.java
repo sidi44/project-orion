@@ -25,10 +25,14 @@ public class GameState {
 	private List<Prey> prey;
 	private Map<PointXY, PowerUp> predatorPowerUps;
 	private Map<PointXY, PowerUp> preyPowerUps;
-	private PathFinder pathFinder;
+	
+	private float timeRemaining;
 	
 	private Map<Agent, Set<PointXY>> partition;
 	private Map<Agent, Set<PointXY>> saferPositions;
+	
+	private final static int PILL_SCORE_VALUE = 100;
+	private final static int SECONDS_SCORE_VALUE = 10;
 	
 	/**
 	 * Creates an instance of GameState.
@@ -39,10 +43,11 @@ public class GameState {
 	 * @param pills (Set<PointXY>)
 	 * @param predatorPowerUps (Map<PointXY, PredatorPowerUp>)
 	 * @param preyPowerUps (Map<PointXY, PreyPowerUp>)
+	 * @param timeLimit (int)
 	 */
 	public GameState(Maze maze, List<Predator> pred, List<Prey> prey,
 			Set<PointXY> pills, Map<PointXY, PowerUp> predatorPowerUps,
-			Map<PointXY, PowerUp> preyPowerUps) {
+			Map<PointXY, PowerUp> preyPowerUps, int timeLimit) {
 		this.maze = maze;
 		this.predators = pred;
 		this.prey = prey;
@@ -50,9 +55,7 @@ public class GameState {
 		this.predatorPowerUps = predatorPowerUps;
 		this.preyPowerUps = preyPowerUps;
 		
-		this.pathFinder = new PathFinder(maze);
-		this.pathFinder.generateAllPaths();
-		
+		this.timeRemaining = timeLimit;
 	}
 	
 	/**
@@ -64,29 +67,12 @@ public class GameState {
 	}
 	
 	/**
-	 * Sets the maze.
-	 * @param maze (Maze)
-	 */
-	public void setMaze(Maze maze) {
-		this.maze = maze;
-	}
-	
-	/**
 	 * Gets the pills.
 	 * 
 	 * @return pills (Set<PointXY>)
 	 */
 	public Set<PointXY> getPills() {
 		return this.pills;
-	}
-	
-	/**
-	 * Sets the piils
-	 * 
-	 * @param pills (Set<PointXY>)
-	 */
-	public void setPills(Set<PointXY> pills) {
-		this.pills = pills;
 	}
 	
 	public boolean hasPill(PointXY pos) {
@@ -103,30 +89,12 @@ public class GameState {
 	}
 	
 	/**
-	 * Set the predators.
-	 * 
-	 * @param predators (Map<Integer, Predator>)
-	 */
-	public void setPred(List<Predator> predators) {
-		this.predators = predators;
-	}
-	
-	/**
 	 * Gets the prey.
 	 * 
 	 * @return prey (Map<Integer, Prey>)
 	 */
 	public List<Prey> getPrey() {
 		return this.prey;
-	}
-	
-	/**
-	 * Set the prey.
-	 * 
-	 * @param prey (Map<Integer, Prey>)
-	 */
-	public void setPrey(List<Prey> prey) {
-		this.prey = prey;
 	}
 	
 	/**
@@ -139,30 +107,12 @@ public class GameState {
 	}
 	
 	/**
-	 * Sets the predator powerups.
-	 * 
-	 * @param predatorPowerUps (Map<PointXY, PredatorPowerUp>)
-	 */
-	public void setPredatorPowers(Map<PointXY, PowerUp> predatorPowerUps) {
-		this.predatorPowerUps = predatorPowerUps;
-	}
-	
-	/**
 	 * Gets the prey powerups.
 	 * 
 	 * @return preyPowerUps (Map<PointXY, PreyPowerUp>)
 	 */
 	public Map<PointXY, PowerUp> getPreyPowerUps() {
 		return this.preyPowerUps;
-	}
-	
-	/**
-	 * Sets the prey powerups.
-	 * 
-	 * @param preyPowerUps (Map<PointXY, PreyPowerUp>)
-	 */
-	public void setPreyPowers(Map<PointXY, PowerUp> preyPowerUps) {
-		this.preyPowerUps = preyPowerUps;
 	}
 	
 	/**
@@ -338,43 +288,6 @@ public class GameState {
 	}
 	
 	/**
-	 * Get the shortest path in the GameState's maze between the provided start 
-	 * and end points.
-	 * 
-	 * @param start - the start point on the Path.
-	 * @param end - the end point on the Path.
-	 * @return the shortest Path from start to end in the GameState's maze.
-	 */
-	public Path getPath(PointXY start, PointXY end) {
-		return pathFinder.getPath(start, end);
-	}
-	
-	/**
-	 * Find the shortest path in the GameState's maze from the provided start
-	 * point to the nearest point in the set of goal points.
-	 * 
-	 * @param start - the start point on the Path.
-	 * @param goals - the set of goal points.
-	 * @return the shortest path from the start point to the nearest point in 
-	 * the set of goal points.
-	 */
-	public Path getClosestPath(PointXY start, Set<PointXY> goals) {
-		return pathFinder.getPath(start, goals);
-	}
-	
-	/**
-	 * Get the shortest path to the Pill closest to the given start point in the
-	 * GameState's maze.
-	 * 
-	 * @param start - the point in the maze from which to find the closest pill.
-	 * @return the shortest Path from start point to the closest pill in the 
-	 * GameState's maze.
-	 */
-	public Path getClosestPillPath(PointXY start) {
-		return pathFinder.getPath(start, pills);
-	}
-	
-	/**
 	 * Inform the game state that the predator with the given id has collected 
 	 * the power up at the given position.
 	 * 
@@ -480,4 +393,43 @@ public class GameState {
 	public Map<Agent, Set<PointXY>> getSaferPositions() {
 		return saferPositions;
 	}
+	
+	/**
+	 * Get the time remaining for the game in seconds. 
+	 * When this value hits zero, the game is over.
+	 * 
+	 * @return the time remaining in seconds.
+	 */
+	public float getTimeRemaining() {
+		return timeRemaining;
+	}
+	
+	/**
+	 * Reduce the time remaining for the game by a specified amount in seconds.
+	 * 
+	 * @param seconds - the amount of seconds by which to reduce the time 
+	 * remaining.
+	 */
+	public void decreaseTimeRemaining(float seconds) {
+		timeRemaining -= seconds;
+		if (timeRemaining < 0) {
+			timeRemaining = 0;
+		}
+	}
+	
+	/**
+	 * Return the current score.
+	 * 
+	 * @return the current score.
+	 */
+	public int getScore() {
+		// The score has two parts to it which are functions of the number of 
+		// pills remaining in the maze and the number of seconds remaining. 
+		int pillScore = pills.size() * PILL_SCORE_VALUE;
+		int timeScore = (int) timeRemaining * SECONDS_SCORE_VALUE;
+		
+		int score = pillScore + timeScore;
+		return score;
+	}
+	
 }

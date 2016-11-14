@@ -10,9 +10,10 @@ import logic.Agent;
 import logic.Direction;
 import logic.GameState;
 import logic.Maze;
-import logic.Path;
 import logic.Predator;
 import logic.Prey;
+
+import pathfinding.Path;
 
 /**
  * AILogicSimple class.
@@ -33,12 +34,13 @@ import logic.Prey;
  * @author Simon Dicken
  * @version 2015-12-28
  */
-public class AILogicSimple implements AILogic {
+public class AILogicSimple extends AILogicBase {
 
 	private int runFromPredDist = 5;
 	private Map<Direction, Direction[]> runDirections;
 	
-	public AILogicSimple() {
+	public AILogicSimple(Maze maze) {
+		super(maze);
 		initialiseRunDirections();
 	}
 	
@@ -89,9 +91,9 @@ public class AILogicSimple implements AILogic {
 		Path closestPreyPath = findClosestPreyPath(agent, state);
 		
 		// Use the closestPreyPath to get the direction in which to travel.
-		List<PointXY> path = closestPreyPath.getPathNodes();
-		if (path.size() > 1) {
-			Direction dir = getDirection(path.get(0), path.get(1));
+		if (closestPreyPath.getLength() > 1) {
+			Direction dir = getDirection(closestPreyPath.getPoint(0), 
+										 closestPreyPath.getPoint(1));
 			agent.setNextMoveDirection(dir);
 		}
 	}
@@ -105,17 +107,18 @@ public class AILogicSimple implements AILogic {
 		Path closestPillPath = findClosestPillPath(agent, state);
 		
 		// Is the predator too close? If so, run away! If not, head for a pill.
-		if (!closestPredatorPath.empty() &&  
-			closestPredatorPath.getLength() <= runFromPredDist) {
+		int closestPredatorDist = closestPredatorPath.getLength();
+		if (closestPredatorDist > 0 &&  
+			closestPredatorDist <= runFromPredDist) {
 			
 			setNextMoveAvoidPredator(agent, closestPredatorPath, 
 					state.getMaze());
 			
 		} else {
 			// Use the closestPillPath to get the direction in which to travel.
-			List<PointXY> path = closestPillPath.getPathNodes();
-			if (path.size() > 1) {
-				Direction dir = getDirection(path.get(0), path.get(1));
+			if (closestPillPath.getLength() > 1) {
+				Direction dir = getDirection(closestPillPath.getPoint(0), 
+											 closestPillPath.getPoint(1));
 				agent.setNextMoveDirection(dir);
 			}
 		}
@@ -127,11 +130,11 @@ public class AILogicSimple implements AILogic {
 		List<Prey> prey = state.getPrey();
 		
 		// Find the closest Prey.
-		Path closestPreyPath = new Path();
+		Path closestPreyPath = null;
 		int closestPreyPathLength = Integer.MAX_VALUE;
 		for (Prey p : prey) {
 			PointXY preyPos = p.getPosition();
-			Path path = state.getPath(predatorPos, preyPos);
+			Path path = getPathFinder().getPath(predatorPos, preyPos);
 			if (path.getLength() < closestPreyPathLength) {
 				closestPreyPathLength = path.getLength();
 				closestPreyPath = path;
@@ -147,11 +150,11 @@ public class AILogicSimple implements AILogic {
 		List<Predator> predators = state.getPredators();
 		
 		// Find the closest Predator.
-		Path closestPredPath = new Path();
+		Path closestPredPath = null;
 		int closestPredPathLength = Integer.MAX_VALUE;
 		for (Predator p : predators) {
 			PointXY predatorPos = p.getPosition();
-			Path path = state.getPath(preyPos, predatorPos);
+			Path path = getPathFinder().getPath(preyPos, predatorPos);
 			if (path.getLength() < closestPredPathLength) {
 				closestPredPathLength = path.getLength();
 				closestPredPath = path;
@@ -163,25 +166,23 @@ public class AILogicSimple implements AILogic {
 
 	private Path findClosestPillPath(Agent agent, GameState state) {
 		PointXY preyPos = agent.getPosition();
-		return state.getClosestPillPath(preyPos);
+		return getPathFinder().getPath(preyPos, state.getPills());
 	}
 	
 	private void setNextMoveAvoidPredator(Agent agent, Path closestPredatorPath,
 			Maze maze) {
 		
-		List<PointXY> path = closestPredatorPath.getPathNodes();
-		
 		// If the Predator is in our square or the path is empty, we are 
 		// essentially caught so just continue what we were doing for the last
 		// few moments.
-		if (path.size() <= 1) {
+		if (closestPredatorPath.getLength() <= 1) {
 			return;
 		}
 		
 		// Use the first couple of points on the path to work out from which 
 		// direction the Predator is coming.
-		PointXY pos1 = path.get(0);
-		PointXY pos2 = path.get(1);
+		PointXY pos1 = closestPredatorPath.getPoint(0);
+		PointXY pos2 = closestPredatorPath.getPoint(1);
 		Direction runFromDir = getDirection(pos1, pos2);
 		
 		Direction dir = getPreferredMoveDirection(pos1, runFromDir, maze);

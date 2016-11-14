@@ -31,8 +31,7 @@ public class Move {
 	 * Sets the move direction to None.
 	 */
 	public Move() {
-		this.dir = Direction.None;
-		this.usePowerUpIndex = -1;
+		clear();
 	}
 	
 	/**
@@ -80,5 +79,15 @@ public class Move {
 	 */
 	public void setUsePowerUpIndex(int powerUpIndex) {
 		this.usePowerUpIndex = powerUpIndex;
+	}
+	
+	/**
+	 * Remove any move information. 
+	 * More specifically, this sets the move direction to 'None' and sets the 
+	 * use power up index to -1 to indicate no power up should be used.
+	 */
+	public void clear() {
+		setDirection(Direction.None);
+		setUsePowerUpIndex(-1);
 	}
 }

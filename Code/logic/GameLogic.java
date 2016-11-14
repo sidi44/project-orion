@@ -36,14 +36,8 @@ public class GameLogic {
 	 */
 	public GameLogic(GameConfiguration gc) {
 		this.gc = gc;
-		//this.aiLogic = new AILogicRandom();
-//		this.aiLogic = new AILogicSimple();
-//		this.aiLogic = new OrionAI(-9.364799524753064, -9.109177244173164, 
-//				-6.344606437765757, -0.3417480479470899, 3.704418398331821, 
-//				0.6885758818912453);
-		this.aiLogic = new AILogicPartition();
-
 		createGs();
+		this.aiLogic = new AILogicPartition(gs.getMaze());
 	}
 	
 	/**
@@ -193,7 +187,8 @@ public class GameLogic {
 		Set<PointXY> pills = (gc.getHasPills()) ? new HashSet<PointXY>(allPoints) : new HashSet<PointXY>();
 		
 		// Create game state
-		this.gs = new GameState(maze, predators, prey, pills, predatorPowerUps, preyPowerUps);
+		int timeLimit = gc.getTimeLimit();
+		this.gs = new GameState(maze, predators, prey, pills, predatorPowerUps, preyPowerUps, timeLimit);
 		
 		try {
 			if ((allPoints.size() + prey.size() + predatorPowerUps.size() + preyPowerUps.size() != totalNodes) || usedPoints.size() != predators.size() || (predators.size() != aConfig.getNumPred() || (prey.size() != aConfig.getNumPrey()))){
@@ -207,13 +202,12 @@ public class GameLogic {
 	/**
 	 * Checks to see whether game is over, and in what way.
 	 * 
-	 * @param timeRemaining: in seconds (int)
 	 * @return go (GameOver)
 	 */
-	public GameOver isGameOver(int timeRemaining) {
+	public GameOver isGameOver() {
 		GameOver go = GameOver.No;
 		
-		if (timeRemaining <= 0) {
+		if (gs.getTimeRemaining() <= 0) {
 			go = GameOver.Time; // Predators lose
 		} else if (gs.getPills().size() <= 0) {
 			go = GameOver.Pills; // Predators lose

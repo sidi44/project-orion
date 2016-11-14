@@ -124,6 +124,17 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	}
 	
 	public void resetGame() {
+		
+		// Calculate the size of the maze in world coordinates. Use this for
+		// the background image size.
+		float squareSize = physicsConfig.getSquareSize();
+		PolygonShape shape = gameConfig.getDimensions();
+		float width = (shape.getMaxX() - shape.getMinX() + 1) * squareSize;
+		float height = (shape.getMaxY() - shape.getMinY() + 1) * squareSize;
+		renderer.setBackgroundSize(new Vector2(width, height));
+		
+		// Rebuild the back end game logic and physics processor from the 
+		// configurations.
 		gameLogic = new GameLogic(gameConfig);
 		physProc = new PhysicsProcessorBox2D(gameLogic.getGameState(), 
 				physicsConfig);
@@ -148,7 +159,9 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		GameState state = gameLogic.getGameState();
 		physProc.stepSimulation(delta, state);
 		
-		return gameLogic.isGameOver(1);
+		state.decreaseTimeRemaining(delta);
+		
+		return gameLogic.isGameOver();
 	}
 	
 	private void processMoves(Move move) {
@@ -195,8 +208,10 @@ public class PredatorPreyGame extends Game implements GameStatus {
 			// Unlock the next level
 			progress.setLevelLocked(currentLevel + 1, false);
 			
-			// TODO Save the score here as well
-			
+			// Save the score
+			GameState state = gameLogic.getGameState();
+			int score = state.getScore();
+			progress.setLevelScore(currentLevel, score);
 			
 			// Save the player progress
 			dataManager.savePlayerProgress();

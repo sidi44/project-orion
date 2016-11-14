@@ -2,13 +2,9 @@
 	allowRotations: true
 	wallTextureFilename: Wall_Blue.png
 	wallTextureScale: 1
-	backgroundBottomLeft: {
-		x: 0
-		y: 0
-	}
-	backgroundTopRight: {
-		x: 80
-		y: 80
+	backgroundSize: {
+		x: 100
+		y: 100
 	}
 	backroundFilename: Background_Purple.png
 	animationGroupDefinitions: [
