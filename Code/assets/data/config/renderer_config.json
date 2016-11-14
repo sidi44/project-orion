@@ -390,5 +390,117 @@
 				}
 			]
 		}
+		{
+			animationGroupName: MagnetEffect
+			rows: 4
+			columns: 4
+			filename: Effect_Magnet_Multiple_Lines.png
+			animationDefinitions: [
+				{
+					animationName: UP-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: UP
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.4
+				}
+				{
+					animationName: RIGHT-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: RIGHT
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.4
+				}
+				{
+					animationName: DOWN-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: DOWN
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.4
+				}
+				{
+					animationName: LEFT-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: LEFT
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.4
+				}
+			]
+		}
+		{
+			animationGroupName: FreezeEffect
+			rows: 4
+			columns: 4
+			filename: Effect_Freeze_Multiple_Lines.png
+			animationDefinitions: [
+				{
+					animationName: UP-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: UP
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.4
+				}
+				{
+					animationName: RIGHT-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: RIGHT
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.4
+				}
+				{
+					animationName: DOWN-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: DOWN
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.4
+				}
+				{
+					animationName: LEFT-STOP
+					startFrame: 9
+					endFrame: 9
+					frameDuration: 1
+				}
+				{
+					animationName: LEFT
+					startFrame: 9
+					endFrame: 12
+					frameDuration: 0.4
+				}
+			]
+		}
 	]
 }
