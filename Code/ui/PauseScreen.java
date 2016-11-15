@@ -6,9 +6,6 @@ import com.badlogic.gdx.utils.Align;
 
 class PauseScreen extends MenuScreen {
 
-    // TODO remove main menu button from game screen since it's redundant -
-    // main menu option is already in pause screen dialog.
-
     private static final float VERTICAL_BUTTON_PADDING = 10f;
     private static final float HORIZONTAL_BUTTON_PADDING = 5f;
 
@@ -17,15 +14,11 @@ class PauseScreen extends MenuScreen {
     private static final String HOME_BUTTON = "home_button";
     private static final String SETTINGS_BUTTON = "settings_button";
 
-    private final GameScreen gameScreen;
     private Dialog dialog;
 
     public PauseScreen(ScreenManager manager) {
         super(manager);
-
-         gameScreen = (GameScreen) getManager().getScreen(ScreenName.Game);
     }
-
 
     @Override
     public void addActors() {
@@ -79,17 +72,6 @@ class PauseScreen extends MenuScreen {
         dialog.pack();
         dialog.debug();
     }
-
-
-    @Override
-    public void doRender(float delta) {
-
-        // TODO Stop camera movement and animations
-        gameScreen.doRender(0);
-
-        getManager().getGame().pause();
-    }
-
 
     @Override
     public void doShow() {
