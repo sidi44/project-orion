@@ -1,16 +1,15 @@
 package ui;
 
-import game.PredatorPreyGame;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import com.badlogic.gdx.Screen;
+
 import callback.Event;
 import callback.Sender;
-
-import com.badlogic.gdx.Screen;
+import game.PredatorPreyGame;
 
 public class ScreenManager extends Sender {
 
@@ -30,6 +29,7 @@ public class ScreenManager extends Sender {
 		screens.put(ScreenName.Levels, new LevelsScreen(this));
 		screens.put(ScreenName.Sandbox, new SandboxScreen(this));
 		screens.put(ScreenName.Game, new GameScreen(this));
+		screens.put(ScreenName.Pause, new PauseScreen(this));
 	}
 	
 	public void changeScreen(ScreenName name) {

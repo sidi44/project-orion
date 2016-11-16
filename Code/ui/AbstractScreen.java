@@ -88,14 +88,20 @@ abstract class AbstractScreen implements Screen {
 
 	@Override
 	public final void pause() {
-		// TODO Auto-generated method stub
-
+		doPause();
+	}
+	
+	protected void doPause() {
+		// Base class does nothing
 	}
 
 	@Override
 	public final void resume() {
-		// TODO Auto-generated method stub
-
+		doResume();
+	}
+	
+	protected void doResume() {
+		// Base class does nothing
 	}
 
 	@Override

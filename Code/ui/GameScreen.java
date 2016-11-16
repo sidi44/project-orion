@@ -50,15 +50,15 @@ class GameScreen extends MenuScreen {
 	@Override
 	protected void addActors() {
 		
-		// Create our main menu button
-		Button menuButton = new TextButton("Main menu", getSkin());
-		menuButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				gameFinished(GameOver.Exit);
-			}
-		});
-		
+		// Create pause button
+        Button pauseButton = new TextButton("Pause", getSkin());
+        pauseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                getManager().changeScreen(ScreenName.Pause);
+            }
+        });
+
 		// Create the Score and Time remaining text fields
 		scoreLabel = new Label("Score: ", getSkin());
 		timeLabel = new Label("Time remaining: ", getSkin());
@@ -88,10 +88,10 @@ class GameScreen extends MenuScreen {
 		// the X direction so the pane will fill the width of the screen. 
 		Table infoPane = new Table();
 		infoPane.add(timeLabel).pad(pad).left().expandX();
-		infoPane.add(menuButton).pad(pad).right();
+		infoPane.add(pauseButton).pad(pad).right();
 		infoPane.row();
 		infoPane.add(scoreLabel).pad(pad).left();
-		
+
 		// Next the power up button pane.
 		Table buttonPane = new Table();
 		float dim = 40f;
