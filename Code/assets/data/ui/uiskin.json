@@ -147,6 +147,16 @@ com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 		font: default-font
 	}
 }
+com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle: {
+	default-horizontal: {
+		background: default-scroll
+		knobBefore: default-round-large
+	}
+	default-vertical: {
+		background: default-scroll
+		knobBefore: default-round-large
+	}
+}
 com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
 	default: {
 		background: default-rect

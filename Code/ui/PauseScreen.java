@@ -39,7 +39,7 @@ class PauseScreen extends MenuScreen {
                 }
                 else if (RESET_BUTTON.equals(buttonId)) {
                     getManager().getGame().resetGame();
-                    screenName = ScreenName.Game;
+                    screenName = ScreenName.Loading;
                 }
                 else if (SETTINGS_BUTTON.equals(buttonId)) {
                     screenName = ScreenName.Settings;
