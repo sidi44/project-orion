@@ -2,7 +2,6 @@ package ui;
 
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -20,11 +19,8 @@ class LevelButtonPanel extends Table {
 	private Image gold;
 	
 	// The names of the images in the Skin file used by this panel
-	private static final String IMG_EMPTY = "star_empty";
-	private static final String IMG_BRONZE = "star_bronze";
-	private static final String IMG_SILVER = "star_silver";
-	private static final String IMG_GOLD = "star_gold";
-	
+	private static final String IMG_EMPTY = "Star_Incomplete_Icon";
+	private static final String IMG_STAR = "Star_Complete_Icon";
 	
 	LevelButtonPanel(Skin skin, Button button) {
 		super();
@@ -44,15 +40,14 @@ class LevelButtonPanel extends Table {
 	
 	private void layoutWidgets() {
 		
-        HorizontalGroup stars = new HorizontalGroup();
-        stars.addActor(bronze);
-        stars.addActor(silver);
-        stars.addActor(gold);
+		Table stars = new Table();
+        stars.add(bronze);
+        stars.add(silver);
+        stars.add(gold);
         
-        add(button);
+        add(button).expand();
         row();
-        add(stars).height(Value.percentWidth(0.33f, this));
-
+        add(stars).height(Value.percentWidth(0.33f, this)).expand();
 	}
 	
 	public void setNotComplete() {
@@ -62,21 +57,21 @@ class LevelButtonPanel extends Table {
 	}
 	
 	public void setCompleteBronze() {
-		bronze.setDrawable(skin.getDrawable(IMG_BRONZE));
+		bronze.setDrawable(skin.getDrawable(IMG_STAR));
 		silver.setDrawable(skin.getDrawable(IMG_EMPTY));
 		gold.setDrawable(skin.getDrawable(IMG_EMPTY));
 	}
 	
 	public void setCompleteSilver() {
-		bronze.setDrawable(skin.getDrawable(IMG_BRONZE));
-		silver.setDrawable(skin.getDrawable(IMG_SILVER));
+		bronze.setDrawable(skin.getDrawable(IMG_STAR));
+		silver.setDrawable(skin.getDrawable(IMG_STAR));
 		gold.setDrawable(skin.getDrawable(IMG_EMPTY));
 	}
 	
 	public void setCompleteGold() {
-		bronze.setDrawable(skin.getDrawable(IMG_BRONZE));
-		silver.setDrawable(skin.getDrawable(IMG_SILVER));
-		gold.setDrawable(skin.getDrawable(IMG_GOLD));
+		bronze.setDrawable(skin.getDrawable(IMG_STAR));
+		silver.setDrawable(skin.getDrawable(IMG_STAR));
+		gold.setDrawable(skin.getDrawable(IMG_STAR));
 	}
 	
 	public void setLocked(boolean locked) {
