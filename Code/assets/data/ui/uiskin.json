@@ -77,30 +77,26 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 		down: default-round-down
 	}
 	powerup_slowdown: {
-		imageUp: powerup_slowdown_icon
-		imageDown: powerup_slowdown_icon
-		imageOver: powerup_slowdown_icon
+		imageUp: Powerup_SlowDown_Icon
+		imageDown: Powerup_SlowDown_Icon
 		up: default-round
 		down: default-round-down
 	}
 	powerup_speedup: {
-		imageUp: powerup_speedup_icon
-		imageDown: powerup_speedup_icon
-		imageOver: powerup_speedup_icon
+		imageUp: Powerup_SpeedUp_Icon
+		imageDown: Powerup_SpeedUp_Icon
 		up: default-round
 		down: default-round-down
 	}
 	powerup_magnet: {
-		imageUp: powerup_magnet_icon
-		imageDown: powerup_magnet_icon
-		imageOver: powerup_magnet_icon
+		imageUp: Powerup_Magnet_Icon
+		imageDown: Powerup_Magnet_Icon
 		up: default-round
 		down: default-round-down
 	}
 	powerup_teleport: {
-		imageUp: powerup_teleport_icon
-		imageDown: powerup_teleport_icon
-		imageOver: powerup_teleport_icon
+		imageUp: Powerup_Teleport_Icon
+		imageDown: Powerup_Teleport_Icon
 		up: default-round
 		down: default-round-down
 	}
@@ -110,9 +106,8 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 		imageOver: tree-minus
 	}
 	powerup_freeze: {
-		imageUp: powerup_freeze_icon
-		imageDown: powerup_freeze_icon
-		imageOver: powerup_freeze_icon
+		imageUp: Powerup_Freeze_Icon
+		imageDown: Powerup_Freeze_Icon
 		up: default-round
 		down: default-round-down
 	}
