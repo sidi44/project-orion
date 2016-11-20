@@ -5,10 +5,13 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -43,8 +46,20 @@ class MainMenuScreen extends MenuScreen {
 				"Levels", ScreenName.Levels);
 		Button sandboxButton = createScreenChangeButton(
 				"Sandbox", ScreenName.Sandbox);
-		Button settingsButton = createScreenChangeButton(
-				"Settings", ScreenName.Settings);
+		
+		// Create the Settings button. It needs to tell the Settings screen 
+		// that this is the screen to return to afterwards, as well as changing
+		// the screen
+		Button settingsButton = new TextButton("Settings", getSkin());
+		settingsButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+		    	SettingsScreen settingsScreen = 
+		    			(SettingsScreen) getManager().getScreen(ScreenName.Settings);
+		    	settingsScreen.setPreviousScreen(ScreenName.MainMenu);
+				getManager().changeScreen(ScreenName.Settings);
+			}
+		});
 		
 		// Create a table and layout the buttons
 		Table table = new Table();

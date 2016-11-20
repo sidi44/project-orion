@@ -5,12 +5,15 @@ import sound.SoundConfiguration;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import data.DataManager;
 import functional.Consumer;
@@ -21,11 +24,19 @@ class SettingsScreen extends MenuScreen {
 	
 	private SoundConfiguration soundConfig;
 	
+	private ScreenName previousScreen;
+	
 	private final float SLIDER_PADDING = 5f;
 	private final float TABLE_PADDING = 20f;
 	
 	public SettingsScreen(ScreenManager manager) {
 		super(manager);
+		
+		previousScreen = ScreenName.MainMenu;
+	}
+	
+	public void setPreviousScreen(ScreenName previousScreen) {
+		this.previousScreen = previousScreen;
 	}
 
 	@Override
@@ -96,10 +107,14 @@ class SettingsScreen extends MenuScreen {
         													"Music",
         													SLIDER_PADDING);
 
-        // Add the main menu button
-		Button menuButton = createScreenChangeButton(
-				"Main menu", ScreenName.MainMenu);
-		
+        // Add the back button
+		Button backButton = new TextButton("Back", getSkin());
+		backButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				getManager().changeScreen(previousScreen);
+			}
+		});
 		
 		// Layout the widgets in a table
 		Table table = new Table();
@@ -116,7 +131,7 @@ class SettingsScreen extends MenuScreen {
 		musicSliderCell.pad(TABLE_PADDING);
 		table.row();
 
-		Cell<Button> menuCell = table.add(menuButton);
+		Cell<Button> menuCell = table.add(backButton);
 		menuCell.pad(TABLE_PADDING);
 		menuCell.colspan(2);
 		

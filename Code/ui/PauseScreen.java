@@ -42,6 +42,9 @@ class PauseScreen extends MenuScreen {
                     screenName = ScreenName.Game;
                 }
                 else if (SETTINGS_BUTTON.equals(buttonId)) {
+                	SettingsScreen settingsScreen = 
+                			(SettingsScreen) getManager().getScreen(ScreenName.Settings);
+                	settingsScreen.setPreviousScreen(ScreenName.Pause);
                     screenName = ScreenName.Settings;
                 }
                 else if (HOME_BUTTON.equals(buttonId)) {
