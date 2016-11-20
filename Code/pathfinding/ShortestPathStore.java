@@ -1,5 +1,6 @@
 package pathfinding;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -80,6 +81,15 @@ class ShortestPathStore {
 	
 	public int numPaths() {
 		return shortestPaths.size();
+	}
+	
+	public void addPaths(ShortestPathStore other) {
+		
+		Collection<Path> paths = other.shortestPaths.values();
+		for (Path path : paths) {
+			addPath(path);
+		}
+		
 	}
 	
 }

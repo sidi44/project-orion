@@ -7,6 +7,7 @@ import logic.Maze;
 import pathfinding.PathFinder;
 import pathfinding.PathFinderCreator;
 import pathfinding.PathFinderType;
+import pathfinding.PathGenerator;
 import progress.ProgressTask;
 
 public abstract class AILogicBase implements AILogic {
@@ -24,7 +25,7 @@ public abstract class AILogicBase implements AILogic {
 	@Override
 	public List<ProgressTask> getProgressTasks() {
 		List<ProgressTask> tasks = new ArrayList<ProgressTask>();
-		tasks.add(getPathFinder());
+		tasks.add(new PathGenerator(getPathFinder()));
 		return tasks;
 	}
 	

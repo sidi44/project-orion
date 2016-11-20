@@ -6,16 +6,20 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import progress.ProgressTask;
 
 class LoadingScreen extends MenuScreen {
 
-	private ProgressBar bar;
+	private ProgressBarPanel progressPanel;
 	
-	private final static long PAUSE = 250;
+	private boolean finished;
+	
+	private final static float PADDING = 50;
+	
+	private final static long START_PAUSE = 250;
+	private final static long END_PAUSE = 500;
 	
 	public LoadingScreen(ScreenManager manager) {
 		super(manager);
@@ -24,6 +28,8 @@ class LoadingScreen extends MenuScreen {
 	@Override
 	protected void initialise() {
 		super.initialise();
+		
+		finished = false;
 	}
 	
 	@Override
@@ -34,11 +40,13 @@ class LoadingScreen extends MenuScreen {
 		Image screenImage = new Image(new Texture(file));
 		getStage().addActor(screenImage);
 		
-		bar = new ProgressBar(0, 100, 1, false, getSkin());
-		bar.setValue(0);
+		progressPanel = new ProgressBarPanel(getSkin());
+		progressPanel.setValue(0);
 		
 		Table table = new Table();
-		table.add(bar).bottom();
+		table.add(progressPanel);
+		
+		table.pad(PADDING).bottom();
 		
 		table.setFillParent(true);
 		table.setDebug(true);
@@ -49,16 +57,18 @@ class LoadingScreen extends MenuScreen {
 	@Override
 	protected void doShow() {
 		
+		finished = false;
+		
 		List<ProgressTask> tasks = getManager().getGame().getLoadingTasks();
 		
 		// Pause briefly at the start
 		try {
-			Thread.sleep(PAUSE);
+			Thread.sleep(START_PAUSE);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		
-		bar.setValue(0);
+		progressPanel.setValue(0);
 		
 		for (ProgressTask task : tasks) {
 			Thread thread = new Thread(task);
@@ -69,10 +79,19 @@ class LoadingScreen extends MenuScreen {
 	
 	protected void doRender(float delta) {
 		
+		// Once all the progress tasks are complete (we've reached 100%) we want
+		// the current render cycle to be completed (so that the progress bar 
+		// is updated to show 100%) before we call finish() and change screens.
+		// The finished variable is used to enforce this.
+		if (finished) {
+			finish();
+			return;
+		}
+		
 		List<ProgressTask> tasks = getManager().getGame().getLoadingTasks();
 		
 		if (tasks.isEmpty()) {
-			finished();
+			setFinished();
 		} else {
 		
 			// Work out how much progress has been made. Each of the tasks is 
@@ -84,26 +103,32 @@ class LoadingScreen extends MenuScreen {
 			total /= tasks.size();
 			
 			// Update progress bar
-			bar.setValue(total);
+			progressPanel.setValue(total);
 			
 			if (total >= 100) {
-				finished();
+				setFinished();
 			}
 		}
 	}
 	
-	private void finished() {
+	private void setFinished() {
+		progressPanel.setValue(100);
+		finished = true;
+	}
+	
+	private void finish() {
 		
-		
-		bar.setValue(100);
+		// Reset the finished flag
+		finished = false;
 		
 		// Pause briefly at the end
 		try {
-			Thread.sleep(PAUSE);
+			Thread.sleep(END_PAUSE);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		
+		// Change to the Game screen
 		getManager().changeScreen(ScreenName.Game);
 	}
 	
