@@ -21,6 +21,7 @@ import physics.PhysicsDebugType;
 import physics.PhysicsGameWorld;
 import physics.PhysicsProcessor;
 import physics.PhysicsProcessorBox2D;
+import progress.ProgressTask;
 import render.Renderer;
 import render.RendererConfiguration;
 import ui.ScreenManager;
@@ -255,5 +256,9 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	@Override
 	public int getLevelNumber() {
 		return currentLevel;
+	}
+	
+	public List<ProgressTask> getLoadingTasks() {
+		return gameLogic.getProgressTasks();
 	}
 }

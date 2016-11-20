@@ -1,11 +1,13 @@
 package ai;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import logic.Agent;
 import logic.Direction;
 import logic.GameState;
+import progress.ProgressTask;
 
 /**
  * AILogicRandom class.
@@ -38,6 +40,12 @@ public class AILogicRandom implements AILogic {
 			int dirNum = r.nextInt(allDir.length);
 			agent.setNextMoveDirection(allDir[dirNum]);
 		}
+	}
+
+	@Override
+	public List<ProgressTask> getProgressTasks() {
+		// The random AI Logic doesn't have any progress tasks to carry out.
+		return new ArrayList<ProgressTask>();
 	}
 
 }

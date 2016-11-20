@@ -29,10 +29,7 @@ import java.util.Set;
  * @author Simon Dicken
  * @version 2015-12-28
  */
-class RecursivePathFinder implements PathFinder {
-
-	// The maze we're searching
-	private Maze maze;
+class RecursivePathFinder extends PathFinder {
 	
 	// These variables are used in the shortest path calculations 
 	private Map<PointXY, Integer> nodeCosts;
@@ -50,7 +47,7 @@ class RecursivePathFinder implements PathFinder {
 	 * @param maze - the maze in which to find paths.
 	 */
 	public RecursivePathFinder(Maze maze) {
-		this.maze = maze;
+		super(maze);
 		
 		reset();
 		
@@ -65,7 +62,7 @@ class RecursivePathFinder implements PathFinder {
 	private void reset() {
 		this.shortestPath = Integer.MAX_VALUE;
 		
-		Set<PointXY> nodes = maze.getNodes().keySet();
+		Set<PointXY> nodes = getMaze().getNodes().keySet();
 		nodeCosts = new HashMap<PointXY, Integer>();
 		
 		for (PointXY point : nodes) {
@@ -83,7 +80,7 @@ class RecursivePathFinder implements PathFinder {
 		
 		// Add each point to the map, with the corresponding set just containing
 		// that point initially.
-		Set<PointXY> nodes = maze.getNodes().keySet();
+		Set<PointXY> nodes = getMaze().getNodes().keySet();
 		for (PointXY point : nodes) {
 			Set<PointXY> pathsToNodes = new HashSet<PointXY>();
 			pathsToNodes.add(point);
@@ -170,7 +167,7 @@ class RecursivePathFinder implements PathFinder {
 		}
 		
 		// Explore all the neighbouring nodes.
-		Map<PointXY, MazeNode> nodes = maze.getNodes();
+		Map<PointXY, MazeNode> nodes = getMaze().getNodes();
 		MazeNode startNode = nodes.get(start);
 		Set<PointXY> neighbours = startNode.getNeighbours();
 		
@@ -189,12 +186,7 @@ class RecursivePathFinder implements PathFinder {
 		return success;
 	}
 	
-	/**
-	 * Generates (and stores) the shortest path from every point in the maze to 
-	 * every other point.
-	 * 
-	 * (This may take some time for larger mazes!)
-	 */
+	@Override
 	public void generateAllPaths() {
 		
 		Set<PointXY> mazePoints = pathExists.keySet();
@@ -287,7 +279,7 @@ class RecursivePathFinder implements PathFinder {
 	 */
 	private boolean allPathsExist(PointXY point) {
 		
-		int numNodes = maze.getNodes().size();
+		int numNodes = getMaze().getNodes().size();
 		
 		Set<PointXY> pathsToNode = pathExists.get(point);
 		if (pathsToNode.size() != numNodes) {
@@ -309,7 +301,7 @@ class RecursivePathFinder implements PathFinder {
 		
 		// Get the set of points not visited by a path through the start node.
 		Set<PointXY> notVisited = new HashSet<PointXY>();
-		notVisited.addAll(maze.getNodes().keySet());
+		notVisited.addAll(getMaze().getNodes().keySet());
 		Set<PointXY> pathsToNodes = pathExists.get(start);
 		notVisited.removeAll(pathsToNodes);
 		
@@ -419,6 +411,11 @@ class RecursivePathFinder implements PathFinder {
 	
 	private Path createPath() {
 		return new PointXYPath();
+	}
+	
+	@Override
+	public int numStoredPaths() {
+		return allPaths.size();
 	}
 
 } 

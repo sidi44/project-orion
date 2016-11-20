@@ -1,5 +1,6 @@
 package pathfinding;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -76,6 +77,19 @@ class ShortestPathStore {
 	public boolean pathExists(PointXY p1, PointXY p2) {
 		PointXYPair pair = new PointXYPair(p1, p2);
 		return shortestPaths.containsKey(pair);
+	}
+	
+	public int numPaths() {
+		return shortestPaths.size();
+	}
+	
+	public void addPaths(ShortestPathStore other) {
+		
+		Collection<Path> paths = other.shortestPaths.values();
+		for (Path path : paths) {
+			addPath(path);
+		}
+		
 	}
 	
 }

@@ -128,7 +128,7 @@ class SandboxScreen extends MenuScreen {
 				saveData();
 				ScreenManager manager = getManager();
 				manager.getGame().setGameTypeSandbox();
-				manager.changeScreen(ScreenName.Game);
+				manager.changeScreen(ScreenName.Loading);
 			}
 		});
 		

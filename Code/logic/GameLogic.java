@@ -12,6 +12,7 @@ import java.util.Set;
 import logic.powerup.PowerUp;
 import logic.powerup.PowerUpCreator;
 import logic.powerup.PowerUpType;
+import progress.ProgressTask;
 import ai.AILogic;
 import ai.AILogicPartition;
 import utils.NumberUtils;
@@ -308,6 +309,12 @@ public class GameLogic {
 	
 	public AILogic getAILogic() {
 		return aiLogic;
+	}
+	
+	public List<ProgressTask> getProgressTasks() {
+		List<ProgressTask> tasks = new ArrayList<ProgressTask>();
+		tasks.addAll(aiLogic.getProgressTasks());
+		return tasks;
 	}
 	
 }

@@ -4,55 +4,6 @@ size: 1024,1024
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-Powerup_Freeze_Icon
-  rotate: false
-  xy: 131, 592
-  size: 110, 110
-  orig: 110, 110
-  offset: 0, 0
-  index: -1
-Powerup_Magnet_Icon
-  rotate: false
-  xy: 131, 704
-  size: 110, 110
-  orig: 110, 110
-  offset: 0, 0
-  index: -1
-Powerup_SlowDown_Icon
-  rotate: false
-  xy: 131, 480
-  size: 110, 110
-  orig: 110, 110
-  offset: 0, 0
-  index: -1
-Powerup_SpeedUp_Icon
-  rotate: false
-  xy: 131, 368
-  size: 110, 110
-  orig: 110, 110
-  offset: 0, 0
-  index: -1
-Powerup_Teleport_Icon
-  rotate: false
-  xy: 131, 256
-  size: 110, 110
-  orig: 110, 110
-  offset: 0, 0
-  index: -1
-Star_Complete_Icon
-  rotate: false
-  xy: 131, 171
-  size: 87, 83
-  orig: 87, 83
-  offset: 0, 0
-  index: -1
-Star_Incomplete_Icon
-  rotate: false
-  xy: 131, 86
-  size: 87, 83
-  orig: 87, 83
-  offset: 0, 0
-  index: -1
 Button
   rotate: false
   xy: 256, 979
@@ -88,6 +39,41 @@ List
   orig: 44, 44
   offset: 0, 0
   index: -1
+Powerup_Freeze_Icon
+  rotate: false
+  xy: 131, 704
+  size: 110, 110
+  orig: 110, 110
+  offset: 0, 0
+  index: -1
+Powerup_Magnet_Icon
+  rotate: false
+  xy: 131, 592
+  size: 110, 110
+  orig: 110, 110
+  offset: 0, 0
+  index: -1
+Powerup_SlowDown_Icon
+  rotate: false
+  xy: 131, 480
+  size: 110, 110
+  orig: 110, 110
+  offset: 0, 0
+  index: -1
+Powerup_SpeedUp_Icon
+  rotate: false
+  xy: 131, 368
+  size: 110, 110
+  orig: 110, 110
+  offset: 0, 0
+  index: -1
+Powerup_Teleport_Icon
+  rotate: false
+  xy: 131, 256
+  size: 110, 110
+  orig: 110, 110
+  offset: 0, 0
+  index: -1
 ProgressBar
   rotate: false
   xy: 256, 958
@@ -121,6 +107,20 @@ SplitPane
   xy: 440, 979
   size: 44, 44
   orig: 44, 44
+  offset: 0, 0
+  index: -1
+Star_Complete_Icon
+  rotate: false
+  xy: 131, 171
+  size: 87, 83
+  orig: 87, 83
+  offset: 0, 0
+  index: -1
+Star_Incomplete_Icon
+  rotate: false
+  xy: 131, 86
+  size: 87, 83
+  orig: 87, 83
   offset: 0, 0
   index: -1
 TextButton
