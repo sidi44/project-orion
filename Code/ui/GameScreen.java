@@ -117,8 +117,9 @@ class GameScreen extends MenuScreen {
 	
 	@Override
 	protected void doShow() {
-		// Set up the intial view
-		cameraManager.setInitialViewport();
+		// Set up the initial view
+		cameraManager.setViewport(12);
+		cameraManager.trackPlayer(1.4f, true);
 		
 		// Make sure the right number of power up buttons are visible
 		Predator predator = getPredator();
