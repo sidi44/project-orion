@@ -28,83 +28,9 @@ class CameraManager implements CameraAccessor {
 	}
 	
 	public void update() {
-//		setViewport(12, 0.5f);
 		setViewport(12);
 		trackPlayer(1.4f, false);
 	}
-	
-//	public void setInitialViewport() {
-//		float factor = 1.5f;
-//		
-//		Vector2[] mazeBoundaries = game.getWorldMazeBoundaries();
-//		Vector2 mazeLL = mazeBoundaries[0];
-//		Vector2 mazeUR = mazeBoundaries[1];
-//		
-//		float mazeWidth = (mazeUR.x - mazeLL.x) * factor;
-//		float mazeHeight = (mazeUR.y - mazeLL.y) * factor;
-//	
-//		float screenHeight = Gdx.graphics.getHeight();
-//		float screenWidth = Gdx.graphics.getWidth();
-//		float aspectRatio = screenHeight / screenWidth;
-//		
-//		if (aspectRatio <= 0) {
-//			camera.viewportWidth = mazeWidth;
-//			camera.viewportHeight = mazeWidth * aspectRatio;
-//		} else { // mazeHeight > mazeWidth
-//			camera.viewportHeight = mazeHeight;
-//			camera.viewportWidth = mazeHeight / aspectRatio;
-//		}
-//		
-//		camera.position.x = (mazeUR.x + mazeLL.x) / 2;
-//		camera.position.y = (mazeUR.y + mazeLL.y) / 2;
-//	}
-//	
-//
-//	private void setViewport(float maxSquaresX, float factor) {
-//		float screenHeight = Gdx.graphics.getHeight();
-//		float screenWidth = Gdx.graphics.getWidth();
-//		float aspectRatio = screenHeight / screenWidth;
-//		
-//		float squareSize = game.getPhysicsProcessor().getSquareSize();
-//		
-//		float targetWidth = maxSquaresX * squareSize;
-//		float targetHeight = targetWidth * aspectRatio;
-//		float newHeight = 0f;
-//		float newWidth = 0f;
-//		
-//		Vector2[] mazeBoundaries = game.getWorldMazeBoundaries();
-//		Vector2 mazeLL = mazeBoundaries[0];
-//		Vector2 mazeUR = mazeBoundaries[1];
-//		
-//		float mazeWidth = (mazeUR.x - mazeLL.x);
-//		float mazeHeight = (mazeUR.y - mazeLL.y);
-//		
-//		float widthDiff = targetWidth - mazeWidth;
-//		float heightDiff = targetHeight - mazeHeight;
-//		
-//		float scale = 0f;
-//		float delta = Gdx.graphics.getDeltaTime();
-//		
-//		newWidth = camera.viewportWidth + (targetWidth - camera.viewportWidth) * delta * factor;
-//		scale = camera.viewportWidth / newWidth;
-//		newHeight = (newWidth * scale) * aspectRatio;
-//		
-//		if (widthDiff > 0 && heightDiff > 0) {
-//			if (widthDiff <= heightDiff) {
-//				newWidth = camera.viewportWidth + (mazeWidth - camera.viewportWidth) * delta * factor;
-//				scale = camera.viewportWidth / newWidth;
-//				newHeight = (newWidth * scale) * aspectRatio;
-//			} else { // heightDiff < widthDiff
-//				newHeight = camera.viewportHeight + (mazeHeight - camera.viewportHeight) * delta * factor;
-//				scale = camera.viewportHeight / newHeight;
-//				newWidth = (newHeight * scale) / aspectRatio;
-//			}
-//		}
-//		
-//		camera.viewportWidth = newWidth;
-//		camera.viewportHeight = newHeight;
-//	}
-	
 	
 	public void setViewport(float maxSquaresX) {
 		float screenHeight = Gdx.graphics.getHeight();
@@ -153,7 +79,6 @@ class CameraManager implements CameraAccessor {
 	
 	
 	public void trackPlayer(float factor, boolean jump) {
-		
 		GameState state = game.getGameLogic().getGameState();
 		List<Predator> predators = state.getPredators();
 		if (predators.size() == 0) {
