@@ -1,6 +1,7 @@
 package sound;
 
 import game.GameStatus;
+import game.GameType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -113,10 +114,29 @@ public class SoundManager implements Receiver {
 	}
 	
 	private SoundType convertToSoundType(PhysicsEvent event) {
-		event.accept(eventSoundProcessor);
-		SoundType type = eventSoundProcessor.getSoundType();
 		
-		return type;
+		SoundType soundType = SoundType.None;
+		
+		// Pick the right sound based on the game type. If the game is actually
+		// being played, process the physics event to work out the sound. If
+		// the game isn't being played, use no sound.
+		GameType gameType = gameStatus.getGameType();
+		switch (gameType) {
+			case Levels:
+			case Sandbox:
+				event.accept(eventSoundProcessor);
+				soundType = eventSoundProcessor.getSoundType();
+				break;
+			case MainMenu:
+			case NotPlaying:
+				soundType = SoundType.None;
+				break;
+			default:
+				System.err.println("Unknown game type");
+				break;		
+		}
+
+		return soundType;
 	}
 	
 	private void processUIEvent(UIEvent event) {

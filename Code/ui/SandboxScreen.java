@@ -46,8 +46,8 @@ class SandboxScreen extends MenuScreen {
 		
 		// Get out background image and add it to the stage
 		FileHandle file = Gdx.files.internal("data/ui/sandbox_screen.png");
-		Image screenImage = new Image(new Texture(file));
-		getStage().addActor(screenImage);
+		Image background = new Image(new Texture(file));
+		setBackgroundImage(background);
 
 		// Convenience list to store all the slider panels
 		List<SliderPanel> sliderPanels = new ArrayList<SliderPanel>();
@@ -151,7 +151,7 @@ class SandboxScreen extends MenuScreen {
 		
 		table.setFillParent(true);
 		table.setDebug(true);
-		getStage().addActor(table);
+		getUIStage().addActor(table);
 	}
 	
 	@Override

@@ -3,9 +3,12 @@ package ui;
 import java.util.List;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -15,6 +18,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import data.DataManager;
 import functional.Consumer;
@@ -24,6 +29,7 @@ import game.PredatorPreyGame;
 abstract class MenuScreen extends AbstractScreen {
 
 	private Skin skin;
+	private Stage uiStage;
 	
 	public MenuScreen(ScreenManager manager) {
 		super(manager);
@@ -33,11 +39,41 @@ abstract class MenuScreen extends AbstractScreen {
 	protected void initialise() {
 		TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("data/ui/uiskin.atlas"));
 		skin = new Skin(Gdx.files.internal("data/ui/uiskin.json"), atlas);
+		
+		Camera camera = new OrthographicCamera();
+		Viewport viewport = new ScreenViewport(camera);
+		uiStage = new Stage(viewport);
+		
 		super.initialise();
 	}
 	
 	protected Skin getSkin() {
 		return skin;
+	}
+	
+	protected Stage getUIStage() {
+		return uiStage;
+	}
+	
+	@Override
+	protected void doShow() {
+		addInputProcessor(getUIStage());
+		super.doShow();
+	}
+	
+	@Override
+	protected void doRender(float delta) {
+		uiStage.getViewport().apply();
+		uiStage.act(delta);
+		uiStage.draw();
+		
+		super.doRender(delta);
+	}
+	
+	@Override 
+	protected void doResize(int width, int height) {
+		uiStage.getViewport().update(width, height, true);
+		super.doResize(width, height);
 	}
 	
 	protected Button createScreenChangeButton(String text, final ScreenName name) {

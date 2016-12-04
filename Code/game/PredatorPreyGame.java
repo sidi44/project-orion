@@ -193,6 +193,7 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		currentLevel = levelNumber;
 		gameConfig = dataManager.getGameConfig(levelNumber);
 		physicsConfig = dataManager.getPhysicsConfig(levelNumber);
+		renderer.setDrawBackground(true);
 		resetGame();
 	}
 	
@@ -201,6 +202,16 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		currentLevel = -1;
 		gameConfig = dataManager.getGameConfigSandbox();
 		physicsConfig = dataManager.getPhysicsConfigSandbox();
+		renderer.setDrawBackground(true);
+		resetGame();
+	}
+	
+	public void setGameTypeMainMenu() {
+		gameType = GameType.MainMenu;
+		currentLevel = -1;
+		gameConfig = dataManager.getGameConfigMainMenu();
+		physicsConfig = dataManager.getPhysicsConfigMainMenu();
+		renderer.setDrawBackground(false);
 		resetGame();
 	}
 	
@@ -225,8 +236,13 @@ public class PredatorPreyGame extends Game implements GameStatus {
 			
 			// Save the player progress
 			dataManager.savePlayerProgress();
+		} else if (gameType == GameType.MainMenu) {
+			// We don't want to change screen or game type, so just reset 
+			// the game and get out of here
+			setGameTypeMainMenu();
+			return;
 		}
-
+		
 		// Change the screen now
 		screenManager.changeScreen(ScreenName.Pause);
 	}

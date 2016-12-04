@@ -31,6 +31,7 @@ public class RendererConfiguration {
 	
 	private Vector2 backgroundSize;
 	private String backroundFilename;
+	private boolean drawBackground;
 	
 	private List<AnimationGroupDefinition> animationGroupDefinitions =
 			  new ArrayList<AnimationGroupDefinition>();
@@ -43,10 +44,11 @@ public class RendererConfiguration {
 	 */
 	public RendererConfiguration() {
 		this.allowRotations = true;
-		this.wallTextureFilename = "wall.png";
+		this.wallTextureFilename = "Wall_Blue.png";
 		this.wallTextureScale = 1.0f;
 		this.backgroundSize = new Vector2(100f, 100f);
 		this.backroundFilename = "Background_Purple.png";
+		this.drawBackground = true;
 		
 		setupDefaultAnimationDefinitions();
 	}
@@ -89,6 +91,14 @@ public class RendererConfiguration {
 	
 	public Vector2 getBackgroundSize() {
 		return this.backgroundSize;
+	}
+	
+	public void setDrawBackground(boolean drawBackground) {
+		this.drawBackground = drawBackground;
+	}
+	
+	public boolean getDrawBackground() {
+		return this.drawBackground;
 	}
 	
 	public float getWallTextureScale() {

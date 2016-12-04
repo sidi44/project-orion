@@ -1,46 +1,53 @@
 package ui;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Cell;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
+
+import game.PredatorPreyGame;
+import logic.GameOver;
+import logic.Move;
 
 class MainMenuScreen extends MenuScreen {
 	
-	private final int VIRTUAL_WIDTH = 640;
-	private final int VIRTUAL_HEIGHT = 480;
+	private GameViewport viewport;
+	
+	private Label title;
+	private HorizontalGroup buttons;
+	
+	private final static float VIEWPORT_HEIGHT_FACTOR = 0.7f;
+	private final static float VIEWPORT_WIDTH_FACTOR = 0.6f;
+	
+	private final static String GAME_TITLE = "STINGRAY!";
+	private final static int VIEWPORT_MAX_SQUARES_X = 8;
 	
 	public MainMenuScreen(ScreenManager manager) {
 		super(manager);
 	}
 	
 	@Override
-	protected Viewport getScreenViewport() {
-		
+	public void initialise() {
 		Camera camera = new OrthographicCamera();
-		Viewport viewport = new FitViewport(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, camera);
-		viewport.apply(true);
-		return viewport;
+		viewport = new GameViewport(camera, 
+									getManager().getGame(), 
+									VIEWPORT_MAX_SQUARES_X);
+		super.initialise();
 	}
 	
 	@Override
 	protected void addActors() {
 		
-		// Add our background image
-		FileHandle file = Gdx.files.internal("data/ui/menu_screen.png");
-		Image screenImage = new Image(new Texture(file));
-		getStage().addActor(screenImage);
-
+		// Create the game title label
+		title = new Label(GAME_TITLE, getSkin());
+		title.setFontScale(1.5f);
+		
 		// Create our buttons
 		Button levelsButton = createScreenChangeButton(
 				"Levels", ScreenName.Levels);
@@ -63,20 +70,112 @@ class MainMenuScreen extends MenuScreen {
 		
 		// Create a table and layout the buttons
 		Table table = new Table();
-		Cell<Button> levelsCell = table.add(levelsButton);
-		levelsCell.pad(20f);
+		
+		table.add(title).pad(20f).top().expand();
 		table.row();
 		
-		Cell<Button> sandboxCell = table.add(sandboxButton);
-		sandboxCell.pad(20f);
-		table.row();
-		
-		Cell<Button> settingsCell = table.add(settingsButton);
-		settingsCell.pad(20f);
+		buttons = new HorizontalGroup();
+		buttons.addActor(levelsButton);
+		buttons.addActor(sandboxButton);
+		buttons.addActor(settingsButton);
+		buttons.space(20f);
+		table.add(buttons).pad(20f).bottom().expand();
 		
 		table.setFillParent(true);
-		table.setDebug(true);
-		getStage().addActor(table);
+		table.setDebug(false);
+		getUIStage().addActor(table);
 	}
 	
+	@Override
+	protected void doShow() {
+		
+		// Set up the game for the main menu
+		PredatorPreyGame game = getManager().getGame();
+		game.setGameTypeMainMenu();
+		
+		// This is a bit unusual, but we need to have the UI widgets positioned
+		// in order to position the game viewport in between them, so get the
+		// UI stage to draw itself now.
+		getUIStage().draw();
+		
+		// Position the game viewport
+		positionViewport();
+		
+		// Carry out any base class actions
+		super.doShow();
+	}
+	
+	@Override
+	protected void doRender(float delta) {
+
+		viewport.apply();
+		
+		PredatorPreyGame game = getManager().getGame();
+		
+		Camera gameCamera = viewport.getCamera();
+		game.getRenderer().render(game.getWorld(), gameCamera.combined);
+
+		GameOver reason = game.update(delta, new Move());
+		if (reason != GameOver.No) {
+			game.gameOver(reason);
+		}
+		
+		int viewportWidth = calculateViewportWidth();
+		int viewportHeight = calculateViewportHeight();
+		viewport.update(viewportWidth, viewportHeight);
+		
+		super.doRender(delta);
+	}
+	
+	@Override 
+	protected void doResize(int width, int height) {
+		
+		int viewportWidth = calculateViewportWidth();
+		int viewportHeight = calculateViewportHeight();
+		viewport.update(viewportWidth, viewportHeight);
+		
+		positionViewport();
+		
+		super.doResize(width, height);
+	}
+	
+	private void positionViewport() {
+
+		int availableHeight = getViewportAvailableHeight();
+		int viewportHeight = calculateViewportHeight();
+		float heightOffset = availableHeight / 2.0f - viewportHeight / 2.0f;
+		float buttonsTop = buttons.getTop();
+		int screenY = Math.round(buttonsTop + heightOffset);
+		
+		int availableWidth = getViewportAvailableWidth();
+		int viewportWidth = calculateViewportWidth();
+		float widthOffset = availableWidth / 2.0f - viewportWidth / 2.0f;
+		int screenX = Math.round(widthOffset);
+		
+		viewport.setScreenPosition(screenX, screenY);
+	}
+	
+	private int calculateViewportHeight() {
+		int availableHeight = getViewportAvailableHeight();
+		int viewportHeight = (int) (VIEWPORT_HEIGHT_FACTOR * availableHeight);
+		return viewportHeight;
+	}
+	
+	private int calculateViewportWidth() {
+		int availableWidth = getViewportAvailableWidth();
+		int viewportWidth = (int) (VIEWPORT_WIDTH_FACTOR * availableWidth);
+		return viewportWidth;
+	}
+	
+	private int getViewportAvailableHeight() {
+		float titleBottom = title.getY();
+		float buttonsTop = buttons.getTop();
+		float availableHeight = titleBottom - buttonsTop;
+		return (int) availableHeight;
+	}
+	
+	private int getViewportAvailableWidth() {
+		int clientWidth = Gdx.graphics.getWidth();
+		return clientWidth;
+	}
 }

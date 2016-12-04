@@ -54,8 +54,8 @@ class SettingsScreen extends MenuScreen {
 	protected void addActors() {
 		
 		FileHandle file = Gdx.files.internal("data/ui/settings_screen.png");
-		Image screenImage = new Image(new Texture(file));
-		getStage().addActor(screenImage);
+		Image background = new Image(new Texture(file));
+		setBackgroundImage(background);
 
 		boolean soundOn = soundConfig.playSounds();
 		Consumer<Boolean> soundOnFunc = new Consumer<Boolean>() {
@@ -137,7 +137,7 @@ class SettingsScreen extends MenuScreen {
 		
 		table.setFillParent(true);
 		table.setDebug(true);
-		getStage().addActor(table);
+		getUIStage().addActor(table);
 	}
 	
 	private void saveData() {

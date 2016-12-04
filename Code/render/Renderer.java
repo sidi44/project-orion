@@ -84,6 +84,10 @@ public class Renderer {
 		textureDrawer.setBackgroundSize(size);
 	}
 	
+	public void setDrawBackground(boolean drawBackground) {
+		textureDrawer.setDrawBackground(drawBackground);
+	}
+	
 	private void drawBodies(List<? extends PhysicsBody> bodies, 
 						    Matrix4 projMatrix) {
 		

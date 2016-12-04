@@ -18,8 +18,8 @@ class SplashScreen extends AbstractScreen {
 	@Override
 	protected void addActors() {
 		FileHandle file = Gdx.files.internal("data/ui/splash_screen.png");
-		Image screenImage = new Image(new Texture(file));
-		getStage().addActor(screenImage);
+		Image background = new Image(new Texture(file));
+		setBackgroundImage(background);
 	}
 	
 	@Override

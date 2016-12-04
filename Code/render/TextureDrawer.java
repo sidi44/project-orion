@@ -55,6 +55,10 @@ public class TextureDrawer {
 		rendererConfig.setBackgroundSize(size);
 	}
 	
+	public void setDrawBackground(boolean drawBackground) {
+		rendererConfig.setDrawBackground(drawBackground);
+	}
+	
 	/**
 	 * Draws the background image at the specified world coordinates. Assumes
 	 * the image has already been loaded into memory.
@@ -64,12 +68,15 @@ public class TextureDrawer {
 	 * @param projMatrix - the projection matrix
 	 */
 	public void drawBackground(float x, float y, Matrix4 projMatrix) {
-		Vector2 backgroundSize = rendererConfig.getBackgroundSize();
 		
-		spriteBatch.begin();
-		spriteBatch.setProjectionMatrix(projMatrix);
-		spriteBatch.draw(background, x, y, backgroundSize.x, backgroundSize.y);
-		spriteBatch.end();
+		if (rendererConfig.getDrawBackground()) {		
+			Vector2 backgroundSize = rendererConfig.getBackgroundSize();
+			
+			spriteBatch.begin();
+			spriteBatch.setProjectionMatrix(projMatrix);
+			spriteBatch.draw(background, x, y, backgroundSize.x, backgroundSize.y);
+			spriteBatch.end();
+		}
 	}
 	
 	// This method exists for debug purposes only

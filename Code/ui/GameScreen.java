@@ -3,7 +3,7 @@ package ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
@@ -23,7 +23,7 @@ import logic.powerup.PowerUp;
 
 class GameScreen extends MenuScreen {
 	
-	private final CameraManager cameraManager;
+	private final GameViewport viewport;
 	private final UserInputProcessor inputProc;
 	
 	private Label scoreLabel;
@@ -31,20 +31,17 @@ class GameScreen extends MenuScreen {
 	private List<PowerUpButton> powerUpButtons;
 	
 	private final static int NUM_POWER_UP_BUTTONS = 5;
+	private final static int VIEWPORT_MAX_SQUARES_X = 12;
 	
 	public GameScreen(ScreenManager manager) {
 		super(manager);
 		
 		Camera gameCamera = new OrthographicCamera();
-		cameraManager = new CameraManager(gameCamera, manager.getGame());
+		viewport = new GameViewport(gameCamera, 
+									manager.getGame(), 
+									VIEWPORT_MAX_SQUARES_X);
 		
-		this.inputProc = new UserInputProcessor(cameraManager);
-	}
-	
-	@Override
-	protected void addInputProcessor(InputMultiplexer multiplexer) {
-		multiplexer.addProcessor(inputProc);
-		multiplexer.addProcessor(new GestureDetector(inputProc));
+		this.inputProc = new UserInputProcessor(viewport);
 	}
 	
 	@Override
@@ -116,15 +113,15 @@ class GameScreen extends MenuScreen {
 		// Add the table to our UI stage
 		table.setFillParent(true);
 		table.setDebug(true);
-		getStage().addActor(table);
+		getUIStage().addActor(table);
 	}
 	
 	@Override
 	protected void doShow() {
-
-		// Set up the initial view
-		cameraManager.setViewport(12);
-		cameraManager.trackPlayer(1.4f, true);
+		
+		// Add our input processors
+		addInputProcessor(inputProc);
+		addInputProcessor(new GestureDetector(inputProc));
 		
 		// Make sure the right number of power up buttons are visible
 		Predator predator = getPredator();
@@ -134,6 +131,9 @@ class GameScreen extends MenuScreen {
 			boolean visible = (i < numPowerUps);
 			button.setVisible(visible);
 		}
+		
+		// Call the base class version
+		super.doShow();
 	}
 	
 	@Override
@@ -159,7 +159,7 @@ class GameScreen extends MenuScreen {
 			}
 		}
 		
-		Camera gameCamera = cameraManager.getCamera();
+		Camera gameCamera = viewport.getCamera();
 		game.getRenderer().render(game.getWorld(), gameCamera.combined);
 		inputProc.processCameraInputs(gameCamera);
 
@@ -167,7 +167,16 @@ class GameScreen extends MenuScreen {
 		if (gameOver != GameOver.No) {
 			gameFinished(gameOver);
 		}
-		cameraManager.update();
+		viewport.apply();
+		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		
+		super.doRender(delta);
+	}
+	
+	@Override
+	protected void doResize(int width, int height) {
+		viewport.update(width, height);
+		super.doResize(width, height);
 	}
 	
 	private void gameFinished(GameOver reason) {
