@@ -25,6 +25,7 @@ class GameViewport extends Viewport implements CameraAccessor {
 		this.maxSquaresX = maxSquaresX;
 	}
 	
+
 	@Override
 	public void update(int screenWidth, int screenHeight, boolean centreCamera) {
 		
@@ -51,7 +52,7 @@ class GameViewport extends Viewport implements CameraAccessor {
 		// Work out the aspect ratio
 		float screenHeight = getScreenHeight(); //Gdx.graphics.getHeight();
 		float screenWidth = getScreenWidth(); //Gdx.graphics.getWidth();
-
+		
 		float aspectRatio = screenHeight / screenWidth;
 		
 		// Get the size of a maze square in world units

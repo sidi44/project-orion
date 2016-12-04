@@ -118,7 +118,7 @@ class GameScreen extends MenuScreen {
 	
 	@Override
 	protected void doShow() {
-		
+
 		// Add our input processors
 		addInputProcessor(inputProc);
 		addInputProcessor(new GestureDetector(inputProc));

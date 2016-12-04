@@ -203,8 +203,8 @@ abstract class MenuScreen extends AbstractScreen {
 	        throw new IllegalArgumentException("Scaling factor cannot be negative.");
 	    }
 
-	    return (int) (scale * Math.min(getStage().getHeight(),
-	                                   getStage().getWidth()));
+	    return (int) (scale * Math.min(getUIStage().getHeight(),
+	                                   getUIStage().getWidth()));
 	}
 	
 	protected void setStarsComplete(StarDisplayPanel starPanel, 
