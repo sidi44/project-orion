@@ -82,7 +82,7 @@ class PauseScreen extends MenuScreen {
     @Override
     public void doRender(float delta) {
         super.doRender(delta);
-        getManager().getScreen(ScreenName.Game).render(0);
+        //getManager().getScreen(ScreenName.Game).render(0);
     }
 
 
