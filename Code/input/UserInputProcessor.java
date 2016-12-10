@@ -9,14 +9,11 @@ import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.Vector2;
 //import com.badlogic.gdx.math.Vector3;
 
-import game.PredatorPreyGame;
 import logic.Direction;
 import logic.GameOver;
 import logic.Move;
 
 public class UserInputProcessor implements InputProcessor, GestureListener {
-
-    private final PredatorPreyGame game; // TODO debug purposes only
 
 	private Move move;
 	private Direction pressedMove;
@@ -31,21 +28,24 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 	private final float camZoomSize = 0.2f;
 	public final LinkedList<Direction> pressedCamKeys;
 
+	private GameOver forceGameOver;
+	
 	@SuppressWarnings("unused")
 	private CameraAccessor cameraAccessor;
 
-	public UserInputProcessor(CameraAccessor ca, PredatorPreyGame game) {
+	public UserInputProcessor(CameraAccessor ca) {
 		move = new Move();
 		pressedMove = Direction.None;
 		pressedCamKeys = new LinkedList<Direction>();
 		pressedEnter = false;
 		cameraAccessor = ca;
-		this.game = game;
+		forceGameOver = GameOver.No;
 	}
 
 	public Move getNextMove() {
 
 		move.setDirection(pressedMove);
+		move.setForceGameOver(forceGameOver);
 		pressedEnter = false;
 
 		return move;
@@ -129,11 +129,11 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 
 		    // Debug purposes only - lose / win game
 			case Input.Keys.V:
-			    game.gameOver(GameOver.Prey);
+			    forceGameOver = GameOver.Prey;
 			    break;
 
 			case Input.Keys.L:
-			    game.gameOver(GameOver.Time);
+			    forceGameOver = GameOver.Time;
 			    break;
 
 			default:
@@ -234,6 +234,7 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 		pressedMove = Direction.None;
 		pressedCamKeys.clear();
 		pressedEnter = false;
+		forceGameOver = GameOver.No;
 	}
 
 	@Override

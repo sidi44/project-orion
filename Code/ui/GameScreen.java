@@ -38,7 +38,7 @@ class GameScreen extends MenuScreen {
 		Camera gameCamera = new OrthographicCamera();
 		cameraManager = new CameraManager(gameCamera, manager.getGame());
 		
-		this.inputProc = new UserInputProcessor(cameraManager, manager.getGame());
+		this.inputProc = new UserInputProcessor(cameraManager);
 	}
 	
 	@Override

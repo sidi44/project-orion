@@ -165,7 +165,11 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		
 		state.decreaseTimeRemaining(delta);
 		
-		return gameLogic.isGameOver();
+		if (move.getForceGameOver() != GameOver.No) {
+			return move.getForceGameOver();
+		} else {
+			return gameLogic.isGameOver();
+		}
 	}
 	
 	private void processMoves(Move move) {
