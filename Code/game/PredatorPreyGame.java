@@ -2,6 +2,9 @@ package game;
 
 import java.util.List;
 
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.math.Vector2;
+
 import ai.AILogic;
 import data.DataManager;
 import data.GameDataManager;
@@ -24,13 +27,10 @@ import physics.PhysicsProcessorBox2D;
 import progress.ProgressTask;
 import render.Renderer;
 import render.RendererConfiguration;
-import ui.ScreenManager;
-import ui.ScreenName;
 import sound.SoundConfiguration;
 import sound.SoundManager;
-
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.math.Vector2;
+import ui.ScreenManager;
+import ui.ScreenName;
 
 public class PredatorPreyGame extends Game implements GameStatus {
 
@@ -38,94 +38,97 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	private Renderer renderer;
 	private PhysicsProcessor physProc;
 	private SoundManager soundManager;
-	
+
 	private GameConfiguration gameConfig;
 	private PhysicsConfiguration physicsConfig;
 	private RendererConfiguration rendererConfig;
-	
+
 	private ResultLogger logger;
-	
+
 	private ScreenManager screenManager;
 	private DataManager dataManager;
-	
+
 	private GameType gameType;
 	private int currentLevel;
-	
+	private GameOver gameOverReason;
+
 	// Physics debug information
 	private final PhysicsDebugType debugType = PhysicsDebugType.DebugNone;
-	
+
 	@Override
 	public void create() {
-		
+
 		gameType = GameType.NotPlaying;
 		currentLevel = -1;
-		
+
 		dataManager = new GameDataManager();
 		rendererConfig = dataManager.getRendererConfig();
-		
-		// Create dummy game and physics configuration class. These will be 
+
+		// Create dummy game and physics configuration class. These will be
 		// replaced for the actual level / sandbox versions via the UI.
 		gameConfig = new GameConfiguration();
 		physicsConfig = new PhysicsConfiguration();
-		
+
 		gameLogic = new GameLogic(gameConfig);
 
-		physProc = new PhysicsProcessorBox2D(gameLogic.getGameState(), 
+		physProc = new PhysicsProcessorBox2D(gameLogic.getGameState(),
 				physicsConfig);
 		physProc.setDebugCategory(debugType);
-		
+
 		renderer = new Renderer(false, false);
 		renderer.loadTextures(rendererConfig);
 
 		SoundConfiguration soundConfig = dataManager.getSoundConfiguration();
 		soundManager = new SoundManager(soundConfig, this);
 		physProc.addReceiver(soundManager);
-		
+
 		screenManager = new ScreenManager(this);
 		screenManager.changeScreen(ScreenName.Splash);
 		screenManager.addReceiver(soundManager);
-		
+
 		logger = new ResultLogger();
 	}
 
 	public void setAI(AILogic ai) {
 		gameLogic.setAILogic(ai);
 	}
-	
+
 	public Renderer getRenderer() {
 		return renderer;
 	}
-	
+
 	public GameLogic getGameLogic() {
 		return gameLogic;
 	}
-	
+
 	public PhysicsGameWorld getWorld() {
 		return physProc.getWorld();
 	}
-	
+
 	public PhysicsProcessor getPhysicsProcessor() {
 		return physProc;
 	}
-	
+
 	public DataManager getDataManager() {
 		return dataManager;
 	}
-	
+
 	public ResultLogger getLogger() {
 		return logger;
 	}
-	
+
 	public void resetLogger() {
 		logger.reset();
 	}
-	
+
 	public void addResult(GameResult result) {
 		logger.addResult(result);
 	}
-	
+
 	public void resetGame() {
-		
+
+	    gameOverReason = GameOver.No;
+
 		// Calculate the size of the maze in world coordinates. Use this for
 		// the background image size.
 		float squareSize = physicsConfig.getSquareSize();
@@ -133,38 +136,38 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		float width = (shape.getMaxX() - shape.getMinX() + 1) * squareSize;
 		float height = (shape.getMaxY() - shape.getMinY() + 1) * squareSize;
 		renderer.setBackgroundSize(new Vector2(width, height));
-		
-		// Rebuild the back end game logic and physics processor from the 
+
+		// Rebuild the back end game logic and physics processor from the
 		// configurations.
 		gameLogic = new GameLogic(gameConfig);
-		physProc = new PhysicsProcessorBox2D(gameLogic.getGameState(), 
+		physProc = new PhysicsProcessorBox2D(gameLogic.getGameState(),
 				physicsConfig);
 		physProc.setDebugCategory(debugType);
 		physProc.addReceiver(soundManager);
 	}
-	
+
 	public Vector2[] getWorldMazeBoundaries() {
 		PolygonShape pShape = gameLogic.getGameState().getMaze().getDimensions();
 		Vector2 mazeLL = physProc.stateToWorld(new PointXY(pShape.getMinX() - 1, pShape.getMinY() - 1));
 		Vector2 mazeUR = physProc.stateToWorld(new PointXY(pShape.getMaxX() + 1, pShape.getMaxY() + 1));
-		
+
 		Vector2[] mazeBoundaries = new Vector2[] {mazeLL, mazeUR};
-		
+
 		return mazeBoundaries;
 	}
-	
+
 	public GameOver update(float delta, Move move) {
-		
+
 		processMoves(move);
 
 		GameState state = gameLogic.getGameState();
 		physProc.stepSimulation(delta, state);
-		
+
 		state.decreaseTimeRemaining(delta);
-		
+
 		return gameLogic.isGameOver();
 	}
-	
+
 	private void processMoves(Move move) {
 
 		// Do the player moves.
@@ -180,7 +183,7 @@ public class PredatorPreyGame extends Game implements GameStatus {
 
 		gameLogic.setNonPlayerMoves();
 	}
-	
+
 	public void setGameTypeLevel(int levelNumber) {
 		gameType = GameType.Levels;
 		currentLevel = levelNumber;
@@ -188,7 +191,7 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		physicsConfig = dataManager.getPhysicsConfig(levelNumber);
 		resetGame();
 	}
-	
+
 	public void setGameTypeSandbox() {
 		gameType = GameType.Sandbox;
 		currentLevel = -1;
@@ -196,53 +199,34 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		physicsConfig = dataManager.getPhysicsConfigSandbox();
 		resetGame();
 	}
-	
+
 	public void gameOver(GameOver reason) {
-		
-		// Check whether the player was playing a in level mode and whether 
+
+	    gameOverReason = reason;
+
+		// Check whether the player was playing a in level mode and whether
 		// they won.
 		if (gameType == GameType.Levels && reason == GameOver.Prey) {
-			
+
 			// The player completed the level. Update their progress
 			PlayerProgress progress = dataManager.getPlayerProgress();
-			
+
 			// Unlock the next level
 			progress.setLevelLocked(currentLevel + 1, false);
-			
+
 			// Save the score
 			GameState state = gameLogic.getGameState();
 			int score = state.getScore();
 			progress.setLevelScore(currentLevel, score);
-			
+
 			// Save the player progress
 			dataManager.savePlayerProgress();
 		}
-		
-		// Work out which screen we should change to depending on the game type
-		GameType type = getGameType();
-		ScreenName name = ScreenName.MainMenu;
-		switch (type) {
-			case Levels:
-				name = ScreenName.Levels;
-				break;
-			case Sandbox:
-				name = ScreenName.Sandbox;
-				break;
-			case NotPlaying:
-			default:
-				// We're leaving a game but not in a game mode. This is strange.
-				System.err.println("How did we get here?");
-				break;			
-		}
-		
-		// We're no longer playing a game (i.e. back in the menu screens)
-		gameType = GameType.NotPlaying;
-		currentLevel = -1;
-		
+
 		// Change the screen now
-		screenManager.changeScreen(name);
+		screenManager.changeScreen(ScreenName.Pause);
 	}
-	
+
 	public void updateSoundManager() {
 		SoundConfiguration config = getDataManager().getSoundConfiguration();
 		soundManager.update(config);
@@ -252,7 +236,7 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	public GameType getGameType() {
 		return gameType;
 	}
-	
+
 	@Override
 	public int getLevelNumber() {
 		return currentLevel;
@@ -260,5 +244,13 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	
 	public List<ProgressTask> getLoadingTasks() {
 		return gameLogic.getProgressTasks();
+	}
+	
+	public GameOver getGameOverReason() {
+	    return gameOverReason;
+	}
+	
+	public int getStarCount() {
+	    return (int) (Math.random() * 3 + 1); // TODO work out the number of stars after winning the game
 	}
 }

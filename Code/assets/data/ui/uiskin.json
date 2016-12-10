@@ -132,6 +132,18 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 		imageUp: settings_button_up
 		imageDown: settings_button_down
 	}
+	pause_button: {
+		imageUp: pause_button_up
+		imageDown: pause_button_down
+	}
+	next_button: {
+		imageUp: next_button_up
+		imageDown: next_button_down
+	}
+	exit_button: {
+		imageUp: exit_button_up
+		imageDown: exit_button_down
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	default: {
@@ -225,6 +237,11 @@ com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
 		background: default-window
 		titleFont: default-font
 		stageBackground: dialogDim
+	}
+	dialog_transparent_background: {
+		background: default-window
+		titleFont: default-font
+		stageBackground: background_75_opacity_75_fill
 	}
 }
 }

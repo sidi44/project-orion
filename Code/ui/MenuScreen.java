@@ -20,22 +20,22 @@ import functional.IntConsumer;
 abstract class MenuScreen extends AbstractScreen {
 
 	private Skin skin;
-	
+
 	public MenuScreen(ScreenManager manager) {
 		super(manager);
 	}
-	
+
 	@Override
 	protected void initialise() {
 		TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("data/ui/uiskin.atlas"));
 		skin = new Skin(Gdx.files.internal("data/ui/uiskin.json"), atlas);
 		super.initialise();
 	}
-	
+
 	protected Skin getSkin() {
 		return skin;
 	}
-	
+
 	protected Button createScreenChangeButton(String text, final ScreenName name) {
 
 		Button button = new TextButton(text, getSkin());
@@ -45,19 +45,19 @@ abstract class MenuScreen extends AbstractScreen {
 				getManager().changeScreen(name);
 			}
 		});
-		
+
 		return button;
 	}
 
-	protected CheckBox createCheckBox(String text, boolean initialState, 
+	protected CheckBox createCheckBox(String text, boolean initialState,
 			final Consumer<Boolean> func) {
-		
+
 		// Create the checkbox
 		final CheckBox checkbox = new CheckBox(text, getSkin());
-		
+
 		// Set the initial state
 		checkbox.setChecked(initialState);
-		
+
 		// Add a listener which calls the provided function when the checkbox's
 		// state is changed
 		checkbox.addListener(new ClickListener() {
@@ -67,19 +67,19 @@ abstract class MenuScreen extends AbstractScreen {
 				func.accept(value);
 			}
 		});
-		
+
 		return checkbox;
 	}
-	
-	protected Slider createIntSlider(int min, int max, int step, 
+
+	protected Slider createIntSlider(int min, int max, int step,
 			int initialValue, final IntConsumer func) {
-		
+
 		// Create the slider
 		final Slider slider = new Slider(min, max, step, false, getSkin());
-		
+
 		// Set the initial value
 		slider.setValue(initialValue);
-		
+
 		// Add a listener which calls the provided function when the sliders
 		// value is changed
 		slider.addListener(new ChangeListener() {
@@ -89,7 +89,7 @@ abstract class MenuScreen extends AbstractScreen {
 				func.accept(value);
 			}
 		});
-		
+
 		// That's it
 		return slider;
 	}
@@ -102,7 +102,7 @@ abstract class MenuScreen extends AbstractScreen {
 		int initialValue = (int) slider.getValue();
 		String valueLabel = Integer.toString(initialValue);
 		final Label sliderValueLabel = new Label(valueLabel, getSkin());
-        
+
 		// Make sure the value label gets updated when the slider changes
         slider.addListener(new ChangeListener() {
 			@Override
@@ -140,7 +140,7 @@ abstract class MenuScreen extends AbstractScreen {
 
 	    // Create the slider label widget
 	    Label sliderLabel = new Label(labelName, getSkin());
-	    
+
 	    // Add everything into a SliderPanel which lays out the widgets nicely
 	    return new SliderPanel(sliderLabel,
                                sliderValueLabel,
@@ -150,4 +150,20 @@ abstract class MenuScreen extends AbstractScreen {
                                padding);
 	}
 
+
+	/**
+	 * FIXME This method name sucks.
+	 *
+	 * @param scale The factor to scale the dimension by.
+	 * @return The scaled screen dimension size, whichever is smaller.
+	 */
+	protected int getScaledSmallerScreenDimension(float scale) {
+
+	    if (scale < 0) {
+	        throw new IllegalArgumentException("Scaling factor cannot be negative.");
+	    }
+
+	    return (int) (scale * Math.min(getStage().getHeight(),
+	                                   getStage().getWidth()));
+	}
 }
