@@ -253,8 +253,5 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	public GameOver getGameOverReason() {
 	    return gameOverReason;
 	}
-	
-	public int getStarCount() {
-	    return (int) (Math.random() * 3 + 1); // TODO work out the number of stars after winning the game
-	}
+
 }

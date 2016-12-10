@@ -6,6 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.utils.Align;
 
 import game.GameType;
+import game.PredatorPreyGame;
+import logic.GameState;
 
 class PauseScreen extends MenuScreen {
 
@@ -31,6 +33,7 @@ class PauseScreen extends MenuScreen {
     private Dialog gameWonDialog;
     private Dialog gameLostDialog;
 
+    private StarDisplayPanel gameWonStarPanel;
 
     public PauseScreen(ScreenManager manager) {
         super(manager);
@@ -42,6 +45,8 @@ class PauseScreen extends MenuScreen {
         buttonWidth = getScaledSmallerScreenDimension(BUTTON_SCALE);
         buttonHeight = getScaledSmallerScreenDimension(BUTTON_SCALE);
 
+        gameWonStarPanel = new StarDisplayPanel(getSkin());
+        
         gamePausedDialog = createGamePausedDialog();
         gameWonDialog = createGameWonDialog();
         gameLostDialog = createGameLostDialog();
@@ -54,17 +59,22 @@ class PauseScreen extends MenuScreen {
 
         switch (getManager().getGame().getGameOverReason()) {
 
-          case No:
-              gamePausedDialog.show(getStage());
-              break;
+        	case No:
+        		gamePausedDialog.show(getStage());
+        		break;
 
-          case Prey:
-              gameWonDialog.show(getStage());
-              break;
+        	case Prey:
+        		PredatorPreyGame game = getManager().getGame();
+        		int levelNumber = game.getLevelNumber();
+        		GameState state = game.getGameLogic().getGameState();
+        		int score = state.getScore();
+        		setStarsComplete(gameWonStarPanel, levelNumber, score);
+        		gameWonDialog.show(getStage());
+        		break;
 
-          default:
-              gameLostDialog.show(getStage());
-              break;
+        	default:
+        		gameLostDialog.show(getStage());
+        		break;
         }
     }
 
@@ -181,12 +191,11 @@ class PauseScreen extends MenuScreen {
 
         // Set the dialog text
         gameWonDialog.text("You won!");
-
-        StarDisplayPanel starPanel = new StarDisplayPanel(getSkin());
-
-        starPanel.setCompleteSilver(); // TODO call PPGame.getStarCount();
+		
+		// Add the star panel
+        gameWonStarPanel.setNotComplete();
         gameWonDialog.getContentTable().row();
-        gameWonDialog.getContentTable().add(starPanel);
+        gameWonDialog.getContentTable().add(gameWonStarPanel);
 
         addDialogButton(gameWonDialog, NEXT_BUTTON, buttonWidth, buttonHeight);
         addDialogButton(gameWonDialog, RESET_BUTTON, buttonWidth, buttonHeight);

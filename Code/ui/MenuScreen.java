@@ -1,5 +1,7 @@
 package ui;
 
+import java.util.List;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -14,8 +16,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
+import data.DataManager;
 import functional.Consumer;
 import functional.IntConsumer;
+import game.PredatorPreyGame;
 
 abstract class MenuScreen extends AbstractScreen {
 
@@ -165,5 +169,29 @@ abstract class MenuScreen extends AbstractScreen {
 
 	    return (int) (scale * Math.min(getStage().getHeight(),
 	                                   getStage().getWidth()));
+	}
+	
+	protected void setStarsComplete(StarDisplayPanel starPanel, 
+									int levelNumber, 
+									int levelScore) {
+		
+		// Get the star threshold values for this level
+		PredatorPreyGame game = getManager().getGame();
+		DataManager dataManager = game.getDataManager();
+		List<Integer> starScores = dataManager.getLevelStarScores(levelNumber);
+		
+		// Set the stars completed on the star display panel depending on 
+		// the score
+		if (starScores.size() != 3) {
+			starPanel.setNotComplete();
+		} else if (levelScore >= starScores.get(2)) {
+			starPanel.setCompleteGold();
+		} else if (levelScore >= starScores.get(1)) {
+			starPanel.setCompleteSilver();
+		} else if (levelScore >= starScores.get(0)) {
+			starPanel.setCompleteBronze();
+		} else {
+			starPanel.setNotComplete();
+		}
 	}
 }
