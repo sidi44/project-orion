@@ -139,15 +139,15 @@ class LevelsScreen extends MenuScreen {
 			int score = progress.getLevelScore(levelNumber);
 			
 			if (starScores.size() != 3) {
-				button.setNotComplete();
+				button.getStars().setNotComplete();
 			} else if (score >= starScores.get(2)) {
-				button.setCompleteGold();
+				button.getStars().setCompleteGold();
 			} else if (score >= starScores.get(1)) {
-				button.setCompleteSilver();
+				button.getStars().setCompleteSilver();
 			} else if (score >= starScores.get(0)) {
-				button.setCompleteBronze();
+				button.getStars().setCompleteBronze();
 			} else {
-				button.setNotComplete();
+				button.getStars().setNotComplete();
 			}
 			
 		}

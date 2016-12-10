@@ -20,8 +20,7 @@ class StarDisplayPanel extends Table {
 
 
     StarDisplayPanel(Skin skin) {
-        super();
-
+    	
         this.skin = skin;
 
         this.bronze = new Image();
@@ -39,7 +38,7 @@ class StarDisplayPanel extends Table {
         stars.add(silver);
         stars.add(gold);
 
-        add(stars); //.height(Value.percentWidth(0.33f, this)).expand(); // TODO clean this up
+        add(stars);
     }
 
     public void setNotComplete() {
