@@ -22,34 +22,34 @@ import logic.Predator;
 import logic.powerup.PowerUp;
 
 class GameScreen extends MenuScreen {
-
+	
 	private final CameraManager cameraManager;
 	private final UserInputProcessor inputProc;
-
+	
 	private Label scoreLabel;
 	private Label timeLabel;
 	private List<PowerUpButton> powerUpButtons;
-
+	
 	private final static int NUM_POWER_UP_BUTTONS = 5;
-
+	
 	public GameScreen(ScreenManager manager) {
 		super(manager);
-
+		
 		Camera gameCamera = new OrthographicCamera();
 		cameraManager = new CameraManager(gameCamera, manager.getGame());
-
+		
 		this.inputProc = new UserInputProcessor(cameraManager, manager.getGame());
 	}
-
+	
 	@Override
 	protected void addInputProcessor(InputMultiplexer multiplexer) {
 		multiplexer.addProcessor(inputProc);
 		multiplexer.addProcessor(new GestureDetector(inputProc));
 	}
-
+	
 	@Override
 	protected void addActors() {
-
+		
 		// Create pause button
         Button pauseButton = new ImageButton(getSkin(), "pause_button");
         pauseButton.addListener(new ClickListener() {
@@ -80,16 +80,16 @@ class GameScreen extends MenuScreen {
 				}
 			});
 		}
-
-		// Create and setup our table. The UI has two 'panes'; the info pane
-		// which contains the score, time remaining and menu button, and the
+		
+		// Create and setup our table. The UI has two 'panes'; the info pane 
+		// which contains the score, time remaining and menu button, and the 
 		// button pane which contains the power up buttons.
-
+		
 		// Pad our widgets a bit
 		float pad = 10f;
-
+		
 		// First create the info pane. The time remaining label is expanded in
-		// the X direction so the pane will fill the width of the screen.
+		// the X direction so the pane will fill the width of the screen. 
 		Table infoPane = new Table();
 		infoPane.add(timeLabel).pad(pad).left().expandX();
 		infoPane.add(pauseButton).size(pauseButtonSize).pad(pad).right();
@@ -103,51 +103,51 @@ class GameScreen extends MenuScreen {
 			buttonPane.add(button).pad(pad).width(dim).height(dim);
 			buttonPane.row();
 		}
-
-		// Now add the two panes to the main table. Make sure the info pane
-		// fills the full width of the table. The button pane should expand to
+		
+		// Now add the two panes to the main table. Make sure the info pane 
+		// fills the full width of the table. The button pane should expand to 
 		// fill the remaining space in both directions, but the widgets it holds
 		// should be aligned to the left.
 		Table table = new Table();
 		table.add(infoPane).fillX();
 		table.row();
 		table.add(buttonPane).expand().left();
-
+		
 		// Add the table to our UI stage
 		table.setFillParent(true);
 		table.setDebug(true);
 		getStage().addActor(table);
 	}
-
+	
 	@Override
 	protected void doShow() {
 		// Set up the intial view
 		cameraManager.setInitialViewport();
-
+		
 		// Make sure the right number of power up buttons are visible
 		Predator predator = getPredator();
-		int numPowerUps = predator.getMaxPowerUp();
+		int numPowerUps = predator.getMaxPowerUp(); 
 		for (int i = 0; i < NUM_POWER_UP_BUTTONS; ++i) {
 			PowerUpButton button = powerUpButtons.get(i);
 			boolean visible = (i < numPowerUps);
 			button.setVisible(visible);
 		}
 	}
-
+	
 	@Override
 	protected void doRender(float delta) {
-
+		
 		PredatorPreyGame game = getManager().getGame();
 		GameState state = game.getGameLogic().getGameState();
-
+		
 		int score = state.getScore();
 		String scoreText = "Score : " + score;
 		scoreLabel.setText(scoreText);
-
+		
 		int timeRemaining = (int) state.getTimeRemaining();
 		String timeRemainingText = "Time remaining : " + timeRemaining + "s";
 		timeLabel.setText(timeRemainingText);
-
+		
 		Predator predator = getPredator();
 		int numPowerUps = predator.getMaxPowerUp();
 		for (int i = 0; i < NUM_POWER_UP_BUTTONS; ++i) {
@@ -156,7 +156,7 @@ class GameScreen extends MenuScreen {
 				powerUpButtons.get(i).setPowerUp(powerUp);
 			}
 		}
-
+		
 		Camera gameCamera = cameraManager.getCamera();
 		game.getRenderer().render(game.getWorld(), gameCamera.combined);
 		inputProc.processCameraInputs(gameCamera);
@@ -167,23 +167,23 @@ class GameScreen extends MenuScreen {
 		}
 		cameraManager.update();
 	}
-
+	
 	private void gameFinished(GameOver reason) {
-
+		
 		// Clear any stored user input
 		inputProc.reset();
-
+		
 		// Grab the game from the screen manager
 		PredatorPreyGame game = getManager().getGame();
-
+		
 		// Tell the game its finished and why
 		game.gameOver(reason);
 	}
-
+	
 	/**
-	 * Convenience method to get the game's predator.
+	 * Convenience method to get the game's predator. 
 	 * This assumes there is exactly one predator.
-	 *
+	 * 
 	 * @return the game's predator.
 	 */
 	private Predator getPredator() {

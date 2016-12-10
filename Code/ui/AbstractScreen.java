@@ -11,7 +11,7 @@ abstract class AbstractScreen implements Screen {
 
 	private Stage stage;
 	private ScreenManager manager;
-
+	
 	public AbstractScreen(ScreenManager manager) {
 		this.manager = manager;
 		Viewport viewport = getScreenViewport();
@@ -20,31 +20,31 @@ abstract class AbstractScreen implements Screen {
 		} else {
 			this.stage = new Stage();
 		}
-
+		
 		initialise();
 		addActors();
 	}
-
+	
 	protected Viewport getScreenViewport() {
 		return null;
 	}
-
+	
 	protected void initialise() {
 		// Base class does nothing
 	}
-
+	
 	protected void addActors() {
 		// Base class does nothing
 	}
-
+	
 	protected Stage getStage() {
 		return stage;
 	}
-
+	
 	protected ScreenManager getManager() {
 		return manager;
 	}
-
+	
 	@Override
 	public final void show() {
 		InputMultiplexer multiplexer = new InputMultiplexer();
@@ -53,34 +53,30 @@ abstract class AbstractScreen implements Screen {
 		Gdx.input.setInputProcessor(multiplexer);
 		doShow();
 	}
-
+	
 	protected void addInputProcessor(InputMultiplexer multiplexer) {
 		// Base class does nothing.
 	}
-
-
-	/**
-	 * Called <b>once</b> after switching to a screen.
-	 */
+	
 	protected void doShow() {
 		// Bass class does nothing.
 	}
 
 	@Override
 	public final void render(float delta) {
-
+		
 		// Clear the screen
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+		
 		// Carry out any derived class rendering
 		doRender(delta);
-
+		
 		// Draw our stage
 		stage.act(delta);
 		stage.draw();
 	}
-
+	
 	protected void doRender(float delta) {
 		// Base class does nothing
 	}
@@ -94,7 +90,7 @@ abstract class AbstractScreen implements Screen {
 	public final void pause() {
 		doPause();
 	}
-
+	
 	protected void doPause() {
 		// Base class does nothing
 	}
@@ -103,7 +99,7 @@ abstract class AbstractScreen implements Screen {
 	public final void resume() {
 		doResume();
 	}
-
+	
 	protected void doResume() {
 		// Base class does nothing
 	}
@@ -116,7 +112,7 @@ abstract class AbstractScreen implements Screen {
 	protected void doHide() {
 		// Base class does nothing
 	}
-
+	
 	@Override
 	public final void dispose() {
 		// TODO Auto-generated method stub
