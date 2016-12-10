@@ -66,8 +66,8 @@ class GameScreen extends MenuScreen {
 		// Create the Score and Time remaining text fields
 		scoreLabel = new Label("Score: ", getSkin());
 		timeLabel = new Label("Time remaining: ", getSkin());
-		
-		// Create the Power Up buttons 
+
+		// Create the Power Up buttons
 		powerUpButtons = new ArrayList<PowerUpButton>();
 		for (int i = 0; i < NUM_POWER_UP_BUTTONS; ++i) {
 			final int index = i;

@@ -4,37 +4,6 @@ size: 1024,1024
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
-<<<<<<< HEAD
-=======
-exit_button_down
-  rotate: false
-  xy: 131, 426
-  size: 128, 128
-  orig: 128, 128
-  offset: 0, 0
-  index: -1
-exit_button_up
-  rotate: false
-  xy: 131, 296
-  size: 128, 128
-  orig: 128, 128
-  offset: 0, 0
-  index: -1
-next_button_down
-  rotate: false
-  xy: 131, 36
-  size: 128, 128
-  orig: 128, 128
-  offset: 0, 0
-  index: -1
-next_button_up
-  rotate: false
-  xy: 131, 166
-  size: 128, 128
-  orig: 128, 128
-  offset: 0, 0
-  index: -1
->>>>>>> Add game over dialogs
 Button
   rotate: false
   xy: 359, 783
@@ -72,67 +41,37 @@ List
   index: -1
 Powerup_Freeze_Icon
   rotate: false
-<<<<<<< HEAD
-  xy: 131, 704
-  size: 110, 110
-  orig: 110, 110
-=======
   xy: 261, 927
   size: 96, 96
   orig: 96, 96
->>>>>>> Add game over dialogs
   offset: 0, 0
   index: -1
 Powerup_Magnet_Icon
   rotate: false
-<<<<<<< HEAD
-  xy: 131, 592
-  size: 110, 110
-  orig: 110, 110
-=======
   xy: 261, 829
   size: 96, 96
   orig: 96, 96
->>>>>>> Add game over dialogs
   offset: 0, 0
   index: -1
 Powerup_SlowDown_Icon
   rotate: false
-<<<<<<< HEAD
-  xy: 131, 480
-  size: 110, 110
-  orig: 110, 110
-=======
   xy: 359, 927
   size: 96, 96
   orig: 96, 96
->>>>>>> Add game over dialogs
   offset: 0, 0
   index: -1
 Powerup_SpeedUp_Icon
   rotate: false
-<<<<<<< HEAD
-  xy: 131, 368
-  size: 110, 110
-  orig: 110, 110
-=======
   xy: 261, 731
   size: 96, 96
   orig: 96, 96
->>>>>>> Add game over dialogs
   offset: 0, 0
   index: -1
 Powerup_Teleport_Icon
   rotate: false
-<<<<<<< HEAD
-  xy: 131, 256
-  size: 110, 110
-  orig: 110, 110
-=======
   xy: 359, 829
   size: 96, 96
   orig: 96, 96
->>>>>>> Add game over dialogs
   offset: 0, 0
   index: -1
 ProgressBar
@@ -172,22 +111,14 @@ SplitPane
   index: -1
 Star_Complete_Icon
   rotate: false
-<<<<<<< HEAD
-  xy: 131, 171
-=======
   xy: 457, 940
->>>>>>> Add game over dialogs
   size: 87, 83
   orig: 87, 83
   offset: 0, 0
   index: -1
 Star_Incomplete_Icon
   rotate: false
-<<<<<<< HEAD
-  xy: 131, 86
-=======
   xy: 261, 646
->>>>>>> Add game over dialogs
   size: 87, 83
   orig: 87, 83
   offset: 0, 0
@@ -229,14 +160,14 @@ Window
   index: -1
 background_50_opacity_50_fill
   rotate: false
-  xy: 666, 1013
+  xy: 638, 980
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
   index: -1
 background_75_opacity_75_fill
   rotate: false
-  xy: 638, 980
+  xy: 666, 1013
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
@@ -406,58 +337,86 @@ default-window
   orig: 27, 29
   offset: 0, 0
   index: -1
-home_button_down
+exit_button_down
   rotate: false
   xy: 1, 816
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
-home_button_up
+exit_button_up
   rotate: false
   xy: 1, 686
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
-pause_button_down
-  rotate: false
-  xy: 1, 556
-  size: 128, 128
-  orig: 128, 128
-  offset: 0, 0
-  index: -1
-pause_button_up
-  rotate: false
-  xy: 1, 426
-  size: 128, 128
-  orig: 128, 128
-  offset: 0, 0
-  index: -1
-reset_button_down
+home_button_down
   rotate: false
   xy: 1, 296
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
-reset_button_up
+home_button_up
   rotate: false
   xy: 1, 166
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
-resume_button_down
+next_button_down
+  rotate: false
+  xy: 1, 556
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+next_button_up
+  rotate: false
+  xy: 1, 426
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+pause_button_down
   rotate: false
   xy: 1, 36
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
-resume_button_up
+pause_button_up
   rotate: false
   xy: 131, 816
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+reset_button_down
+  rotate: false
+  xy: 131, 686
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+reset_button_up
+  rotate: false
+  xy: 131, 556
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+resume_button_down
+  rotate: false
+  xy: 131, 426
+  size: 128, 128
+  orig: 128, 128
+  offset: 0, 0
+  index: -1
+resume_button_up
+  rotate: false
+  xy: 131, 296
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
@@ -471,14 +430,14 @@ selection
   index: -1
 settings_button_down
   rotate: false
-  xy: 131, 686
+  xy: 131, 166
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
   index: -1
 settings_button_up
   rotate: false
-  xy: 131, 556
+  xy: 131, 36
   size: 128, 128
   orig: 128, 128
   offset: 0, 0
