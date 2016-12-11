@@ -5,14 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import geometry.PointXY;
-import geometry.PolygonShape;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.Json;
 
+import geometry.PointXY;
+import geometry.PolygonShape;
 import logic.AgentConfig;
 import logic.GameConfiguration;
 import logic.MazeConfig;
@@ -74,7 +73,7 @@ public class GameDataManager implements DataManager {
 		
 		// Get a handle to the general config data file
 		FileHandle handle = Gdx.files.internal("data/config/general_config.json");
-		
+
 		// Check whether there's a problem reading the file...
 		if (!handle.exists()) {
 			System.err.println("Couldn't read general configuration file.");

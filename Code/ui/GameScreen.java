@@ -1,12 +1,5 @@
 package ui;
 
-import game.PredatorPreyGame;
-import input.UserInputProcessor;
-import logic.GameOver;
-import logic.GameState;
-import logic.Predator;
-import logic.powerup.PowerUp;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +9,17 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+
+import game.PredatorPreyGame;
+import input.UserInputProcessor;
+import logic.GameOver;
+import logic.GameState;
+import logic.Predator;
+import logic.powerup.PowerUp;
 
 class GameScreen extends MenuScreen {
 	
@@ -51,7 +51,7 @@ class GameScreen extends MenuScreen {
 	protected void addActors() {
 		
 		// Create pause button
-        Button pauseButton = new TextButton("Pause", getSkin());
+        Button pauseButton = new ImageButton(getSkin(), "pause_button");
         pauseButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -59,11 +59,15 @@ class GameScreen extends MenuScreen {
             }
         });
 
+        // Work out the size of the pause button based on the screen size
+        final float pauseButtonScale = 0.1f;
+        final int pauseButtonSize = getScaledSmallerScreenDimension(pauseButtonScale);
+
 		// Create the Score and Time remaining text fields
 		scoreLabel = new Label("Score: ", getSkin());
 		timeLabel = new Label("Time remaining: ", getSkin());
-		
-		// Create the Power Up buttons 
+
+		// Create the Power Up buttons
 		powerUpButtons = new ArrayList<PowerUpButton>();
 		for (int i = 0; i < NUM_POWER_UP_BUTTONS; ++i) {
 			final int index = i;
@@ -88,7 +92,7 @@ class GameScreen extends MenuScreen {
 		// the X direction so the pane will fill the width of the screen. 
 		Table infoPane = new Table();
 		infoPane.add(timeLabel).pad(pad).left().expandX();
-		infoPane.add(pauseButton).pad(pad).right();
+		infoPane.add(pauseButton).size(pauseButtonSize).pad(pad).right();
 		infoPane.row();
 		infoPane.add(scoreLabel).pad(pad).left();
 
@@ -117,6 +121,7 @@ class GameScreen extends MenuScreen {
 	
 	@Override
 	protected void doShow() {
+
 		// Set up the initial view
 		cameraManager.setViewport(12);
 		cameraManager.trackPlayer(1.4f, true);

@@ -2,6 +2,9 @@ package game;
 
 import java.util.List;
 
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.math.Vector2;
+
 import ai.AILogic;
 import data.DataManager;
 import data.GameDataManager;
@@ -24,13 +27,10 @@ import physics.PhysicsProcessorBox2D;
 import progress.ProgressTask;
 import render.Renderer;
 import render.RendererConfiguration;
-import ui.ScreenManager;
-import ui.ScreenName;
 import sound.SoundConfiguration;
 import sound.SoundManager;
-
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.math.Vector2;
+import ui.ScreenManager;
+import ui.ScreenName;
 
 public class PredatorPreyGame extends Game implements GameStatus {
 
@@ -50,7 +50,8 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	
 	private GameType gameType;
 	private int currentLevel;
-	
+	private GameOver gameOverReason;
+
 	// Physics debug information
 	private final PhysicsDebugType debugType = PhysicsDebugType.DebugNone;
 	
@@ -125,7 +126,9 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	}
 	
 	public void resetGame() {
-		
+
+	    gameOverReason = GameOver.No;
+
 		// Calculate the size of the maze in world coordinates. Use this for
 		// the background image size.
 		float squareSize = physicsConfig.getSquareSize();
@@ -162,7 +165,11 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		
 		state.decreaseTimeRemaining(delta);
 		
-		return gameLogic.isGameOver();
+		if (move.getForceGameOver() != GameOver.No) {
+			return move.getForceGameOver();
+		} else {
+			return gameLogic.isGameOver();
+		}
 	}
 	
 	private void processMoves(Move move) {
@@ -198,8 +205,10 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	}
 	
 	public void gameOver(GameOver reason) {
-		
-		// Check whether the player was playing a in level mode and whether 
+
+	    gameOverReason = reason;
+
+		// Check whether the player was playing a in level mode and whether
 		// they won.
 		if (gameType == GameType.Levels && reason == GameOver.Prey) {
 			
@@ -217,32 +226,11 @@ public class PredatorPreyGame extends Game implements GameStatus {
 			// Save the player progress
 			dataManager.savePlayerProgress();
 		}
-		
-		// Work out which screen we should change to depending on the game type
-		GameType type = getGameType();
-		ScreenName name = ScreenName.MainMenu;
-		switch (type) {
-			case Levels:
-				name = ScreenName.Levels;
-				break;
-			case Sandbox:
-				name = ScreenName.Sandbox;
-				break;
-			case NotPlaying:
-			default:
-				// We're leaving a game but not in a game mode. This is strange.
-				System.err.println("How did we get here?");
-				break;			
-		}
-		
-		// We're no longer playing a game (i.e. back in the menu screens)
-		gameType = GameType.NotPlaying;
-		currentLevel = -1;
-		
+
 		// Change the screen now
-		screenManager.changeScreen(name);
+		screenManager.changeScreen(ScreenName.Pause);
 	}
-	
+
 	public void updateSoundManager() {
 		SoundConfiguration config = getDataManager().getSoundConfiguration();
 		soundManager.update(config);
@@ -261,4 +249,9 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	public List<ProgressTask> getLoadingTasks() {
 		return gameLogic.getProgressTasks();
 	}
+	
+	public GameOver getGameOverReason() {
+	    return gameOverReason;
+	}
+
 }

@@ -1,7 +1,6 @@
 package ui;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import game.PredatorPreyGame;
@@ -123,36 +122,23 @@ class LevelsScreen extends MenuScreen {
 	
 	private void updateStars() {
 		
-		// Grab the data manager
+		// Get the player's progress
 		PredatorPreyGame game = getManager().getGame();
 		DataManager dataManager = game.getDataManager();
-		
-		// Get the player's progress
 		PlayerProgress progress = dataManager.getPlayerProgress();
 		
+		// Set the stars complete for each level button panel
 		for (Integer levelNumber : levelButtons.keySet()) {
+			
+			// Get the button panel for this level
 			LevelButtonPanel button = levelButtons.get(levelNumber);
 			
-			List<Integer> starScores = 
-					dataManager.getLevelStarScores(levelNumber);
-			
+			// Get the player's score for this level
 			int score = progress.getLevelScore(levelNumber);
 			
-			if (starScores.size() != 3) {
-				button.setNotComplete();
-			} else if (score >= starScores.get(2)) {
-				button.setCompleteGold();
-			} else if (score >= starScores.get(1)) {
-				button.setCompleteSilver();
-			} else if (score >= starScores.get(0)) {
-				button.setCompleteBronze();
-			} else {
-				button.setNotComplete();
-			}
-			
+			// Update the star panel
+			setStarsComplete(button.getStarPanel(), levelNumber, score);	
 		}
-		
-		
 		
 	}
 	
