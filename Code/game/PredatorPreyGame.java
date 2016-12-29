@@ -146,14 +146,48 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		physProc.addReceiver(soundManager);
 	}
 	
-	public Vector2[] getWorldMazeBoundaries() {
-		PolygonShape pShape = gameLogic.getGameState().getMaze().getDimensions();
-		Vector2 mazeLL = physProc.stateToWorld(new PointXY(pShape.getMinX() - 1, pShape.getMinY() - 1));
-		Vector2 mazeUR = physProc.stateToWorld(new PointXY(pShape.getMaxX() + 1, pShape.getMaxY() + 1));
+	/**
+	 * Returns the coordinates of the lower left corner of the maze in world
+	 * coordinates (i.e. the minimum x-y coordinates of the maze)
+	 * 
+	 * @return the coordinates of the lower left corner of the maze.
+	 */
+	public Vector2 getMazeMinimumPointWorld() {
 		
-		Vector2[] mazeBoundaries = new Vector2[] {mazeLL, mazeUR};
+		// Get the minimum (lower left) point of the maze and convert to world 
+		// coordinates
+		PolygonShape dims = gameLogic.getGameState().getMaze().getDimensions();
+		PointXY minPoint = new PointXY(dims.getMinX(), dims.getMinY());
+		Vector2 mazeLL = physProc.stateToWorld(minPoint);
 		
-		return mazeBoundaries;
+		// The above point is at the centre of a maze square, so we need to
+		// correct for that to get the true lower left point
+		float halfSquareSize = physProc.getSquareSize() / 2;
+		mazeLL.sub(halfSquareSize, halfSquareSize);
+		
+		return mazeLL;
+	}
+	
+	/**
+	 * Returns the coordinates of the upper right corner of the maze in world
+	 * coordinates (i.e. the maximum x-y coordinates of the maze).
+	 * 
+	 * @return the coordinates of the upper right corner of the maze.
+	 */
+	public Vector2 getMazeMaximumPointWorld() {
+		
+		// Get the maximum (upper right) point of the maze and convert to world 
+		// coordinates
+		PolygonShape dims = gameLogic.getGameState().getMaze().getDimensions();
+		PointXY maxPoint = new PointXY(dims.getMaxX(), dims.getMaxY());
+		Vector2 mazeUR = physProc.stateToWorld(maxPoint);
+		
+		// The above point is at the centre of a maze square, so we need to
+		// correct for that to get the true upper right point
+		float halfSquareSize = physProc.getSquareSize() / 2;
+		mazeUR.add(halfSquareSize, halfSquareSize);
+		
+		return mazeUR;
 	}
 	
 	public GameOver update(float delta, Move move) {

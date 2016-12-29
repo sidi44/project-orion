@@ -3,7 +3,6 @@ package ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
@@ -31,17 +30,26 @@ class GameScreen extends MenuScreen {
 	private List<PowerUpButton> powerUpButtons;
 	
 	private final static int NUM_POWER_UP_BUTTONS = 5;
-	private final static int VIEWPORT_MAX_SQUARES_X = 12;
+
+	// The desired dimensions of our viewport in world coordinates. This is 
+	// ideally how much of the world we see. What we actually see depends on 
+	// the screen dimensions and the viewport's scaling strategy - see the 
+	// GameViewport class.
+	private final static int VIEWPORT_WIDTH_WORLD = 90;
+	private final static int VIEWPORT_HEIGHT_WORLD = 90;
 	
 	public GameScreen(ScreenManager manager) {
 		super(manager);
 		
+		// Create our camera and setup the game viewport
 		Camera gameCamera = new OrthographicCamera();
-		viewport = new GameViewport(gameCamera, 
-									manager.getGame(), 
-									VIEWPORT_MAX_SQUARES_X);
+		viewport = new GameViewport(VIEWPORT_WIDTH_WORLD, 
+									VIEWPORT_HEIGHT_WORLD, 
+									gameCamera, 
+									manager.getGame());
 		
-		this.inputProc = new UserInputProcessor(viewport);
+		// Create the input processor
+		inputProc = new UserInputProcessor(viewport);
 	}
 	
 	@Override
@@ -139,17 +147,21 @@ class GameScreen extends MenuScreen {
 	@Override
 	protected void doRender(float delta) {
 		
+		// Get gold of the game and the game state
 		PredatorPreyGame game = getManager().getGame();
 		GameState state = game.getGameLogic().getGameState();
 		
+		// Update the current score
 		int score = state.getScore();
 		String scoreText = "Score : " + score;
 		scoreLabel.setText(scoreText);
 		
+		// Update the time remaining
 		int timeRemaining = (int) state.getTimeRemaining();
 		String timeRemainingText = "Time remaining : " + timeRemaining + "s";
 		timeLabel.setText(timeRemainingText);
 		
+		// Update the power up buttons
 		Predator predator = getPredator();
 		int numPowerUps = predator.getMaxPowerUp();
 		for (int i = 0; i < NUM_POWER_UP_BUTTONS; ++i) {
@@ -159,23 +171,35 @@ class GameScreen extends MenuScreen {
 			}
 		}
 		
+		// Render the game 
+		viewport.apply();
 		Camera gameCamera = viewport.getCamera();
 		game.getRenderer().render(game.getWorld(), gameCamera.combined);
-		inputProc.processCameraInputs(gameCamera);
-
+		
+		// Update the camera's position, smoothly following the player
+		viewport.updateCameraPosition(false);		
+		
+		// Check whether the game is over, and if so, tell the game
 		GameOver gameOver = game.update(delta, inputProc.getNextMove());
 		if (gameOver != GameOver.No) {
 			gameFinished(gameOver);
 		}
-		viewport.apply();
-		viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		
+		// Let the base class do any rendering
 		super.doRender(delta);
 	}
 	
 	@Override
 	protected void doResize(int width, int height) {
+		
+		// Inform the viewport of the resize
 		viewport.update(width, height);
+		
+		// Ask the viewport to move the camera position to the player, jumping 
+		// directly to the player's position without smoothing
+		viewport.updateCameraPosition(true);
+		
+		// Let the base class do any resize work
 		super.doResize(width, height);
 	}
 	

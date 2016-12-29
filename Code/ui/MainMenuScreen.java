@@ -1,8 +1,8 @@
 package ui;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
@@ -17,28 +17,35 @@ import logic.Move;
 
 class MainMenuScreen extends MenuScreen {
 	
-	private GameViewport viewport;
+	private MainMenuGameViewport viewport;
 	
 	private Label title;
 	private HorizontalGroup buttons;
 	
-	private final static float VIEWPORT_HEIGHT_FACTOR = 0.7f;
-	private final static float VIEWPORT_WIDTH_FACTOR = 0.6f;
-	
 	private final static String GAME_TITLE = "STINGRAY!";
-	private final static int VIEWPORT_MAX_SQUARES_X = 8;
 	
 	public MainMenuScreen(ScreenManager manager) {
 		super(manager);
+	
+		// Initialise our viewport now so it's not null, but this should get
+		// called again when the screen is shown so the right maze dimensions 
+		// are picked up
+		initialiseViewport();
 	}
 	
-	@Override
-	public void initialise() {
+	private void initialiseViewport() {
+		
+		// Work out the maze dimensions, we want to show the full maze in our
+		// viewport
+		PredatorPreyGame game = getManager().getGame();
+		Vector2 min = game.getMazeMinimumPointWorld();
+		Vector2 max = game.getMazeMaximumPointWorld();
+		int worldWidth = Math.round(max.x - min.x);
+		int worldHeight = Math.round(max.y - min.y);
+		
+		// Create the game camera and construct our game viewport 
 		Camera camera = new OrthographicCamera();
-		viewport = new GameViewport(camera, 
-									getManager().getGame(), 
-									VIEWPORT_MAX_SQUARES_X);
-		super.initialise();
+		viewport = new MainMenuGameViewport(worldWidth, worldHeight, camera);
 	}
 	
 	@Override
@@ -93,13 +100,9 @@ class MainMenuScreen extends MenuScreen {
 		PredatorPreyGame game = getManager().getGame();
 		game.setGameTypeMainMenu();
 		
-		// This is a bit unusual, but we need to have the UI widgets positioned
-		// in order to position the game viewport in between them, so get the
-		// UI stage to draw itself now.
-		getUIStage().draw();
-		
-		// Position the game viewport
-		positionViewport();
+		// Re-initialise our viewport to make sure it's using the right maze
+		// dimensions
+		initialiseViewport();
 		
 		// Carry out any base class actions
 		super.doShow();
@@ -108,74 +111,41 @@ class MainMenuScreen extends MenuScreen {
 	@Override
 	protected void doRender(float delta) {
 
+		// Render the game
 		viewport.apply();
-		
 		PredatorPreyGame game = getManager().getGame();
-		
 		Camera gameCamera = viewport.getCamera();
 		game.getRenderer().render(game.getWorld(), gameCamera.combined);
 
+		// Check whether the game is finished and if so, inform the game
 		GameOver reason = game.update(delta, new Move());
 		if (reason != GameOver.No) {
 			game.gameOver(reason);
 		}
 		
-		int viewportWidth = calculateViewportWidth();
-		int viewportHeight = calculateViewportHeight();
-		viewport.update(viewportWidth, viewportHeight);
-		
+		// Let the base class to do any rendering
 		super.doRender(delta);
 	}
 	
 	@Override 
 	protected void doResize(int width, int height) {
 		
-		int viewportWidth = calculateViewportWidth();
-		int viewportHeight = calculateViewportHeight();
-		viewport.update(viewportWidth, viewportHeight);
-		
-		positionViewport();
-		
+		// Get the base class to sort out the UI elements
 		super.doResize(width, height);
-	}
-	
-	private void positionViewport() {
-
-		int availableHeight = getViewportAvailableHeight();
-		int viewportHeight = calculateViewportHeight();
-		float heightOffset = availableHeight / 2.0f - viewportHeight / 2.0f;
-		float buttonsTop = buttons.getTop();
-		int screenY = Math.round(buttonsTop + heightOffset);
 		
-		int availableWidth = getViewportAvailableWidth();
-		int viewportWidth = calculateViewportWidth();
-		float widthOffset = availableWidth / 2.0f - viewportWidth / 2.0f;
-		int screenX = Math.round(widthOffset);
+		// Normally, draw() doesn't need to be called until the next render(), 
+		// but we need the title and buttons to be re-laid out following the 
+		// resize so that the viewport can be positioned correctly, so do a 
+		// draw() now.
+		getUIStage().getViewport().apply();
+		getUIStage().draw();
 		
-		viewport.setScreenPosition(screenX, screenY);
+		// Get the y-limits by which the viewport is bounded 
+		int minY = Math.round(buttons.getTop());
+		int maxY = Math.round(title.getY());
+		
+		// Update our game viewport
+		viewport.update(width, height, minY, maxY);
 	}
 	
-	private int calculateViewportHeight() {
-		int availableHeight = getViewportAvailableHeight();
-		int viewportHeight = (int) (VIEWPORT_HEIGHT_FACTOR * availableHeight);
-		return viewportHeight;
-	}
-	
-	private int calculateViewportWidth() {
-		int availableWidth = getViewportAvailableWidth();
-		int viewportWidth = (int) (VIEWPORT_WIDTH_FACTOR * availableWidth);
-		return viewportWidth;
-	}
-	
-	private int getViewportAvailableHeight() {
-		float titleBottom = title.getY();
-		float buttonsTop = buttons.getTop();
-		float availableHeight = titleBottom - buttonsTop;
-		return (int) availableHeight;
-	}
-	
-	private int getViewportAvailableWidth() {
-		int clientWidth = Gdx.graphics.getWidth();
-		return clientWidth;
-	}
 }
