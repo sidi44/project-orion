@@ -21,10 +21,13 @@ abstract class AbstractScreen implements Screen {
 	public AbstractScreen(ScreenManager manager) {
 		this.manager = manager;
 		
+		// Create a Fill viewport for the background stage, so the background 
+		// image will always cover all the screen. We provide 'dummy' image 
+		// dimensions in the constructor. These will be replaced by the actual
+		// image dimensions when setBackgroundImage() is called.
 		Camera camera = new OrthographicCamera();
-		Viewport viewport = new FillViewport(Gdx.graphics.getWidth(), 
-											 Gdx.graphics.getHeight(), 
-											 camera);
+		Viewport viewport = new FillViewport(640, 480, camera);
+		
 		this.backgroundStage = new Stage(viewport);
 		
 		this.inputMultiplexer = new InputMultiplexer();
@@ -50,7 +53,16 @@ abstract class AbstractScreen implements Screen {
 	}
 	
 	protected void setBackgroundImage(Image background) {
+		
+		// Add the image to the background stage
 		backgroundStage.addActor(background);
+		
+		// Ensure the viewport is using the correct dimensions for this image
+		float width = background.getWidth();
+		float height = background.getHeight();
+		Viewport viewport = backgroundStage.getViewport();
+		viewport.setWorldWidth(width);
+		viewport.setWorldHeight(height);
 	}
 	
 	protected void addInputProcessor(InputProcessor processor) {
