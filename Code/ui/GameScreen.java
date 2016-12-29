@@ -49,7 +49,7 @@ class GameScreen extends MenuScreen {
 									manager.getGame());
 		
 		// Create the input processor
-		inputProc = new UserInputProcessor(viewport);
+		inputProc = new UserInputProcessor();
 	}
 	
 	@Override

@@ -5,13 +5,11 @@ import java.util.List;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 
 import game.PredatorPreyGame;
 import geometry.PointXY;
-import input.CameraAccessor;
 import logic.GameState;
 import logic.Predator;
 import physics.PhysicsProcessor;
@@ -31,7 +29,7 @@ import physics.PhysicsProcessor;
  * 
  * @author Simon Dicken
  */
-class GameViewport extends ScalingViewport implements CameraAccessor {
+class GameViewport extends ScalingViewport {
 
 	private final PredatorPreyGame game;	
 	
@@ -431,15 +429,5 @@ class GameViewport extends ScalingViewport implements CameraAccessor {
 		float viewportWidthSC = getScreenWidth();
 		return viewportWidthWC / viewportWidthSC;
 	}
-	
-	@Override
-	public Vector3 screenToWorld(Vector3 screenCoords) {
-		return unproject(screenCoords);
-	}
-
-	@Override
-	public Vector3 cameraPosition() {
-		return getCamera().position;
-	}
-	
+		
 }
