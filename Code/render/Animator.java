@@ -18,15 +18,16 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 public class Animator {
 
 	private static Animator instance;
-	private final Map<String, Animation> mAnimations;
-	private final Map<String, Map<String, Animation>> animationGroups;
+	private final Map<String, Animation<TextureRegion>> mAnimations;
+	private final Map<String, Map<String, Animation<TextureRegion>>> animationGroups;
 	private final Map<String, AnimationState> animationStates;
 	private final Map<String, Texture> spriteSheets;
 	
 	// Singleton
 	private Animator() {
-		mAnimations = new HashMap<String, Animation>();
-		animationGroups = new HashMap<String, Map<String, Animation>>();
+		mAnimations = new HashMap<String, Animation<TextureRegion>>();
+		animationGroups = 
+				new HashMap<String, Map<String, Animation<TextureRegion>>>();
 		animationStates = new HashMap<String, AnimationState>();
 		spriteSheets = new HashMap<String, Texture>();
 	}
@@ -72,17 +73,20 @@ public class Animator {
 													   startFrame-1, 
 													   endFrame);
 
-		Animation animation = new Animation(frameDuration, keyFrames);
+		Animation<TextureRegion> animation = 
+				new Animation<TextureRegion>(frameDuration, keyFrames);
 		animation.setPlayMode(PlayMode.LOOP);
 		
 		mAnimations.put(animationGroupName+"-"+animationName, animation);
 		
 		if (animationGroups.get(animationGroupName) == null ) {
-			Map<String, Animation> group = new HashMap<String, Animation>();
+			Map<String, Animation<TextureRegion>> group = 
+					new HashMap<String, Animation<TextureRegion>>();
 			animationGroups.put(animationGroupName, group);
 		}
 		
-		Map<String, Animation> group = animationGroups.get(animationGroupName);
+		Map<String, Animation<TextureRegion>> group = 
+				animationGroups.get(animationGroupName);
 		group.put(animationName, animation);
 	}
 	
@@ -100,8 +104,9 @@ public class Animator {
 		AnimationState state = animationStates.get(compositeId);
 		float stateTime = state.getStateTime(animationId, stateTimeDelta);
 				
-		Animation animation = null;
-		Map<String, Animation> group = animationGroups.get(animationGroupId);
+		Animation<TextureRegion> animation = null;
+		Map<String, Animation<TextureRegion>> group = 
+				animationGroups.get(animationGroupId);
 		
 		if (group == null || (animation = group.get(animationId)) == null) {
 			throw new IllegalStateException("Animation \"" + animationGroupId +
