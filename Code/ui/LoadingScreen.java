@@ -37,8 +37,8 @@ class LoadingScreen extends MenuScreen {
 		
 		// Add our background image
 		FileHandle file = Gdx.files.internal("data/ui/loading_screen.png");
-		Image screenImage = new Image(new Texture(file));
-		getStage().addActor(screenImage);
+		Image background = new Image(new Texture(file));
+		setBackgroundImage(background);
 		
 		progressPanel = new ProgressBarPanel(getSkin());
 		progressPanel.setValue(0);
@@ -51,7 +51,7 @@ class LoadingScreen extends MenuScreen {
 		table.setFillParent(true);
 		table.setDebug(true);
 		
-		getStage().addActor(table);
+		getUIStage().addActor(table);
 	}
 
 	@Override
@@ -75,6 +75,7 @@ class LoadingScreen extends MenuScreen {
 			thread.start();
 		}
 		
+		super.doShow();
 	}
 	
 	protected void doRender(float delta) {
@@ -109,6 +110,8 @@ class LoadingScreen extends MenuScreen {
 				setFinished();
 			}
 		}
+		
+		super.doRender(delta);
 	}
 	
 	private void setFinished() {

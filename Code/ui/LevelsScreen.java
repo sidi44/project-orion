@@ -42,8 +42,8 @@ class LevelsScreen extends MenuScreen {
 		
 		// Add our background image
 		FileHandle file = Gdx.files.internal("data/ui/levels_screen.png");
-		Image screenImage = new Image(new Texture(file));
-		getStage().addActor(screenImage);
+		Image background = new Image(new Texture(file));
+		setBackgroundImage(background);
 
 		// Create our levels buttons
 		int numLevels = NUM_LEVEL_ROWS * NUM_LEVEL_COLS;
@@ -72,7 +72,7 @@ class LevelsScreen extends MenuScreen {
 		
 		table.setFillParent(true);
 		table.setDebug(true);
-		getStage().addActor(table);
+		getUIStage().addActor(table);
 	}
 	
 	
@@ -104,6 +104,7 @@ class LevelsScreen extends MenuScreen {
 	protected void doShow() {
 		updateLevelsLocked();
 		updateStars();
+		super.doShow();
 	}
 	
 	private void updateLevelsLocked() {

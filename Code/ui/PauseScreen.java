@@ -55,12 +55,11 @@ class PauseScreen extends MenuScreen {
 
     @Override
     public void doShow() {
-        super.doShow();
 
         switch (getManager().getGame().getGameOverReason()) {
 
         	case No:
-        		gamePausedDialog.show(getStage());
+        		gamePausedDialog.show(getUIStage());
         		break;
 
         	case Prey:
@@ -69,13 +68,15 @@ class PauseScreen extends MenuScreen {
         		GameState state = game.getGameLogic().getGameState();
         		int score = state.getScore();
         		setStarsComplete(gameWonStarPanel, levelNumber, score);
-        		gameWonDialog.show(getStage());
+        		gameWonDialog.show(getUIStage());
         		break;
 
         	default:
-        		gameLostDialog.show(getStage());
+        		gameLostDialog.show(getUIStage());
         		break;
         }
+        
+        super.doShow();
     }
 
 
@@ -207,7 +208,6 @@ class PauseScreen extends MenuScreen {
         return gameWonDialog;
     }
 
-
     private ScreenName getExitScreenName() {
 
         GameType gameType = getManager().getGame().getGameType();
@@ -229,7 +229,6 @@ class PauseScreen extends MenuScreen {
 
         return screenName;
     }
-
 
     private void changeScreenOnButtonPressed(String buttonId) {
 

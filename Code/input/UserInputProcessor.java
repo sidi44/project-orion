@@ -7,7 +7,6 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.Vector2;
-//import com.badlogic.gdx.math.Vector3;
 
 import logic.Direction;
 import logic.GameOver;
@@ -30,15 +29,11 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 
 	private GameOver forceGameOver;
 	
-	@SuppressWarnings("unused")
-	private CameraAccessor cameraAccessor;
-
-	public UserInputProcessor(CameraAccessor ca) {
+	public UserInputProcessor() {
 		move = new Move();
 		pressedMove = Direction.None;
 		pressedCamKeys = new LinkedList<Direction>();
 		pressedEnter = false;
-		cameraAccessor = ca;
 		forceGameOver = GameOver.No;
 	}
 
@@ -182,23 +177,7 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-//		Vector3 screenCoords = new Vector3(screenX, screenY, 0);
-//		Vector3 worldCoords = mCameraAccessor.screenToWorld(screenCoords);
-//		Vector3 camPos = mCameraAccessor.cameraPosition();
-//
-//		if (worldCoords.x <= 1 * (camPos.x / 2)) {
-//			mPressedMove = Direction.Left;
-//		} else if (worldCoords.x >= 3 * (camPos.x / 2)) {
-//			mPressedMove = Direction.Right;
-//		} else if (worldCoords.y <= camPos.y) {
-//			mPressedMove = Direction.Down;
-//		} else if (worldCoords.y > camPos.y) {
-//			mPressedMove = Direction.Up;
-//		} else {
-			return false;
-//		}
-//
-//		return true;
+		return false;
 	}
 
 	@Override

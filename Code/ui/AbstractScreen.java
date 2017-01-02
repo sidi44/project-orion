@@ -2,31 +2,38 @@ package ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 abstract class AbstractScreen implements Screen {
 
-	private Stage stage;
+	private Stage backgroundStage;
 	private ScreenManager manager;
+	private InputMultiplexer inputMultiplexer;
 	
 	public AbstractScreen(ScreenManager manager) {
 		this.manager = manager;
-		Viewport viewport = getScreenViewport();
-		if (viewport != null) {
-			this.stage = new Stage(viewport);
-		} else {
-			this.stage = new Stage();
-		}
+		
+		// Create a Fill viewport for the background stage, so the background 
+		// image will always cover all the screen. We provide 'dummy' image 
+		// dimensions in the constructor. These will be replaced by the actual
+		// image dimensions when setBackgroundImage() is called.
+		Camera camera = new OrthographicCamera();
+		Viewport viewport = new FillViewport(640, 480, camera);
+		
+		this.backgroundStage = new Stage(viewport);
+		
+		this.inputMultiplexer = new InputMultiplexer();
 		
 		initialise();
 		addActors();
-	}
-	
-	protected Viewport getScreenViewport() {
-		return null;
 	}
 	
 	protected void initialise() {
@@ -37,25 +44,36 @@ abstract class AbstractScreen implements Screen {
 		// Base class does nothing
 	}
 	
-	protected Stage getStage() {
-		return stage;
+	protected Stage getBackgroundStage() {
+		return backgroundStage;
 	}
 	
 	protected ScreenManager getManager() {
 		return manager;
 	}
 	
-	@Override
-	public final void show() {
-		InputMultiplexer multiplexer = new InputMultiplexer();
-		multiplexer.addProcessor(stage);
-		addInputProcessor(multiplexer);
-		Gdx.input.setInputProcessor(multiplexer);
-		doShow();
+	protected void setBackgroundImage(Image background) {
+		
+		// Add the image to the background stage
+		backgroundStage.addActor(background);
+		
+		// Ensure the viewport is using the correct dimensions for this image
+		float width = background.getWidth();
+		float height = background.getHeight();
+		Viewport viewport = backgroundStage.getViewport();
+		viewport.setWorldWidth(width);
+		viewport.setWorldHeight(height);
 	}
 	
-	protected void addInputProcessor(InputMultiplexer multiplexer) {
-		// Base class does nothing.
+	protected void addInputProcessor(InputProcessor processor) {
+		inputMultiplexer.addProcessor(processor);
+	}
+	
+	@Override
+	public final void show() {
+		inputMultiplexer.addProcessor(backgroundStage);
+		Gdx.input.setInputProcessor(inputMultiplexer);
+		doShow();
 	}
 	
 	protected void doShow() {
@@ -69,12 +87,13 @@ abstract class AbstractScreen implements Screen {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
+		// Draw our stage
+		backgroundStage.getViewport().apply(true);
+		backgroundStage.act(delta);
+		backgroundStage.draw();
+		
 		// Carry out any derived class rendering
 		doRender(delta);
-		
-		// Draw our stage
-		stage.act(delta);
-		stage.draw();
 	}
 	
 	protected void doRender(float delta) {
@@ -83,7 +102,12 @@ abstract class AbstractScreen implements Screen {
 
 	@Override
 	public final void resize(int width, int height) {
-		stage.getViewport().update(width, height, true);
+		backgroundStage.getViewport().update(width, height, true);
+		doResize(width, height);
+	}
+	
+	protected void doResize(int width, int height) {
+		// Base class does nothing
 	}
 
 	@Override
@@ -115,7 +139,7 @@ abstract class AbstractScreen implements Screen {
 	
 	@Override
 	public final void dispose() {
-		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -15,9 +15,13 @@ public interface DataManager {
 	
 	PhysicsConfiguration getPhysicsConfigSandbox();
 	
+	PhysicsConfiguration getPhysicsConfigMainMenu();
+	
 	GameConfiguration getGameConfig(int levelNumber);
 	
 	GameConfiguration getGameConfigSandbox();
+	
+	GameConfiguration getGameConfigMainMenu();
 	
 	SandboxConfiguration getSandboxConfig();
 	

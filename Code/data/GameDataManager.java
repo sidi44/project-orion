@@ -20,6 +20,7 @@ import logic.powerup.PowerUpType;
 import physics.PhysicsConfiguration;
 import render.RendererConfiguration;
 import sound.SoundConfiguration;
+import utils.NumberUtils;
 
 public class GameDataManager implements DataManager {
 
@@ -220,6 +221,15 @@ public class GameDataManager implements DataManager {
 		
 		return config;
 	}
+	
+	@Override
+	public PhysicsConfiguration getPhysicsConfigMainMenu() {
+		
+		// Copy the fixed values from our physics configuration
+		PhysicsConfiguration config = new PhysicsConfiguration(physicsConfig);
+		
+		return config;
+	}
 
 	@Override
 	public GameConfiguration getGameConfig(int levelNumber) {
@@ -365,6 +375,77 @@ public class GameDataManager implements DataManager {
 		// Set the time limit - we use 3 seconds per grid square to give a 
 		// fairly generous value
 		int timeLimit = 3 * numSquares;
+		
+		// Create our game configuration
+		GameConfiguration gameConfig = new GameConfiguration(mazeShape, 
+				hasPills, timeLimit, mazeConfig, agentConfig, powerUpConfig);
+		
+		// We're done
+		return gameConfig;
+	}
+	
+	@Override
+	public GameConfiguration getGameConfigMainMenu() {
+	
+		// We always want a maze of a fixed size
+		int mazeWidth = 5;
+		int mazeHeight = 3;
+		
+		List<PointXY> mazePoints = new ArrayList<PointXY>();
+		mazePoints.add(new PointXY(0, 0));
+		mazePoints.add(new PointXY(0, mazeHeight));
+		mazePoints.add(new PointXY(mazeWidth, mazeHeight));
+		mazePoints.add(new PointXY(mazeWidth, 0));
+		
+		PolygonShape mazeShape = new PolygonShape(mazePoints);
+		
+		// We always want pills for the main menu game
+		boolean hasPills = true;
+		
+		// Create a default maze config, then ask for the parameters to be 
+		// randomised, so we get some varied mazes.
+		MazeConfig mazeConfig = new MazeConfig();
+		mazeConfig.randomiseValues();
+		
+		// Create the agent config. We'll change some of the default values 
+		// to random values to get some varied games.
+		AgentConfig agentConfig = new AgentConfig();
+		
+		// Have a random number of prey appropriate for the size of maze.
+		int numSquares = (mazeWidth + 1) * (mazeHeight + 1);
+		int minNumPrey = (int) Math.ceil(numSquares / 8.0);
+		int maxNumPrey = (int) Math.ceil(numSquares / 4.0);
+		int numPrey = NumberUtils.randomInt(minNumPrey, maxNumPrey);
+		agentConfig.setNumPrey(numPrey);
+		
+		// Pick a random predator speed within some bounds
+		int minPredatorSpeedIndex = 3;
+		int maxPredatorSpeedIndex = 5;
+		int predatorSpeedIndex = 
+				NumberUtils.randomInt(minPredatorSpeedIndex, maxPredatorSpeedIndex);
+		agentConfig.setPredBaseSpeedIndex(predatorSpeedIndex);
+		
+		// Pick a random prey speed within some bounds
+		int minPreySpeedIndex = 2;
+		int maxPreySpeedIndex = 4;
+		int preySpeedIndex = 
+				NumberUtils.randomInt(minPreySpeedIndex, maxPreySpeedIndex);
+		agentConfig.setPreyBaseSpeedIndex(preySpeedIndex);
+		
+		// We don't want any power ups in the main menu game
+		int maxPredatorPowerUps = 0;
+		agentConfig.setMaxPredPowerUp(maxPredatorPowerUps);
+		
+		// We want the predator to be AI controlled
+		agentConfig.setNumPredPlayer(0);
+		
+		// Use the default power up config (this has no power ups)
+		PowerUpConfig powerUpConfig = new PowerUpConfig();
+		
+		// Set the time limit based on the maze size. We might want a game to 
+		// time out if the agents get stuck doing nothing.
+		int factor = 1;
+		int timeLimit = factor * numSquares;
 		
 		// Create our game configuration
 		GameConfiguration gameConfig = new GameConfiguration(mazeShape, 
