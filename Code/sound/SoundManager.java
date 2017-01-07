@@ -1,7 +1,6 @@
 package sound;
 
-import game.GameStatus;
-import game.GameType;
+import game.PredatorPreyGame;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,13 +30,13 @@ public class SoundManager implements Receiver {
 	private EventSoundProcessor eventSoundProcessor;
 	private EventMusicProcessor eventMusicProcessor;
 	
-	private GameStatus gameStatus;
+	private PredatorPreyGame game;
 	
-	public SoundManager(SoundConfiguration config, GameStatus status) {
-		eventSoundProcessor = new EventSoundProcessor();
-		eventMusicProcessor = new EventMusicProcessor(status);
+	public SoundManager(SoundConfiguration config, PredatorPreyGame game) {
+		eventSoundProcessor = new EventSoundProcessor(game);
+		eventMusicProcessor = new EventMusicProcessor(game);
 		
-		this.gameStatus = status;
+		this.game = game;
 		
 		loadSounds();
 		loadMusic();
@@ -56,7 +55,7 @@ public class SoundManager implements Receiver {
 		
 		if (oldMusicOn != musicOn) {
 			if (musicOn) {
-				playMusic(SoundUtils.musicFromStatus(gameStatus));
+				playMusic(SoundUtils.musicFromGameType(game.getGameType()));
 			} else {
 				stopMusicPlaying();
 			}
@@ -114,28 +113,8 @@ public class SoundManager implements Receiver {
 	}
 	
 	private SoundType convertToSoundType(PhysicsEvent event) {
-		
-		SoundType soundType = SoundType.None;
-		
-		// Pick the right sound based on the game type. If the game is actually
-		// being played, process the physics event to work out the sound. If
-		// the game isn't being played, use no sound.
-		GameType gameType = gameStatus.getGameType();
-		switch (gameType) {
-			case Levels:
-			case Sandbox:
-				event.accept(eventSoundProcessor);
-				soundType = eventSoundProcessor.getSoundType();
-				break;
-			case MainMenu:
-			case NotPlaying:
-				soundType = SoundType.None;
-				break;
-			default:
-				System.err.println("Unknown game type");
-				break;		
-		}
-
+		event.accept(eventSoundProcessor);
+		SoundType soundType = eventSoundProcessor.getSoundType();
 		return soundType;
 	}
 	
@@ -147,7 +126,6 @@ public class SoundManager implements Receiver {
 	private MusicType convertToMusicType(UIEvent event) {
 		event.accept(eventMusicProcessor);
 		MusicType type = eventMusicProcessor.getMusicType();
-		
 		return type;
 	}
 	

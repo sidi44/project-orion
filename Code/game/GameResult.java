@@ -1,23 +1,23 @@
 package game;
 
-import logic.GameOver;
+import logic.GameOverReason;
 
 public class GameResult {
 
-	private GameOver result;
+	private GameOverReason result;
 	private int numSimSteps;
 	private int numPillsRemaining;
 	private int numSquares;
 	
 	public GameResult() {
-		this.result = GameOver.No;
+		this.result = GameOverReason.NotFinished;
 		this.numSimSteps = 0;
 		this.numPillsRemaining = 0;
 		this.numSquares = 0;
 	}
 	
-	public GameResult(GameOver result, int numSimSteps, int numPillsRemaining, 
-			int numSquares) {
+	public GameResult(GameOverReason result, int numSimSteps, 
+				      int numPillsRemaining, int numSquares) {
 		this.result = result;
 		this.numSimSteps = numSimSteps;
 		this.numPillsRemaining = numPillsRemaining;
@@ -27,14 +27,14 @@ public class GameResult {
 	/**
 	 * @return the gameResult
 	 */
-	public GameOver getGameResult() {
+	public GameOverReason getGameResult() {
 		return result;
 	}
 
 	/**
 	 * @param gameResult the gameResult to set
 	 */
-	public void setGameResult(GameOver gameResult) {
+	public void setGameResult(GameOverReason gameResult) {
 		this.result = gameResult;
 	}
 

@@ -9,7 +9,7 @@ import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.Vector2;
 
 import logic.Direction;
-import logic.GameOver;
+import logic.GameOverReason;
 import logic.Move;
 
 public class UserInputProcessor implements InputProcessor, GestureListener {
@@ -27,14 +27,14 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 	private final float camZoomSize = 0.2f;
 	public final LinkedList<Direction> pressedCamKeys;
 
-	private GameOver forceGameOver;
+	private GameOverReason forceGameOver;
 	
 	public UserInputProcessor() {
 		move = new Move();
 		pressedMove = Direction.None;
 		pressedCamKeys = new LinkedList<Direction>();
 		pressedEnter = false;
-		forceGameOver = GameOver.No;
+		forceGameOver = GameOverReason.NotFinished;
 	}
 
 	public Move getNextMove() {
@@ -124,11 +124,11 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 
 		    // Debug purposes only - lose / win game
 			case Input.Keys.V:
-			    forceGameOver = GameOver.Prey;
+			    forceGameOver = GameOverReason.PredatorWon;
 			    break;
 
 			case Input.Keys.L:
-			    forceGameOver = GameOver.Time;
+			    forceGameOver = GameOverReason.PreyWon_Timeout;
 			    break;
 
 			default:
@@ -213,7 +213,7 @@ public class UserInputProcessor implements InputProcessor, GestureListener {
 		pressedMove = Direction.None;
 		pressedCamKeys.clear();
 		pressedEnter = false;
-		forceGameOver = GameOver.No;
+		forceGameOver = GameOverReason.NotFinished;
 	}
 
 	@Override

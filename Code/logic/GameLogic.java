@@ -201,25 +201,6 @@ public class GameLogic {
 	}
 	
 	/**
-	 * Checks to see whether game is over, and in what way.
-	 * 
-	 * @return go (GameOver)
-	 */
-	public GameOver isGameOver() {
-		GameOver go = GameOver.No;
-		
-		if (gs.getTimeRemaining() <= 0) {
-			go = GameOver.Time; // Predators lose
-		} else if (gs.getPills().size() <= 0) {
-			go = GameOver.Pills; // Predators lose
-		} else if (gs.getPrey().size() <= 0) {
-			go = GameOver.Prey; // Predators win
-		}
-		
-		return go;
-	}
-	
-	/**
 	 * Get all predators and prey who are players.
 	 * 
 	 * @return players (boolean)
