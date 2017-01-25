@@ -3,7 +3,16 @@ package game;
 import java.util.List;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.SkinLoader.SkinParameter;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.ObjectMap;
 
 import ai.AILogic;
 import data.DataManager;
@@ -47,6 +56,7 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	
 	private ScreenManager screenManager;
 	private DataManager dataManager;
+	private AssetManager assetManager;
 	
 	private GameType gameType;
 	private int currentLevel;
@@ -58,6 +68,9 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	@Override
 	public void create() {
 		
+	    assetManager = new AssetManager();
+        prepareAssetsForLoading();
+	    
 		gameType = GameType.NotPlaying;
 		currentLevel = -1;
 		
@@ -89,6 +102,19 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		logger = new ResultLogger();
 	}
 
+	
+	@Override
+	public void render() {
+        if (assetManager.update()) {
+            // Assets have been loaded
+            super.render();
+        } 
+        else {
+            // Assets are still being loaded
+        }
+	}
+	
+	
 	public void setAI(AILogic ai) {
 		gameLogic.setAILogic(ai);
 	}
@@ -111,6 +137,10 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	
 	public DataManager getDataManager() {
 		return dataManager;
+	}
+	
+	public AssetManager getAssetManager() {
+	    return assetManager;
 	}
 	
 	public ResultLogger getLogger() {
@@ -304,4 +334,36 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	    return gameOverReason;
 	}
 
+	
+	private void prepareAssetsForLoading() {
+	    
+	    // TODO this should be read from a config file
+	    String fontFilePath = "data/fonts/droid-serif-bold.ttf";
+	    String skinAtlasFilePath = "data/ui/uiskin.atlas";
+	    String skinJsonFilePath = "data/ui/uiskin.json";
+	    String fileName = "droid-seriff-bold-font";
+	    
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(fontFilePath));
+        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+        parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS;
+        parameter.size = Math.min(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()) / 25;
+        
+        // TODO should also be read from a config file
+        parameter.borderWidth = 2;
+        parameter.color = Color.CHARTREUSE;
+        
+        
+        BitmapFont droidSerifBoldFont = generator.generateFont(parameter);
+        
+        /* Create the ObjectMap and add the fonts to it */
+        ObjectMap<String, Object> fontMap = new ObjectMap<String, Object>();
+        fontMap.put(fileName, droidSerifBoldFont);
+
+        /* Create the SkinParameter and supply the ObjectMap to it */
+        SkinParameter skinParameter = new SkinParameter(skinAtlasFilePath, fontMap);
+
+        /* Load the skin as usual */
+        assetManager.load(skinJsonFilePath, Skin.class, skinParameter);
+        assetManager.finishLoading();
+	}
 }

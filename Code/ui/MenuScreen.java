@@ -2,10 +2,8 @@ package ui;
 
 import java.util.List;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -37,12 +35,12 @@ abstract class MenuScreen extends AbstractScreen {
 	
 	@Override
 	protected void initialise() {
-		TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("data/ui/uiskin.atlas"));
-		skin = new Skin(Gdx.files.internal("data/ui/uiskin.json"), atlas);
-		
+	    
 		Camera camera = new OrthographicCamera();
 		Viewport viewport = new ScreenViewport(camera);
 		uiStage = new Stage(viewport);
+		
+        skin = getManager().getGame().getAssetManager().get("data/ui/uiskin.json", Skin.class);
 		
 		super.initialise();
 	}
