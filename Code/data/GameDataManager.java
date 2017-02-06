@@ -20,6 +20,7 @@ import logic.powerup.PowerUpType;
 import physics.PhysicsConfiguration;
 import render.RendererConfiguration;
 import sound.SoundConfiguration;
+import ui.FontConfiguration;
 import utils.NumberUtils;
 
 public class GameDataManager implements DataManager {
@@ -31,6 +32,7 @@ public class GameDataManager implements DataManager {
 	private SandboxConfiguration defaultSandboxConfig;
 	private RendererConfiguration rendererConfig;
 	private PhysicsConfiguration physicsConfig;
+	private FontConfiguration fontConfig;
 	
 	// Variables used for reading / writing data from / to storage
 	private Json json;
@@ -67,6 +69,7 @@ public class GameDataManager implements DataManager {
 		readPhysicsConfig();
 		readRendererConfig();
 		readLevelsConfig();
+		readFontConfig();
 		readGameData();
 	}
 	
@@ -148,6 +151,24 @@ public class GameDataManager implements DataManager {
 		
 		// Parse the json in the file into the levels data configuration
 		levelsData = getJson().fromJson(LevelsData.class, handle);
+	}
+	
+	
+	private void readFontConfig() {
+	    
+	       // Get a handle to the font config data file
+        FileHandle handle = Gdx.files.internal("data/config/font_config.json");
+        
+        // Check whether there's a problem reading the file...
+        if (!handle.exists()) {
+            System.err.println("Couldn't read font configuration file.");
+            fontConfig = new FontConfiguration();
+            return;
+        }
+        
+        // Parse the json in the file into the levels data configuration
+        fontConfig = getJson().fromJson(FontConfiguration.class, handle);
+	    
 	}
 	
 	private void readGameData() {
@@ -509,23 +530,24 @@ public class GameDataManager implements DataManager {
 		prefs.flush();
 	}
 
+	
+	@Override
+    public FontConfiguration getFontConfig() {
+	    return fontConfig;
+	}
+	
+	
 	@Override
 	public SoundConfiguration getSoundConfiguration() {
 		
 		SoundConfiguration soundConfig = new SoundConfiguration();
 		
 		Preferences prefs = getSoundPrefs();
-		boolean playSounds = 
-				prefs.getBoolean(PREF_SOUND_PLAY_SOUNDS, defaultSoundConfig.playSounds());
-		boolean playMusic = 
-				prefs.getBoolean(PREF_SOUND_PLAY_MUSIC, defaultSoundConfig.playMusic());
 		int soundLevel = 
 				prefs.getInteger(PREF_SOUND_SOUND_LEVEL, defaultSoundConfig.getSoundLevel());
 		int musicLevel = 
 				prefs.getInteger(PREF_SOUND_MUSIC_LEVEL, defaultSoundConfig.getMusicLevel());
 		
-		soundConfig.setPlaySounds(playSounds);
-		soundConfig.setPlayMusic(playMusic);
 		soundConfig.setSoundLevel(soundLevel);
 		soundConfig.setMusicLevel(musicLevel);
 		

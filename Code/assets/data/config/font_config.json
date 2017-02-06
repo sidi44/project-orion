@@ -1,0 +1,6 @@
+{
+	fontName: droid-seriff-bold-font
+    fontFilePath: data/fonts/droid-serif-bold.ttf
+    fontColour: 7fff00ff
+    fontBorderWidth: 2
+}

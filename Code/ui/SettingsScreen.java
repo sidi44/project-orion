@@ -1,24 +1,22 @@
 package ui;
 
-import sound.SoundConfiguration;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Cell;
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 
 import data.DataManager;
-import functional.Consumer;
-import functional.IntConsumer;
 import game.PredatorPreyGame;
+import sound.SoundConfiguration;
 
 class SettingsScreen extends MenuScreen {
 	
@@ -26,8 +24,8 @@ class SettingsScreen extends MenuScreen {
 	
 	private ScreenName previousScreen;
 	
-	private final float SLIDER_PADDING = 5f;
-	private final float TABLE_PADDING = 20f;
+	private static final float SLIDER_PADDING = 5f;
+	private static final float TABLE_PADDING = 20f;
 	
 	public SettingsScreen(ScreenManager manager) {
 		super(manager);
@@ -57,88 +55,139 @@ class SettingsScreen extends MenuScreen {
 		Image background = new Image(new Texture(file));
 		setBackgroundImage(background);
 
-		boolean soundOn = soundConfig.playSounds();
-		Consumer<Boolean> soundOnFunc = new Consumer<Boolean>() {
-			@Override
-			public void accept(Boolean value) {
-				soundConfig.setPlaySounds(value);
-				saveData();
-			}
-		};
-		CheckBox soundCheck = createCheckBox("Sound", soundOn, soundOnFunc);
+		Table soundButtonWithSlider = createSoundButtonWithSlider();
+		Table musicButtonWithSlider = createMusicButtonWithSlider();
 		
-		boolean musicOn = soundConfig.playMusic();
-		Consumer<Boolean> musicOnFunc = new Consumer<Boolean>() {
-			@Override
-			public void accept(Boolean value) {
-				soundConfig.setPlayMusic(value);
-				saveData();
-			}
-		};
-		CheckBox musicCheck = createCheckBox("Music", musicOn, musicOnFunc);
+		// Layout the widgets in a table
+        Table table = new Table();
+        table.add(soundButtonWithSlider);
+        table.row();
+        table.add(musicButtonWithSlider);
 
-		// Create the sound volume slider
-        final IntConsumer soundFunc = new IntConsumer() {
+        table.setFillParent(true);
+        table.setDebug(true);
+        getUIStage().addActor(table);
+		
+		
+		// Create a separate table for the back button. This allows us to anchor 
+		// it to the corner of the screen without affecting the other buttons.
+		Table backButtonTable = new Table();
+		backButtonTable.align(Align.bottomLeft);
+		backButtonTable.pad(TABLE_PADDING).add(createBackButton()).bottom().left();
+		
+		backButtonTable.setFillParent(true);
+		backButtonTable.setDebug(true);
+		
+		getUIStage().addActor(backButtonTable);
+	}
+	
+	
+	private ImageButton createBackButton() {
+        ImageButton backButton = new ImageButton(getSkin(), "back_button");
+        backButton.addListener(new ClickListener() {
             @Override
-            public void accept(int value) {
+            public void clicked(InputEvent event, float x, float y) {
+                getManager().changeScreen(previousScreen);
+            }
+        });
+        
+        return backButton;
+	}
+	
+	
+	private Table createSoundButtonWithSlider() {
+	   
+	    // Button - if checked, means sound is disabled
+        final int soundLevel = soundConfig.getSoundLevel();
+
+        final ImageButton soundButton = new ImageButton(getSkin(), "sound_button");
+        soundButton.setChecked(soundLevel == 0);
+        
+        // Slider
+        final Slider soundSlider = new Slider(0, 10, 1, false, getSkin());
+        soundSlider.setValue(soundLevel);
+        
+        // Click listener will change the value of the slider resulting in the 
+        // below change listener being called that will save the data
+        soundButton.addListener(new ClickListener() {
+
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                boolean soundEnabled = !soundButton.isChecked();
+                soundConfig.setSoundLevel(soundEnabled ? 5 : 0); // Default the level to 5/10 when enabled via click
+                soundSlider.setValue(soundConfig.getSoundLevel());
+            }
+        });
+        
+        soundSlider.addCaptureListener(new ChangeListener() {
+            
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                int value = (int) soundSlider.getValue();
+                soundButton.setChecked(value == 0);
                 soundConfig.setSoundLevel(value);
                 saveData();
             }
-        };
+        });
         
-        int soundLevel = soundConfig.getSoundLevel();
-        Slider soundSlider = createIntSlider(0, 11, 1, soundLevel, soundFunc);
-        SliderPanel soundSliderPanel = createIntSliderPanel(soundSlider, 
-        													"Sound",
-        													SLIDER_PADDING);
+        // Add button and slider to the table
+        Table table = new Table();
+        
+        table.add(soundButton).pad(TABLE_PADDING);
+        table.add(soundSlider).pad(TABLE_PADDING);
+        
+        table.setDebug(true);
+        
+        return table;
+	}
+	
+	
+	private Table createMusicButtonWithSlider() {
+        
+        // Button - if checked, means sound is disabled
+        final int musicLevel = soundConfig.getMusicLevel();
 
-		// Create the music volume slider
-        final IntConsumer musicFunc = new IntConsumer() {
+        final ImageButton musicButton = new ImageButton(getSkin(), "music_button");
+        musicButton.setChecked(musicLevel == 0);
+
+        // Slider
+        final Slider musicSlider = new Slider(0, 10, 1, false, getSkin());
+        musicSlider.setValue(musicLevel);
+
+        // Click listener will change the value of the slider resulting in the 
+        // below change listener being called that will save the data
+        musicButton.addListener(new ClickListener() {
+
             @Override
-            public void accept(int value) {
+            public void clicked(InputEvent event, float x, float y) {
+                boolean musicEnabled = !musicButton.isChecked();
+                soundConfig.setMusicLevel(musicEnabled ? 5 : 0); // Default the level to 5/10 when enabled via click
+                musicSlider.setValue(soundConfig.getMusicLevel());
+            }
+        });
+
+        musicSlider.addCaptureListener(new ChangeListener() {
+
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                int value = (int) musicSlider.getValue();
+                musicButton.setChecked(value == 0);
                 soundConfig.setMusicLevel(value);
                 saveData();
             }
-        };
+        });
 
-        int musicLevel = soundConfig.getMusicLevel();
-        Slider musicSlider = createIntSlider(0, 11, 1, musicLevel, musicFunc);
-        SliderPanel musicSliderPanel = createIntSliderPanel(musicSlider, 
-        													"Music",
-        													SLIDER_PADDING);
+        // Add button and slider to the table
+        Table table = new Table();
 
-        // Add the back button
-		Button backButton = new TextButton("Back", getSkin());
-		backButton.addListener(new ClickListener() {
-			@Override
-			public void clicked(InputEvent event, float x, float y) {
-				getManager().changeScreen(previousScreen);
-			}
-		});
-		
-		// Layout the widgets in a table
-		Table table = new Table();
-		
-		Cell<CheckBox> soundCheckCell = table.add(soundCheck);
-		soundCheckCell.pad(TABLE_PADDING);
-		Cell<SliderPanel> soundSliderCell = table.add(soundSliderPanel);
-		soundSliderCell.pad(TABLE_PADDING);
-		table.row();
-		
-		Cell<CheckBox> musicCheckCell = table.add(musicCheck);
-		musicCheckCell.pad(TABLE_PADDING);
-		Cell<SliderPanel> musicSliderCell = table.add(musicSliderPanel);
-		musicSliderCell.pad(TABLE_PADDING);
-		table.row();
+        table.add(musicButton).pad(TABLE_PADDING);
+        table.add(musicSlider).pad(TABLE_PADDING);
+        
+        table.setDebug(true);
 
-		Cell<Button> menuCell = table.add(backButton);
-		menuCell.pad(TABLE_PADDING);
-		menuCell.colspan(2);
-		
-		table.setFillParent(true);
-		table.setDebug(true);
-		getUIStage().addActor(table);
+        return table;
 	}
+		
 	
 	private void saveData() {
 		ScreenManager manager = getManager();
@@ -147,5 +196,4 @@ class SettingsScreen extends MenuScreen {
 		dataManager.saveSoundData(soundConfig);
 		game.updateSoundManager();
 	}
-	
 }

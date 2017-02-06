@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -87,26 +86,27 @@ abstract class MenuScreen extends AbstractScreen {
 		return button;
 	}
 
-	protected CheckBox createCheckBox(String text, boolean initialState, 
-			final Consumer<Boolean> func) {
+	protected ImageButton createImageButton(String skinName, 
+	                                  boolean initialState, 
+	                                  final Consumer<Boolean> func) {
 		
 		// Create the checkbox
-		final CheckBox checkbox = new CheckBox(text, getSkin());
+		final ImageButton button = new ImageButton(getSkin(), skinName);
 		
 		// Set the initial state
-		checkbox.setChecked(initialState);
+		button.setChecked(initialState);
 		
 		// Add a listener which calls the provided function when the checkbox's
 		// state is changed
-		checkbox.addListener(new ClickListener() {
+		button.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				boolean value = checkbox.isChecked();
+				boolean value = button.isChecked();
 				func.accept(value);
 			}
 		});
 		
-		return checkbox;
+		return button;
 	}
 	
 	protected Slider createIntSlider(int min, int max, int step, 

@@ -159,6 +159,19 @@ com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
 		imageUp: exit_button_up
 		imageDown: exit_button_down
 	}
+	music_button: {
+		up: music_button_on
+		checked: music_button_off
+	}
+	sound_button: {
+		imageUp: sound_button_on
+		imageDown: sound_button_down
+		imageChecked: sound_button_off
+	}
+	back_button: {
+		imageUp: back_button_up
+		imageDown: back_button_down
+	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
 	default: {
