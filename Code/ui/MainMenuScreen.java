@@ -12,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
 import game.PredatorPreyGame;
-import logic.GameOver;
 import logic.Move;
 
 class MainMenuScreen extends MenuScreen {
@@ -117,11 +116,8 @@ class MainMenuScreen extends MenuScreen {
 		Camera gameCamera = viewport.getCamera();
 		game.getRenderer().render(game.getWorld(), gameCamera.combined);
 
-		// Check whether the game is finished and if so, inform the game
-		GameOver reason = game.update(delta, new Move());
-		if (reason != GameOver.No) {
-			game.gameOver(reason);
-		}
+		// Update the game
+		game.update(delta, new Move());
 		
 		// Let the base class to do any rendering
 		super.doRender(delta);

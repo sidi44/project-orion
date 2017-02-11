@@ -1,17 +1,17 @@
 package sound;
 
-import game.GameStatus;
+import game.PredatorPreyGame;
 import ui.UIEventScreenChange;
 import ui.UIEventVisitor;
 
 class EventMusicProcessor implements UIEventVisitor {
 
 	private MusicType type;
-	private GameStatus gameStatus;
+	private PredatorPreyGame game;
 	
-	public EventMusicProcessor(GameStatus status) {
+	public EventMusicProcessor(PredatorPreyGame game) {
 		type = MusicType.None;
-		this.gameStatus = status;
+		this.game = game;
 	}
 	
 	public MusicType getMusicType() {
@@ -20,7 +20,7 @@ class EventMusicProcessor implements UIEventVisitor {
 	
 	@Override
 	public void visit(UIEventScreenChange event) {
-		type = SoundUtils.musicFromStatus(gameStatus);
+		type = SoundUtils.musicFromGameType(game.getGameType());
 	}
 
 }
