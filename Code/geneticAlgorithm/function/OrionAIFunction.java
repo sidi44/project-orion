@@ -3,7 +3,7 @@ package geneticAlgorithm.function;
 import java.util.ArrayList;
 import java.util.List;
 
-import logic.GameOver;
+import logic.GameOverReason;
 import ai.OrionAI;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
@@ -13,6 +13,7 @@ import game.GameResult;
 import game.PredatorPreyGame;
 import game.ResultLogger;
 import geneticAlgorithm.core.Individual;
+import logic.GameOverReason;
 
 public class OrionAIFunction implements Function<OrionAI> {
 
@@ -31,10 +32,10 @@ public class OrionAIFunction implements Function<OrionAI> {
 		
 		lwjgl = new LwjglApplication(ppg, config);
 		
-		String mainMenu = "MAIN_MENU";
-		while ((ppg.getScreen() != null) && (ppg.getScreenByName(mainMenu) != ppg.getScreen())) {
-			wait(1000);
-		}
+//		String mainMenu = "MAIN_MENU";
+//		while ((ppg.getScreen() != null) && (ppg.getScreenByName(mainMenu) != ppg.getScreen())) {
+//			wait(1000);
+//		}
 		wait(5000);
 	}
 	
@@ -51,19 +52,19 @@ public class OrionAIFunction implements Function<OrionAI> {
 			// so it'll be the default values if we don't set the AI here.
 			ppg.setAI(ind.getRepresentation());
 			
-			ppg.startGame();
+			//ppg.startGame();
 
 			String gameScreen = "GAME";
-			while (ppg.getScreenByName(gameScreen) != ppg.getScreen()) {
-				wait(1000);
-			}
+//			while (ppg.getScreenByName(gameScreen) != ppg.getScreen()) {
+//				wait(1000);
+//			}
 			
 			System.out.println("Starting new game... ");
 			
 			String mainMenu = "MAIN_MENU";
-			while (ppg.getScreenByName(mainMenu) != ppg.getScreen()) {
-				wait(1000);
-			}
+//			while (ppg.getScreenByName(mainMenu) != ppg.getScreen()) {
+//				wait(1000);
+//			}
 		}
 		
 		ResultLogger logger = ppg.getLogger();
@@ -85,7 +86,7 @@ public class OrionAIFunction implements Function<OrionAI> {
 						(gr.getNumSquares() - gr.getNumPillsRemaining()), 2); 
 				double numSimSteps = gr.getNumSimSteps();
 				double resultWinBonus = 0;
-				if (gr.getGameResult() == GameOver.Pills && numSimSteps < 5000) {
+				if (gr.getGameResult() == GameOverReason.PreyWon_Pills && numSimSteps < 5000) {
 					resultWinBonus = 5000 - numSimSteps;
 				}
 				double result = resultPills + resultWinBonus;
