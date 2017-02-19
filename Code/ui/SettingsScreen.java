@@ -24,7 +24,6 @@ class SettingsScreen extends MenuScreen {
 	
 	private ScreenName previousScreen;
 	
-	private static final float SLIDER_PADDING = 5f;
 	private static final float TABLE_PADDING = 20f;
 	
 	public SettingsScreen(ScreenManager manager) {
@@ -97,25 +96,19 @@ class SettingsScreen extends MenuScreen {
 	
 	private Table createSoundButtonWithSlider() {
 	   
-	    // Button - if checked, means sound is disabled
-        final int soundLevel = soundConfig.getSoundLevel();
-
         final ImageButton soundButton = new ImageButton(getSkin(), "sound_button");
-        soundButton.setChecked(soundLevel == 0);
+        soundButton.setChecked(!soundConfig.isSoundOn());
         
         // Slider
-        final Slider soundSlider = new Slider(0, 10, 1, false, getSkin());
-        soundSlider.setValue(soundLevel);
+        final Slider soundSlider = new Slider(0, 11, 1, false, getSkin());
+        soundSlider.setValue(soundConfig.getSoundLevel());
         
-        // Click listener will change the value of the slider resulting in the 
-        // below change listener being called that will save the data
         soundButton.addListener(new ClickListener() {
 
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                boolean soundEnabled = !soundButton.isChecked();
-                soundConfig.setSoundLevel(soundEnabled ? 5 : 0); // Default the level to 5/10 when enabled via click
-                soundSlider.setValue(soundConfig.getSoundLevel());
+                soundConfig.setSoundOn(!soundButton.isChecked());
+                saveSoundData();
             }
         });
         
@@ -123,10 +116,8 @@ class SettingsScreen extends MenuScreen {
             
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                int value = (int) soundSlider.getValue();
-                soundButton.setChecked(value == 0);
-                soundConfig.setSoundLevel(value);
-                saveData();
+                soundConfig.setSoundLevel((int) soundSlider.getValue());
+                saveSoundData();
             }
         });
         
@@ -144,15 +135,12 @@ class SettingsScreen extends MenuScreen {
 	
 	private Table createMusicButtonWithSlider() {
         
-        // Button - if checked, means sound is disabled
-        final int musicLevel = soundConfig.getMusicLevel();
-
         final ImageButton musicButton = new ImageButton(getSkin(), "music_button");
-        musicButton.setChecked(musicLevel == 0);
+        musicButton.setChecked(!soundConfig.isMusicOn());
 
         // Slider
-        final Slider musicSlider = new Slider(0, 10, 1, false, getSkin());
-        musicSlider.setValue(musicLevel);
+        final Slider musicSlider = new Slider(0, 11, 1, false, getSkin());
+        musicSlider.setValue(soundConfig.getMusicLevel());
 
         // Click listener will change the value of the slider resulting in the 
         // below change listener being called that will save the data
@@ -160,9 +148,8 @@ class SettingsScreen extends MenuScreen {
 
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                boolean musicEnabled = !musicButton.isChecked();
-                soundConfig.setMusicLevel(musicEnabled ? 5 : 0); // Default the level to 5/10 when enabled via click
-                musicSlider.setValue(soundConfig.getMusicLevel());
+                soundConfig.setMusicOn(!musicButton.isChecked());
+                saveSoundData();
             }
         });
 
@@ -170,10 +157,8 @@ class SettingsScreen extends MenuScreen {
 
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                int value = (int) musicSlider.getValue();
-                musicButton.setChecked(value == 0);
-                soundConfig.setMusicLevel(value);
-                saveData();
+                soundConfig.setMusicLevel((int) musicSlider.getValue());
+                saveSoundData();
             }
         });
 
@@ -189,7 +174,7 @@ class SettingsScreen extends MenuScreen {
 	}
 		
 	
-	private void saveData() {
+	private void saveSoundData() {
 		ScreenManager manager = getManager();
 		PredatorPreyGame game = manager.getGame();
 		DataManager dataManager = game.getDataManager();

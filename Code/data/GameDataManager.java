@@ -155,21 +155,22 @@ public class GameDataManager implements DataManager {
 	
 	
 	private void readFontConfig() {
-	    
-	       // Get a handle to the font config data file
-        FileHandle handle = Gdx.files.internal("data/config/font_config.json");
         
-        // Check whether there's a problem reading the file...
-        if (!handle.exists()) {
-            System.err.println("Couldn't read font configuration file.");
-            fontConfig = new FontConfiguration();
-            return;
-        }
-        
-        // Parse the json in the file into the levels data configuration
-        fontConfig = getJson().fromJson(FontConfiguration.class, handle);
-	    
-	}
+        // Get a handle to the font config data file
+     FileHandle handle = Gdx.files.internal("data/config/font_config.json");
+     
+     // Check whether there's a problem reading the file...
+     if (!handle.exists()) {
+         System.err.println("Couldn't read font configuration file.");
+         fontConfig = new FontConfiguration();
+         return;
+     }
+     
+     // Parse the json in the file into the levels data configuration
+     fontConfig = getJson().fromJson(FontConfiguration.class, handle);
+     
+ }
+	
 	
 	private void readGameData() {
 		
@@ -219,6 +220,13 @@ public class GameDataManager implements DataManager {
 		return rendererConfig;
 	}
 
+	
+    @Override
+    public FontConfiguration getFontConfig() {
+        return fontConfig;
+    }
+	
+	
 	@Override
 	public PhysicsConfiguration getPhysicsConfig(int levelNumber) {
 		
@@ -530,24 +538,23 @@ public class GameDataManager implements DataManager {
 		prefs.flush();
 	}
 
-	
-	@Override
-    public FontConfiguration getFontConfig() {
-	    return fontConfig;
-	}
-	
-	
 	@Override
 	public SoundConfiguration getSoundConfiguration() {
 		
 		SoundConfiguration soundConfig = new SoundConfiguration();
 		
 		Preferences prefs = getSoundPrefs();
+		boolean soundOn = 
+				prefs.getBoolean(PREF_SOUND_PLAY_SOUNDS, defaultSoundConfig.isSoundOn());
+		boolean musicOn = 
+				prefs.getBoolean(PREF_SOUND_PLAY_MUSIC, defaultSoundConfig.isMusicOn());
 		int soundLevel = 
 				prefs.getInteger(PREF_SOUND_SOUND_LEVEL, defaultSoundConfig.getSoundLevel());
 		int musicLevel = 
 				prefs.getInteger(PREF_SOUND_MUSIC_LEVEL, defaultSoundConfig.getMusicLevel());
 		
+		soundConfig.setSoundOn(soundOn);
+		soundConfig.setMusicOn(musicOn);
 		soundConfig.setSoundLevel(soundLevel);
 		soundConfig.setMusicLevel(musicLevel);
 		
@@ -558,8 +565,8 @@ public class GameDataManager implements DataManager {
 	public void saveSoundData(SoundConfiguration soundData) {
 		// We use Preferences to store the sound data
 		Preferences prefs = getSoundPrefs();
-		prefs.putBoolean(PREF_SOUND_PLAY_SOUNDS, soundData.playSounds());
-		prefs.putBoolean(PREF_SOUND_PLAY_MUSIC, soundData.playMusic());
+		prefs.putBoolean(PREF_SOUND_PLAY_SOUNDS, soundData.isSoundOn());
+		prefs.putBoolean(PREF_SOUND_PLAY_MUSIC, soundData.isMusicOn());
 		prefs.putInteger(PREF_SOUND_SOUND_LEVEL, soundData.getSoundLevel());
 		prefs.putInteger(PREF_SOUND_MUSIC_LEVEL, soundData.getMusicLevel());
 		prefs.flush();
@@ -599,5 +606,4 @@ public class GameDataManager implements DataManager {
 		// Return the star scores for this level
 		return level.getStarScores();
 	}
-
 }

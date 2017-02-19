@@ -2,45 +2,58 @@ package sound;
 
 public class SoundConfiguration {
 
-	private int soundLevel;
-	private int musicLevel;
-	
-	public SoundConfiguration() {
-		soundLevel = 5;
-		musicLevel = 5;
-	}
+    private boolean soundOn;
+    private boolean musicOn;
+    private int soundLevel;
+    private int musicLevel;
+    
+    public SoundConfiguration() {
+        soundOn = true;
+        musicOn = true;
+        soundLevel = 5;
+        musicLevel = 5;
+    }
 
-	public boolean playSounds() {
-		return soundLevel > 0;
-	}
+    public boolean isSoundOn() {
+        return soundOn;
+    }
 
-	public boolean playMusic() {
-		return musicLevel > 0;
-	}
+    public void setSoundOn(boolean playSounds) {
+        this.soundOn = playSounds;
+    }
 
-	public int getSoundLevel() {
-		return soundLevel;
-	}
+    public boolean isMusicOn() {
+        return musicOn;
+    }
 
-	public void setSoundLevel(int soundLevel) {
-		if (soundLevel < 0 || soundLevel > 10) {
-			System.err.println("Sound level out of range. "
-					+ "Sound level will not be set.");
-			return;
-		}		
-		this.soundLevel = soundLevel;
-	}
+    public void setMusicOn(boolean playMusic) {
+        this.musicOn = playMusic;
+    }
 
-	public int getMusicLevel() {
-		return musicLevel;
-	}
+    public int getSoundLevel() {
+        return soundLevel;
+    }
 
-	public void setMusicLevel(int musicLevel) {
-		if (soundLevel < 0 || soundLevel > 10) {
-			System.err.println("Sound level out of range. "
-					+ "Sound level will not be set.");
-			return;
-		}
-		this.musicLevel = musicLevel;
-	}
+    public void setSoundLevel(int soundLevel) {
+        if (soundLevel < 0 || soundLevel > 11) {
+            System.err.println("Sound level out of range. "
+                    + "Sound level will not be set.");
+            return;
+        }       
+        this.soundLevel = soundLevel;
+    }
+
+    public int getMusicLevel() {
+        return musicLevel;
+    }
+
+    public void setMusicLevel(int musicLevel) {
+        if (soundLevel < 0 || soundLevel > 11) {
+            System.err.println("Sound level out of range. "
+                    + "Sound level will not be set.");
+            return;
+        }
+        this.musicLevel = musicLevel;
+    }
+    
 }
