@@ -103,19 +103,7 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		logger = new ResultLogger();
 	}
 
-	
-	@Override
-	public void render() {
-        if (assetManager.update()) {
-            // Assets have been loaded
-            super.render();
-        } 
-        else {
-            // Assets are still being loaded
-        }
-	}
-	
-	
+		
 	public void setAI(AILogic ai) {
 		gameLogic.setAILogic(ai);
 	}
@@ -338,11 +326,10 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	
 	private void prepareAssetsForLoading() {
 	    
-	    // TODO this should be read from a config file
 	    FontConfiguration fontConfig = getDataManager().getFontConfig();
 
-	    String fontFilePath = fontConfig.getFontFilePath();// "data/fonts/droid-serif-bold.ttf";
-	    String fontName = fontConfig.getFontName(); //"droid-seriff-bold-font";
+	    String fontFilePath = fontConfig.getFontFilePath();
+	    String fontName = fontConfig.getFontName();
 
 	    String skinAtlasFilePath = "data/ui/uiskin.atlas";
 	    String skinJsonFilePath = "data/ui/uiskin.json";
@@ -353,10 +340,8 @@ public class PredatorPreyGame extends Game implements GameStatus {
         parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS;
         parameter.size = Math.min(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()) / 25;
         
-        // TODO should also be read from a config file
         parameter.borderWidth = fontConfig.getFontBorderWidth();
         parameter.color = fontConfig.getFontColour();
-        
         
         BitmapFont droidSerifBoldFont = generator.generateFont(parameter);
         

@@ -1,4 +1,6 @@
 {
+	soundOn: true
+	musicOn: true
 	soundLevel: 5
 	musicLevel: 5
 }

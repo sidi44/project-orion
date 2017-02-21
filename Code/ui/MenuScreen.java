@@ -39,7 +39,7 @@ abstract class MenuScreen extends AbstractScreen {
 		Viewport viewport = new ScreenViewport(camera);
 		uiStage = new Stage(viewport);
 		
-        skin = getManager().getGame().getAssetManager().get("data/ui/uiskin.json", Skin.class);
+        skin = getManager().getSkin();
 		
 		super.initialise();
 	}
