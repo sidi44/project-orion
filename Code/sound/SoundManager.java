@@ -48,8 +48,8 @@ public class SoundManager implements Receiver {
 		
 		boolean oldMusicOn = musicOn;
 		
-		soundOn = config.playSounds();
-		musicOn = config.playMusic();
+		soundOn = config.isSoundOn();
+		musicOn = config.isMusicOn();
 		soundVolume = config.getSoundLevel();
 		musicVolume = config.getMusicLevel();
 		

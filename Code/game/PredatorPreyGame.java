@@ -3,7 +3,15 @@ package game;
 import java.util.List;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.SkinLoader.SkinParameter;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.ObjectMap;
 
 import ai.AILogic;
 import data.DataManager;
@@ -29,6 +37,7 @@ import render.Renderer;
 import render.RendererConfiguration;
 import sound.SoundConfiguration;
 import sound.SoundManager;
+import ui.FontConfiguration;
 import ui.ScreenManager;
 import ui.ScreenName;
 
@@ -47,6 +56,7 @@ public class PredatorPreyGame extends Game {
 	
 	private ScreenManager screenManager;
 	private DataManager dataManager;
+	private AssetManager assetManager;
 	
 	private GameType gameType;
 	private int currentLevel;
@@ -57,10 +67,14 @@ public class PredatorPreyGame extends Game {
 	@Override
 	public void create() {
 		
+	    dataManager = new GameDataManager();
+
+	    assetManager = new AssetManager();
+        prepareAssetsForLoading();
+	    
 		gameType = GameType.NotPlaying;
 		currentLevel = -1;
 		
-		dataManager = new GameDataManager();
 		rendererConfig = dataManager.getRendererConfig();
 		
 		// Create dummy game and physics configuration class. These will be 
@@ -88,6 +102,7 @@ public class PredatorPreyGame extends Game {
 		logger = new ResultLogger();
 	}
 
+		
 	public void setAI(AILogic ai) {
 		gameLogic.setAILogic(ai);
 	}
@@ -110,6 +125,10 @@ public class PredatorPreyGame extends Game {
 	
 	public DataManager getDataManager() {
 		return dataManager;
+	}
+	
+	public AssetManager getAssetManager() {
+	    return assetManager;
 	}
 	
 	public ResultLogger getLogger() {
@@ -340,4 +359,38 @@ public class PredatorPreyGame extends Game {
 	public void quitGame() {
 		gameType = GameType.NotPlaying;
 	}
+
+	private void prepareAssetsForLoading() {
+	    
+	    FontConfiguration fontConfig = getDataManager().getFontConfig();
+
+	    String fontFilePath = fontConfig.getFontFilePath();
+	    String fontName = fontConfig.getFontName();
+
+	    String skinAtlasFilePath = "data/ui/uiskin.atlas";
+	    String skinJsonFilePath = "data/ui/uiskin.json";
+	    
+	    
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(fontFilePath));
+        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+        parameter.characters = FreeTypeFontGenerator.DEFAULT_CHARS;
+        parameter.size = Math.min(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()) / 25;
+        
+        parameter.borderWidth = fontConfig.getFontBorderWidth();
+        parameter.color = fontConfig.getFontColour();
+        
+        BitmapFont droidSerifBoldFont = generator.generateFont(parameter);
+        
+        /* Create the ObjectMap and add the fonts to it */
+        ObjectMap<String, Object> fontMap = new ObjectMap<String, Object>();
+        fontMap.put(fontName, droidSerifBoldFont);
+
+        /* Create the SkinParameter and supply the ObjectMap to it */
+        SkinParameter skinParameter = new SkinParameter(skinAtlasFilePath, fontMap);
+
+        /* Load the skin as usual */
+        assetManager.load(skinJsonFilePath, Skin.class, skinParameter);
+        assetManager.finishLoading();
+	}
+
 }

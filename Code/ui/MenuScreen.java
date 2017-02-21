@@ -2,15 +2,12 @@ package ui;
 
 import java.util.List;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -37,12 +34,12 @@ abstract class MenuScreen extends AbstractScreen {
 	
 	@Override
 	protected void initialise() {
-		TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("data/ui/uiskin.atlas"));
-		skin = new Skin(Gdx.files.internal("data/ui/uiskin.json"), atlas);
-		
+	    
 		Camera camera = new OrthographicCamera();
 		Viewport viewport = new ScreenViewport(camera);
 		uiStage = new Stage(viewport);
+		
+        skin = getManager().getSkin();
 		
 		super.initialise();
 	}
@@ -89,26 +86,27 @@ abstract class MenuScreen extends AbstractScreen {
 		return button;
 	}
 
-	protected CheckBox createCheckBox(String text, boolean initialState, 
-			final Consumer<Boolean> func) {
+	protected ImageButton createImageButton(String skinName, 
+	                                  boolean initialState, 
+	                                  final Consumer<Boolean> func) {
 		
 		// Create the checkbox
-		final CheckBox checkbox = new CheckBox(text, getSkin());
+		final ImageButton button = new ImageButton(getSkin(), skinName);
 		
 		// Set the initial state
-		checkbox.setChecked(initialState);
+		button.setChecked(initialState);
 		
 		// Add a listener which calls the provided function when the checkbox's
 		// state is changed
-		checkbox.addListener(new ClickListener() {
+		button.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				boolean value = checkbox.isChecked();
+				boolean value = button.isChecked();
 				func.accept(value);
 			}
 		});
 		
-		return checkbox;
+		return button;
 	}
 	
 	protected Slider createIntSlider(int min, int max, int step, 

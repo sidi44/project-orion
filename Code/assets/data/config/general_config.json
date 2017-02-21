@@ -1,6 +1,6 @@
 {
-	playSounds: true
-	playMusic: false
+	soundOn: true
+	musicOn: true
 	soundLevel: 5
 	musicLevel: 5
 }

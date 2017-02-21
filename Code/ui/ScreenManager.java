@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import callback.Event;
 import callback.Sender;
@@ -53,6 +54,11 @@ public class ScreenManager extends Sender {
 	
 	PredatorPreyGame getGame() {
 		return game;
+	}
+	
+	
+	Skin getSkin() {
+	    return game.getAssetManager().get("data/ui/uiskin.json", Skin.class);
 	}
 	
 	private ScreenName currentScreen() {

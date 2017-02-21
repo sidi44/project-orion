@@ -6,6 +6,7 @@ import logic.GameConfiguration;
 import physics.PhysicsConfiguration;
 import render.RendererConfiguration;
 import sound.SoundConfiguration;
+import ui.FontConfiguration;
 
 public interface DataManager {
 
@@ -24,6 +25,8 @@ public interface DataManager {
 	GameConfiguration getGameConfigMainMenu();
 	
 	SandboxConfiguration getSandboxConfig();
+	
+	FontConfiguration getFontConfig();
 	
 	void saveSandboxData(SandboxConfiguration sandboxConfig);
 	
