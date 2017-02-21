@@ -14,7 +14,7 @@ public class Move {
 
 	private Direction dir;
 	private int usePowerUpIndex;
-	private GameOver forceGameOver;
+	private GameOverReason forceGameOver;
 	
 	/**
 	 * Constructor for Move.
@@ -24,7 +24,7 @@ public class Move {
 	public Move(Direction dir) {
 		this.dir = dir;
 		this.usePowerUpIndex = -1;
-		this.forceGameOver = GameOver.No;
+		this.forceGameOver = GameOverReason.NotFinished;
 	}
 	
 	/**
@@ -83,11 +83,11 @@ public class Move {
 		this.usePowerUpIndex = powerUpIndex;
 	}
 	
-	public GameOver getForceGameOver() {
+	public GameOverReason getForceGameOver() {
 		return forceGameOver;
 	}
 	
-	public void setForceGameOver(GameOver forceGameOver) {
+	public void setForceGameOver(GameOverReason forceGameOver) {
 		this.forceGameOver = forceGameOver;
 	}
 	
@@ -99,6 +99,6 @@ public class Move {
 	public void clear() {
 		setDirection(Direction.None);
 		setUsePowerUpIndex(-1);
-		setForceGameOver(GameOver.No);
+		setForceGameOver(GameOverReason.NotFinished);
 	}
 }

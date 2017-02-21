@@ -2,6 +2,7 @@ package ai;
 
 import geometry.PointXY;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +17,10 @@ import logic.Predator;
 import logic.Prey;
 
 import pathfinding.Path;
+import pathfinding.PathFinder;
+import progress.ProgressTask;
 
-public class OrionAI extends AILogicBase {
+public class OrionAI implements AILogic {
 
 	private double pillFactor;
 	private double preyFactor;
@@ -35,11 +38,11 @@ public class OrionAI extends AILogicBase {
 	private Map<Direction, Double> preyInDirection;
 	
 	private Map<Direction, Double> predatorsInDirection;
-	
-	public OrionAI(Maze maze, double pillFactor, double preyFactor, 
-			       double predatorFactor, double pillDistFactor, 
-			       double preyDistFactor, double predatorDistFactor) {
-		super(maze);
+
+    private PathFinder pathFinder;
+
+	public OrionAI(double pillFactor, double preyFactor, double predatorFactor,
+				   double pillDistFactor, double preyDistFactor, double predatorDistFactor) {
 		this.pillFactor = pillFactor;
 		this.preyFactor = preyFactor;
 		this.predatorFactor = predatorFactor;
@@ -54,9 +57,19 @@ public class OrionAI extends AILogicBase {
 		this.nodesInDirection = new HashMap<Direction, Integer>();
 		this.preyInDirection = new HashMap<Direction, Double>();
 		this.predatorsInDirection = new HashMap<Direction, Double>();
-		
+
+        this.pathFinder = null;
+
 		reset();
-	}	
+	}
+
+    public void setPathFinder(PathFinder pathFinder) {
+        this.pathFinder = pathFinder;
+    }
+
+    public PathFinder getPathFinder() {
+        return pathFinder;
+    }
 
 	/**
 	 * @return the pillFactor
@@ -363,5 +376,11 @@ public class OrionAI extends AILogicBase {
 				"Predator factor = " + predatorFactor + System.lineSeparator() +
 				"Predator dist factor = " + predatorDistFactor + System.lineSeparator();
 		return out;
+	}
+
+	@Override
+	public List<ProgressTask> getProgressTasks() {
+		// The random AI Logic doesn't have any progress tasks to carry out.
+		return new ArrayList<ProgressTask>();
 	}
 }

@@ -27,6 +27,8 @@ public class GameState {
 	private Map<PointXY, PowerUp> preyPowerUps;
 	
 	private float timeRemaining;
+	private boolean running;
+	private GameOverReason gameOverReason;
 	
 	private Map<Agent, Set<PointXY>> partition;
 	private Map<Agent, Set<PointXY>> saferPositions;
@@ -56,6 +58,8 @@ public class GameState {
 		this.preyPowerUps = preyPowerUps;
 		
 		this.timeRemaining = timeLimit;
+		this.running = true;
+		this.gameOverReason = GameOverReason.NotFinished;
 	}
 	
 	/**
@@ -148,6 +152,7 @@ public class GameState {
 		if (pills.contains(pos)) {
 			pills.remove(pos);
 		}
+		updateGameOverReason();
 	}
 	
 	/**
@@ -236,6 +241,7 @@ public class GameState {
 				iter.remove();
 			}
 		}
+		updateGameOverReason();
 	}
 	
 	/**
@@ -415,6 +421,7 @@ public class GameState {
 		if (timeRemaining < 0) {
 			timeRemaining = 0;
 		}
+		updateGameOverReason();
 	}
 	
 	/**
@@ -430,6 +437,42 @@ public class GameState {
 		
 		int score = pillScore + timeScore;
 		return score;
+	}
+	
+	public void pauseGame() {
+		running = false;
+	}
+	
+	public void resumeGame() {
+		running = true;
+	}
+	
+	public boolean isGameRunning() {
+		return running;
+	}
+	
+	public boolean isGameOver() {
+		return gameOverReason != GameOverReason.NotFinished;
+	}
+	
+	public GameOverReason getGameOverReason() {
+		return gameOverReason;
+	}
+	
+	public void setGameOverReason(GameOverReason gameOverReason) {
+		this.gameOverReason = gameOverReason;
+	}
+	
+	private void updateGameOverReason() {
+		
+		if (getTimeRemaining() <= 0) {
+			gameOverReason = GameOverReason.PreyWon_Timeout;
+		} else if (getPills().size() <= 0) {
+			gameOverReason = GameOverReason.PreyWon_Pills;
+		} else if (getPrey().size() <= 0) {
+			gameOverReason = GameOverReason.PredatorWon;
+		}
+		
 	}
 	
 }

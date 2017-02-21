@@ -13,9 +13,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
+import game.GameType;
 import game.PredatorPreyGame;
 import input.UserInputProcessor;
-import logic.GameOver;
+import logic.GameOverReason;
 import logic.GameState;
 import logic.Predator;
 import logic.powerup.PowerUp;
@@ -28,6 +29,10 @@ class GameScreen extends MenuScreen {
 	private Label scoreLabel;
 	private Label timeLabel;
 	private List<PowerUpButton> powerUpButtons;
+	
+	private GamePausedDialog pausedDialog;
+	private GameWonDialog wonDialog;
+	private GameLostDialog lostDialog;
 	
 	private final static int NUM_POWER_UP_BUTTONS = 5;
 
@@ -50,6 +55,15 @@ class GameScreen extends MenuScreen {
 		
 		// Create the input processor
 		inputProc = new UserInputProcessor();
+		
+		// Add the input processors
+		addInputProcessor(inputProc);
+		addInputProcessor(new GestureDetector(inputProc));
+		
+		// Create our dialogs
+		pausedDialog = new GamePausedDialog(getSkin(), manager);
+		wonDialog = new GameWonDialog(getSkin(), manager);
+		lostDialog = new GameLostDialog(getSkin(), manager);
 	}
 	
 	@Override
@@ -60,7 +74,8 @@ class GameScreen extends MenuScreen {
         pauseButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                getManager().changeScreen(ScreenName.Pause);
+                getManager().getGame().pauseGame();
+                pausedDialog.show(getUIStage());
             }
         });
 
@@ -127,9 +142,8 @@ class GameScreen extends MenuScreen {
 	@Override
 	protected void doShow() {
 
-		// Add our input processors
-		addInputProcessor(inputProc);
-		addInputProcessor(new GestureDetector(inputProc));
+		// Reset the input processor to clear any cached input
+		inputProc.reset();
 		
 		// Make sure the right number of power up buttons are visible
 		Predator predator = getPredator();
@@ -138,6 +152,11 @@ class GameScreen extends MenuScreen {
 			PowerUpButton button = powerUpButtons.get(i);
 			boolean visible = (i < numPowerUps);
 			button.setVisible(visible);
+		}
+		
+		// Should the pause dialog be raised?
+		if (!getManager().getGame().isGameRunning()) {
+			pausedDialog.show(getUIStage());
 		}
 		
 		// Call the base class version
@@ -179,10 +198,14 @@ class GameScreen extends MenuScreen {
 		// Update the camera's position, smoothly following the player
 		viewport.updateCameraPosition(false);		
 		
-		// Check whether the game is over, and if so, tell the game
-		GameOver gameOver = game.update(delta, inputProc.getNextMove());
-		if (gameOver != GameOver.No) {
-			gameFinished(gameOver);
+		// Only update the game if it's running
+		if (game.isGameRunning()) {
+			// Update the game
+			GameOverReason reason = game.update(delta, inputProc.getNextMove());
+			
+			// Examine whether the game over and take any appropriate action if
+			// it is
+			checkGameOver(reason);
 		}
 		
 		// Let the base class do any rendering
@@ -203,16 +226,10 @@ class GameScreen extends MenuScreen {
 		super.doResize(width, height);
 	}
 	
-	private void gameFinished(GameOver reason) {
+	private void gameFinished() {
 		
 		// Clear any stored user input
 		inputProc.reset();
-		
-		// Grab the game from the screen manager
-		PredatorPreyGame game = getManager().getGame();
-		
-		// Tell the game its finished and why
-		game.gameOver(reason);
 	}
 	
 	/**
@@ -226,6 +243,43 @@ class GameScreen extends MenuScreen {
 		GameState state = game.getGameLogic().getGameState();
 		List<Predator> predators = state.getPredators();
 		return predators.get(0);
+	}
+	
+	private void checkGameOver(GameOverReason gameOverReason) {
+		
+		switch (gameOverReason) {
+			case NotFinished:
+				// Game still running, don't do anything
+				break;
+			case PredatorWon:
+				// The predator has won
+				// If this is a level, set the stars complete on the won dialog
+        		PredatorPreyGame game = getManager().getGame();
+        		if (game.getGameType() == GameType.Levels) {
+	        		int levelNumber = game.getLevelNumber();
+	        		GameState state = game.getGameLogic().getGameState();
+	        		int score = state.getScore();
+	        		setStarsComplete(wonDialog.getStarPanel(), 
+	        						 levelNumber, 
+	        						 score);
+        		}
+        		
+        		// Show the won dialog
+				wonDialog.show(getUIStage());
+				gameFinished();
+				break;
+			case PreyWon_Pills:
+			case PreyWon_Timeout:
+				// The predator has lost, show the game lost dialog
+				lostDialog.show(getUIStage());
+				gameFinished();
+				break;
+			default:
+				System.err.println("Unknown GameOver state.");
+				break;
+		
+		}
+		
 	}
 
 }

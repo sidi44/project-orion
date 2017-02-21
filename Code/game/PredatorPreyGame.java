@@ -22,7 +22,7 @@ import geometry.PolygonShape;
 import logic.Agent;
 import logic.GameConfiguration;
 import logic.GameLogic;
-import logic.GameOver;
+import logic.GameOverReason;
 import logic.GameState;
 import logic.Move;
 import logic.Predator;
@@ -41,7 +41,7 @@ import ui.FontConfiguration;
 import ui.ScreenManager;
 import ui.ScreenName;
 
-public class PredatorPreyGame extends Game implements GameStatus {
+public class PredatorPreyGame extends Game {
 
 	private GameLogic gameLogic;
 	private Renderer renderer;
@@ -60,8 +60,7 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	
 	private GameType gameType;
 	private int currentLevel;
-	private GameOver gameOverReason;
-
+	
 	// Physics debug information
 	private final PhysicsDebugType debugType = PhysicsDebugType.DebugNone;
 	
@@ -146,8 +145,6 @@ public class PredatorPreyGame extends Game implements GameStatus {
 	
 	public void resetGame() {
 
-	    gameOverReason = GameOver.No;
-
 		// Calculate the size of the maze in world coordinates. Use this for
 		// the background image size.
 		float squareSize = physicsConfig.getSquareSize();
@@ -163,6 +160,7 @@ public class PredatorPreyGame extends Game implements GameStatus {
 				physicsConfig);
 		physProc.setDebugCategory(debugType);
 		physProc.addReceiver(soundManager);
+		
 	}
 	
 	/**
@@ -209,20 +207,45 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		return mazeUR;
 	}
 	
-	public GameOver update(float delta, Move move) {
+	public GameOverReason update(float delta, Move move) {
 		
-		processMoves(move);
-
+		// Initialise the return value
+		GameOverReason gameOverReason = GameOverReason.NotFinished;
+		
+		// Grab the current game state
 		GameState state = gameLogic.getGameState();
-		physProc.stepSimulation(delta, state);
 		
-		state.decreaseTimeRemaining(delta);
-		
-		if (move.getForceGameOver() != GameOver.No) {
-			return move.getForceGameOver();
+		if (state.isGameOver()) {
+			
+			// If the game is already finished, just get the reason why
+			gameOverReason = state.getGameOverReason();
+			
+		} else if (move.getForceGameOver() != GameOverReason.NotFinished) {
+			
+			// If the player has forced game over then update the game state 
+			// and take any appropriate 'game over' action
+			gameOverReason = move.getForceGameOver();
+			state.setGameOverReason(gameOverReason);
+			if (gameOverReason != GameOverReason.NotFinished) {
+				gameOver(gameOverReason);
+			}
+			
 		} else {
-			return gameLogic.isGameOver();
+		
+			// The game is in progress, do the necessary updates
+			processMoves(move);
+			physProc.stepSimulation(delta, state);		
+			state.decreaseTimeRemaining(delta);
+		
+			// Check whether the game is now finished for one reason or another
+			gameOverReason = state.getGameOverReason();
+			if (gameOverReason != GameOverReason.NotFinished) {
+				gameOver(gameOverReason);
+			}
+			
 		}
+		
+		return gameOverReason;
 	}
 	
 	private void processMoves(Move move) {
@@ -268,13 +291,22 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		resetGame();
 	}
 	
-	public void gameOver(GameOver reason) {
-
-	    gameOverReason = reason;
-
-		// Check whether the player was playing a in level mode and whether
+	public void gameOver(GameOverReason reason) {
+		
+		// Sanity check
+		if (reason == GameOverReason.NotFinished) {
+			System.err.println("gameOver() called with invalid reason.");
+			return;
+		}
+		
+		// Make sure the game is no longer running
+		GameState state = gameLogic.getGameState();
+		state.pauseGame();
+		
+		// Check whether the player was playing in level mode and whether
 		// they won.
-		if (gameType == GameType.Levels && reason == GameOver.Prey) {
+		if (gameType == GameType.Levels && 
+			reason == GameOverReason.PredatorWon) {
 			
 			// The player completed the level. Update their progress
 			PlayerProgress progress = dataManager.getPlayerProgress();
@@ -283,21 +315,16 @@ public class PredatorPreyGame extends Game implements GameStatus {
 			progress.setLevelLocked(currentLevel + 1, false);
 			
 			// Save the score
-			GameState state = gameLogic.getGameState();
 			int score = state.getScore();
 			progress.setLevelScore(currentLevel, score);
 			
 			// Save the player progress
 			dataManager.savePlayerProgress();
 		} else if (gameType == GameType.MainMenu) {
-			// We don't want to change screen or game type, so just reset 
-			// the game and get out of here
+			// Just reset the game
 			setGameTypeMainMenu();
-			return;
 		}
-		
-		// Change the screen now
-		screenManager.changeScreen(ScreenName.Pause);
+
 	}
 
 	public void updateSoundManager() {
@@ -305,12 +332,10 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		soundManager.update(config);
 	}
 
-	@Override
 	public GameType getGameType() {
 		return gameType;
 	}
 	
-	@Override
 	public int getLevelNumber() {
 		return currentLevel;
 	}
@@ -319,11 +344,22 @@ public class PredatorPreyGame extends Game implements GameStatus {
 		return gameLogic.getProgressTasks();
 	}
 	
-	public GameOver getGameOverReason() {
-	    return gameOverReason;
+	public void pauseGame() {
+		gameLogic.getGameState().pauseGame();
+	}
+	
+	public void resumeGame() {
+		gameLogic.getGameState().resumeGame();
+	}
+	
+	public boolean isGameRunning() {
+		return gameLogic.getGameState().isGameRunning();
+	}
+	
+	public void quitGame() {
+		gameType = GameType.NotPlaying;
 	}
 
-	
 	private void prepareAssetsForLoading() {
 	    
 	    FontConfiguration fontConfig = getDataManager().getFontConfig();
@@ -356,4 +392,5 @@ public class PredatorPreyGame extends Game implements GameStatus {
         assetManager.load(skinJsonFilePath, Skin.class, skinParameter);
         assetManager.finishLoading();
 	}
+
 }

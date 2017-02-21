@@ -6,7 +6,6 @@ public enum ScreenName {
 	Levels,
 	Loading,
 	MainMenu,
-	Pause,
 	Sandbox,
 	Settings,
 	Splash
